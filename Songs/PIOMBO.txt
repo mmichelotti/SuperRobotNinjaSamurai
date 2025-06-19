@@ -1,50 +1,58 @@
 [00:00.00]
 [00:00.10]se chiedo scusa per la gravità
-[00:02.50]ignorerai l'ombra del passato che precipita
+[00:02.20]ignorerai l'ombra del passato che precipita
 [00:05.50]e lo so distorco troppo spesso la mia realtà
-[00:09.50]ma è il grido del cemento che mi soffoca
+[00:09.20]ma è il grigio del cemento che mi soffoca
 
+#enhance
 [00:12.00]non siamo più gli stessi
 [00:13.80]viviamo di riflessi
 [00:15.50]forse nell'inutilità siamo persi
 [00:18.50]e dimmi se riesci a restare a galla quando il mondo
 [00:24.00]
+#endenhance
 
-[00:25.00]mi sotterra giù e sembra
+[00:24.50]mi sotterra giù e sembra
+#enhance
 [00:26.50]PIOMBO
-[00:28.50]ho un proiettile nel cuore non affondo
+[00:28.20]ho un proiettile nel cuore non affondo
 [00:31.50]mi sotterra giù e sembra piombo
-[00:35.00]uccidi il rumore in sottofondo
+[00:34.80]uccidi il rumore in sottofondo
 [00:37.50]
+#endenhance
 
-[00:40.00]sono stanco di cercare una via d'uscita
-[00:43.50]vorrei azzerare tutto e cambiare vita
+[00:39.70]sono stanco di cercare una via d'uscita
+[00:43.20]vorrei azzerare tutto e cambiare vita
 [00:46.50]perché ogni fitta che sento
 [00:48.50]è un errore già fatto
 [00:50.50]e anche se me ne pento
-[00:52.50]non cambia mai
+[00:52.30]non cambia mai
 
 [00:53.50]casco dalle nuvole ogni volta che
-[00:57.00]sento il mio nome quasi come se
+[00:56.80]sento il mio nome quasi come se
 [01:00.00]riprendessi ad esistere
 [01:01.50]hai ragione ad insistere
-[01:03.50]che vivo troppo dentro di me
+[01:03.30]che vivo troppo dentro di me
 
 
 [01:07.00]se chiedo scusa per la gravità
 [01:09.00]ignorerai l'ombra del passato che precipita
-[01:13.00]e lo so distorco troppo spesso la mia realtà
-[01:16.50]ma è il grido del cemento che mi soffoca
+[01:12.70]e lo so distorco troppo spesso la mia realtà
+[01:16.50]ma è il grigio del cemento che mi soffoca
 
+#enhance
 [01:19.20]non siamo più gli stessi
-[01:20.50]viviamo di riflessi
+[01:20.80]viviamo di riflessi
 [01:22.50]forse nell'inutilità siamo persi
 [01:26.00]e dimmi se riesci
 [01:27.50]a restare a galla quando il mondo
 [01:31.50]
+#endenhance
 
-[01:32.00]mi sotterra giù e sembra
-[01:33.50]piombo
+
+[01:32.20]mi sotterra giù e sembra
+#enhance
+[01:33.50]PIOMBO
 [01:35.50]ho un proiettile nel cuore non affondo
 [01:38.80]mi sotterra giù e sembra piombo
 [01:42.00]uccidi il rumore in sottofondo
@@ -52,11 +60,14 @@
 [01:49.00]ho un proiettile nel cuore non affondo
 [01:52.20]mi sotterra giù e sembra piombo
 [01:55.50]uccidi il rumore in sottofondo
-[01:58.00]ye ye yeah
+[01:58.00]ye ye
+[01:59:99]YEAH
 [02:02.00]
+#end enhance
 
 [02:22.00]mi sotterra giù e sembra
-[02:24.00]piombo
+#enhance
+[02:24.00]PIOMBO
 [02:25.50]ho un proiettile nel cuore non affondo
 [02:29.00]mi sotterra giù e sembra piombo
 [02:32.50]uccidi il rumore in sottofondo
@@ -65,6 +76,7 @@
 [02:42.50]mi sotterra giù e sembra piombo
 [02:45.80]uccidi il rumore in sottofondo
 [02:48.50]
+#endenhance
 
 [02:50.50]e sembra piombo
 [02:54.00]

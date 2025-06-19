@@ -102,12 +102,23 @@
         // Initialize lyrics display
         const lyricsDisplay = createLyricsDisplay();
 
-        // Parse LRC format lyrics
+        // Parse LRC format lyrics with regions and caps detection
         function parseLyrics(lrcContent) {
             const lines = lrcContent.split('\n');
             const lyrics = [];
+            let currentRegion = 'normal'; // 'normal', 'enhance'
             
             lines.forEach(line => {
+                // Check for region markers
+                if (line.trim().startsWith('#enhance')) {
+                    currentRegion = 'enhance';
+                    return;
+                }
+                if (line.trim().startsWith('#endenhance')) {
+                    currentRegion = 'normal';
+                    return;
+                }
+                
                 // Match LRC format: [mm:ss.xx]text or [mm:ss]text
                 const match = line.match(/\[(\d{2}):(\d{2})(?:\.(\d{2}))?\](.*)/);
                 if (match) {
@@ -118,10 +129,19 @@
                     
                     const timeInSeconds = minutes * 60 + seconds + centiseconds / 100;
                     
+                    // Detect styling modes
+                    let styleMode = currentRegion;
+                    
+                    // Check if text is all caps (and has letters)
+                    if (text && /[A-Z]/.test(text) && text === text.toUpperCase() && text !== text.toLowerCase()) {
+                        styleMode = 'aggressive';
+                    }
+                    
                     // Add both empty and non-empty lyrics to handle clearing
                     lyrics.push({
                         time: timeInSeconds,
-                        text: text // text can be empty string for clearing
+                        text: text, // text can be empty string for clearing
+                        style: styleMode
                     });
                 }
             });
@@ -173,6 +193,11 @@
             
             const currentTime = audio.currentTime;
             
+            // Debug: log current time for first few seconds
+            if (currentTime < 10) {
+                console.log(`Current time: ${currentTime.toFixed(2)}s`);
+            }
+            
             // Find the current lyric line
             let newLyricIndex = -1;
             for (let i = 0; i < currentLyrics.length; i++) {
@@ -183,6 +208,10 @@
                 }
             }
             
+            // Debug: log when we find a new lyric
+            if (newLyricIndex !== currentLyricIndex && newLyricIndex >= 0) {
+                console.log(`New lyric at ${currentTime.toFixed(2)}s: "${currentLyrics[newLyricIndex].text}"`);
+            }
             // Update display if we have a new lyric (including empty ones for clearing)
             if (newLyricIndex !== currentLyricIndex && newLyricIndex >= 0) {
                 currentLyricIndex = newLyricIndex;
@@ -207,16 +236,12 @@
                         lyricsDisplay.text.textContent = currentLyric.text;
                         lyricsDisplay.text.style.opacity = '1';
                         lyricsDisplay.text.style.transform = 'translateY(0)';
+                        
+                        // Apply styling based on lyric mode
+                        const palette = colorPalettes[currentPalette];
+                        applyLyricStyling(lyricsDisplay.text, currentLyric.style, palette);
+                        
                     }, 300);
-                    
-                    // Add subtle glow effect for new lyrics
-                    const palette = colorPalettes[currentPalette];
-                    const glowColor = `rgba(${palette.mid[0]}, ${palette.mid[1]}, ${palette.mid[2]}, 0.25)`;
-                    lyricsDisplay.text.style.textShadow = `0 0 25px ${glowColor}, 0 0 15px rgba(255, 255, 255, 0.3)`;
-                    
-                    setTimeout(() => {
-                        lyricsDisplay.text.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
-                    }, 800);
                 }
             }
         }

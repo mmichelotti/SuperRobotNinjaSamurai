@@ -248,6 +248,18 @@
             display: none;
         }
         
+        /* Lyric Animations */
+        @keyframes aggressivePulse {
+            0%, 100% { 
+                transform: scale(1.15);
+                filter: brightness(1);
+            }
+            50% { 
+                transform: scale(1.2);
+                filter: brightness(1.1);
+            }
+        }
+        
         @keyframes pulseRing {
             0% {
                 transform: translate(-50%, -50%) scale(1);
