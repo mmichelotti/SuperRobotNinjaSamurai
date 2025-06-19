@@ -4,23 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Robot Ninja Samurai</title>
-    <link rel="stylesheet" href="styles.css">
+    
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
+        <!-- Audio Visualizer Canvas -->
         <canvas id="visualizerCanvas"></canvas>
+        
+        <!-- Spectrum circle -->
         <div class="spectrum-circle" id="spectrumCircle"></div>
+        
+        <!-- Beat detection pulse -->
         <div class="beat-pulse" id="beatPulse"></div>
-
+        
         <h1 class="band-title" id="bandTitle">SUPER ROBOT<br>NINJA SAMURAI</h1>
-
+        
         <div class="song-info" id="songInfo">
             <div class="song-title" id="songTitle">Track A</div>
             <div class="progress-container" id="progressContainer">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
         </div>
-
+        
         <div class="controls">
             <button class="control-btn" onclick="previousSong()">⏮</button>
             <button class="control-btn play-pause" onclick="togglePlay()" id="playBtn">▶</button>
@@ -29,6 +35,8 @@
     </div>
 
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
-    <script src="script.js"></script>
+
+    
+  <script src="script.js"></script>
 </body>
 </html>
