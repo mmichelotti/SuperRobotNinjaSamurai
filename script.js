@@ -12,6 +12,11 @@
         let lastBassKick = 0;
         let particles = [];
         
+        // Lyrics system
+        let currentLyrics = [];
+        let currentLyricIndex = 0;
+        let lyricsLoaded = false;
+        
         const audio = document.getElementById('audioPlayer');
         const bandTitle = document.getElementById('bandTitle');
         const songInfo = document.getElementById('songInfo');
@@ -51,6 +56,176 @@
             // Ice
             { mid: [100, 200, 255], high: [200, 255, 255], name: 'ice' }
         ];
+
+        // Create lyrics display element
+        function createLyricsDisplay() {
+            const lyricsContainer = document.createElement('div');
+            lyricsContainer.id = 'lyricsContainer';
+            lyricsContainer.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 15;
+                text-align: center;
+                opacity: 0;
+                transition: opacity 0.8s ease;
+                pointer-events: none;
+                max-width: 80vw;
+            `;
+            
+            const lyricsText = document.createElement('div');
+            lyricsText.id = 'lyricsText';
+            lyricsText.style.cssText = `
+                font-size: clamp(1.8rem, 4vw, 4.5rem);
+                font-weight: 200;
+                color: #fff;
+                letter-spacing: 0.08em;
+                line-height: 1.3;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+                font-family: 'Inter', sans-serif;
+                white-space: pre-line;
+                filter: blur(0px);
+                transition: all 0.6s ease;
+            `;
+            
+            lyricsContainer.appendChild(lyricsText);
+            document.querySelector('.container').appendChild(lyricsContainer);
+            
+            return { container: lyricsContainer, text: lyricsText };
+        }
+
+        // Initialize lyrics display
+        const lyricsDisplay = createLyricsDisplay();
+
+        // Parse LRC format lyrics
+        function parseLyrics(lrcContent) {
+            const lines = lrcContent.split('\n');
+            const lyrics = [];
+            
+            lines.forEach(line => {
+                // Match LRC format: [mm:ss.xx]text or [mm:ss]text
+                const match = line.match(/\[(\d{2}):(\d{2})(?:\.(\d{2}))?\](.*)/);
+                if (match) {
+                    const minutes = parseInt(match[1]);
+                    const seconds = parseInt(match[2]);
+                    const centiseconds = match[3] ? parseInt(match[3]) : 0;
+                    const text = match[4].trim();
+                    
+                    const timeInSeconds = minutes * 60 + seconds + centiseconds / 100;
+                    
+                    if (text) { // Only add non-empty lyrics
+                        lyrics.push({
+                            time: timeInSeconds,
+                            text: text
+                        });
+                    }
+                }
+            });
+            
+            return lyrics.sort((a, b) => a.time - b.time);
+        }
+
+        // Load lyrics for current song
+        async function loadLyrics() {
+            const currentSong = songs[currentSongIndex];
+            const songName = currentSong.title;
+            const lyricsPath = `./Songs/${songName}.txt`;
+            
+            try {
+                const response = await fetch(lyricsPath);
+                if (response.ok) {
+                    const lrcContent = await response.text();
+                    currentLyrics = parseLyrics(lrcContent);
+                    lyricsLoaded = currentLyrics.length > 0;
+                    currentLyricIndex = 0;
+                    console.log(`Loaded ${currentLyrics.length} lyrics for ${songName}`);
+                } else {
+                    console.log(`No lyrics file found for ${songName}`);
+                    currentLyrics = [];
+                    lyricsLoaded = false;
+                }
+            } catch (error) {
+                console.log(`Error loading lyrics for ${songName}:`, error);
+                currentLyrics = [];
+                lyricsLoaded = false;
+            }
+        }
+
+        // Update lyrics display based on current time
+        function updateLyrics() {
+            if (!lyricsLoaded || !isPlaying || currentLyrics.length === 0) {
+                return;
+            }
+            
+            const currentTime = audio.currentTime;
+            
+            // Find the current lyric line
+            let newLyricIndex = -1;
+            for (let i = 0; i < currentLyrics.length; i++) {
+                if (currentTime >= currentLyrics[i].time) {
+                    newLyricIndex = i;
+                } else {
+                    break;
+                }
+            }
+            
+            // Update display if we have a new lyric
+            if (newLyricIndex !== currentLyricIndex && newLyricIndex >= 0) {
+                currentLyricIndex = newLyricIndex;
+                const currentLyric = currentLyrics[currentLyricIndex];
+                
+                // Update lyrics text with fade effect
+                lyricsDisplay.text.style.opacity = '0';
+                lyricsDisplay.text.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    lyricsDisplay.text.textContent = currentLyric.text;
+                    lyricsDisplay.text.style.opacity = '1';
+                    lyricsDisplay.text.style.transform = 'translateY(0)';
+                }, 300);
+                
+                // Add subtle glow effect for new lyrics
+                const palette = colorPalettes[currentPalette];
+                const glowColor = `rgba(${palette.mid[0]}, ${palette.mid[1]}, ${palette.mid[2]}, 0.3)`;
+                lyricsDisplay.text.style.textShadow = `0 0 50px ${glowColor}, 0 0 30px rgba(255, 255, 255, 0.4)`;
+                
+                setTimeout(() => {
+                    lyricsDisplay.text.style.textShadow = '0 0 30px rgba(255, 255, 255, 0.4)';
+                }, 800);
+            }
+        }
+
+        // Show/hide lyrics and title
+        function showLyrics() {
+            if (lyricsLoaded) {
+                // Hide band title
+                bandTitle.style.opacity = '0';
+                bandTitle.style.transform = 'scale(0.95)';
+                
+                // Show lyrics container
+                setTimeout(() => {
+                    lyricsDisplay.container.style.opacity = '1';
+                }, 400);
+            }
+        }
+
+        function hideLyrics() {
+            // Hide lyrics
+            lyricsDisplay.container.style.opacity = '0';
+            
+            // Show band title
+            setTimeout(() => {
+                bandTitle.style.opacity = '0.95';
+                bandTitle.style.transform = 'scale(1)';
+            }, 400);
+            
+            // Clear lyrics text
+            setTimeout(() => {
+                lyricsDisplay.text.textContent = '';
+                currentLyricIndex = -1;
+            }, 800);
+        }
         
         function initializeVisualizer() {
             canvas = document.getElementById('visualizerCanvas');
@@ -147,6 +322,11 @@
             animationId = requestAnimationFrame(visualize);
             
             analyser.getByteFrequencyData(dataArray);
+            
+            // Update lyrics if playing
+            if (isPlaying) {
+                updateLyrics();
+            }
             
             // Clear canvas with enhanced fade effect
             ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
@@ -293,30 +473,30 @@
                 if (bassAverage > 100 && now - lastBassKick > 300) {
                     lastBassKick = now;
                     
-                    // Enhanced title effects
-                    const intensity = Math.min(bassAverage / 255, 1);
-                    const scale = 1 + (intensity * 0.06);
-                    const glowIntensity = 0.4 + (intensity * 0.4);
+                    // Enhanced title effects (only if lyrics not showing)
+                    if (!lyricsLoaded || !isPlaying) {
+                        const intensity = Math.min(bassAverage / 255, 1);
+                        const scale = 1 + (intensity * 0.06);
+                        const glowIntensity = 0.4 + (intensity * 0.4);
+                        
+                        bandTitle.style.transform = `scale(${scale})`;
+                        bandTitle.style.textShadow = `0 0 ${80 + intensity * 60}px rgba(${bassColor[0]}, ${bassColor[1]}, ${bassColor[2]}, ${glowIntensity * 0.3}), 0 0 ${40 + intensity * 30}px rgba(255, 255, 255, ${glowIntensity})`;
+                        
+                        setTimeout(() => {
+                            bandTitle.style.transform = 'scale(1)';
+                            bandTitle.style.textShadow = '0 0 40px rgba(255, 255, 255, 0.25)';
+                        }, 200);
+                    }
                     
-                    bandTitle.style.transform = `scale(${scale})`;
-                    bandTitle.style.textShadow = `0 0 ${80 + intensity * 60}px rgba(${bassColor[0]}, ${bassColor[1]}, ${bassColor[2]}, ${glowIntensity * 0.3}), 0 0 ${40 + intensity * 30}px rgba(255, 255, 255, ${glowIntensity})`;
-                    
-                    // Beat pulse ring (no more annoying particles!)
+                    // Beat pulse ring
                     beatPulse.classList.add('active');
                     setTimeout(() => {
                         beatPulse.classList.remove('active');
                     }, 800);
-                    
-                    // NO MORE PARTICLES - they were annoying!
-                    
-                    setTimeout(() => {
-                        bandTitle.style.transform = 'scale(1)';
-                        bandTitle.style.textShadow = '0 0 40px rgba(255, 255, 255, 0.25)';
-                    }, 200);
                 }
             }
             
-            // Update and draw particles (but no new particles are created anymore)
+            // Update and draw particles
             updateParticles();
             drawParticles();
         }
@@ -328,14 +508,14 @@
                 0, // ESTATE - Cyberpunk (magenta/cyan)
                 2, // LIVIDI - Ocean (blue/aqua) 
                 4, // PIOMBO - Fire (red/yellow)
-                5, // Track D - Purple Dream (purple/pink)
+                5, // DENTI - Purple Dream (purple/pink)
                 6  // Track E - Ice (light blue/white)
             ];
             return songPalettes[songIndex] || 0; // Default to cyberpunk if out of range
         }
         
         // Audio control functions
-        function loadCurrentSong() {
+        async function loadCurrentSong() {
             const currentSong = songs[currentSongIndex];
             audio.src = currentSong.url;
             document.getElementById('songTitle').textContent = currentSong.title;
@@ -346,6 +526,9 @@
             colorPhase = 0;
             colorSpeed = 0.003;
             energyHistory = [];
+            
+            // Load lyrics for this song
+            await loadLyrics();
         }
         
         function togglePlay() {
@@ -360,6 +543,9 @@
                 bandTitle.classList.remove('playing');
                 songInfo.classList.remove('playing');
                 songTitleEl.classList.remove('playing');
+                
+                // Hide lyrics and show title
+                hideLyrics();
             } else {
                 // Initialize visualizer on first play
                 if (!audioContext) {
@@ -382,6 +568,11 @@
                         bandTitle.classList.add('playing');
                         songInfo.classList.add('playing');
                         songTitleEl.classList.add('playing');
+                        
+                        // Show lyrics if available
+                        if (lyricsLoaded) {
+                            showLyrics();
+                        }
                     }).catch(error => {
                         console.log('Playback failed:', error);
                     });
@@ -393,24 +584,49 @@
                     bandTitle.classList.add('playing');
                     songInfo.classList.add('playing');
                     songTitleEl.classList.add('playing');
+                    
+                    // Show lyrics if available
+                    if (lyricsLoaded) {
+                        showLyrics();
+                    }
                 }
             }
         }
         
         function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
-            loadCurrentSong();
+            // Hide lyrics first
             if (isPlaying) {
-                audio.play().catch(e => console.log('Next song play failed:', e));
+                hideLyrics();
             }
+            
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadCurrentSong().then(() => {
+                if (isPlaying) {
+                    audio.play().then(() => {
+                        if (lyricsLoaded) {
+                            setTimeout(() => showLyrics(), 500);
+                        }
+                    }).catch(e => console.log('Next song play failed:', e));
+                }
+            });
         }
         
         function previousSong() {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-            loadCurrentSong();
+            // Hide lyrics first
             if (isPlaying) {
-                audio.play().catch(e => console.log('Previous song play failed:', e));
+                hideLyrics();
             }
+            
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadCurrentSong().then(() => {
+                if (isPlaying) {
+                    audio.play().then(() => {
+                        if (lyricsLoaded) {
+                            setTimeout(() => showLyrics(), 500);
+                        }
+                    }).catch(e => console.log('Previous song play failed:', e));
+                }
+            });
         }
         
         // Enhanced progress bar with smooth interactions
@@ -471,6 +687,11 @@
             
             audio.currentTime = newTime;
             document.getElementById('progressBar').style.width = (clickPercent * 100) + '%';
+            
+            // Reset lyrics index when seeking
+            if (lyricsLoaded) {
+                currentLyricIndex = -1;
+            }
         }
         
         // Auto-advance to next song when current ends
