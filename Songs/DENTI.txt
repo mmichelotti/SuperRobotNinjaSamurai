@@ -5,18 +5,20 @@
 [00:22.50]smetterla di soffrire
 [00:25.50]
 
-[00:26.00]lasciami stare
+[00:26.00]LASCIAMI STARE
 [00:28.50]non vedi che sto già male
 [00:32.50]forse sarebbe un po' più semplice
 [00:35.50]smetterla di soffrire
 [00:38.00]ma poi sai che palle i tuoi discorsi
 [00:41.00]
 
+#enhance
 [00:41.10]non trovi strano che del tuo scheletro vedo solo i denti
 [00:46.50]è come se la morte mi guardasse attraverso i tuoi sorrisi
 [00:52.50]non trovi strano che dentro il baratro non ci son serpenti
 [00:57.80]è come se la sorte ci sfottesse dei giorni ormai persi
 [01:04.00]
+#endenhance
 
 [01:05.50]portami al mare
 [01:07.50]non credi che so nuotare
@@ -31,12 +33,15 @@
 [01:30.00]ma poi sai che palle i tuoi discorsi
 [01:32.05]
 
+#enhance
 [01:33.00]non trovi strano che del tuo scheletro vedo solo i denti
 [01:38.50]è come se la morte mi guardasse attraverso i tuoi sorrisi
 [01:44.50]non trovi strano che dentro il baratro non ci son serpenti
 [01:50.80]è come se la sorte ci sfottesse dei giorni ormai persi
 [01:56.00]
+#endenhance
 
+#enhance
 [02:09.50]eppure sto in bilico
 [02:11.50]tra la paura e il peggio
 [02:13.00]terrore che mai ti dico
@@ -45,8 +50,10 @@
 [02:19.50]con il silenzio come amico
 [02:22.50]
 
+
 [02:23.50]non trovi strano che del tuo scheletro vedo solo i denti
 [02:29.50]è come se la morte mi guardasse attraverso i tuoi sorrisi
 [02:34.50]non trovi strano che dentro il baratro non ci son serpenti
 [02:40.50]è come se la sorte ci sfottesse dei giorni ormai persi
 [02:46.00]
+#endenhance

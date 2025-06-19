@@ -54,7 +54,7 @@
 #endenhance
 
 
-[01:32.20]mi sotterra giù e sembra
+[01:32.00]mi sotterra giù e sembra
 #enhance
 [01:33.50]PIOMBO
 [01:34.50]
@@ -63,7 +63,7 @@
 [01:40.50]PIOMBO
 [01:41.50]
 [01:42.00]uccidi il rumore in sottofondo
-[01:46.80]e sembra
+[01:46.50]e sembra
 [01:47.10]PIOMBO
 [01:48.10]
 [01:49.00]ho un proiettile nel cuore non affondo
@@ -72,7 +72,7 @@
 [01:55.00]
 [01:55.50]uccidi il rumore in sottofondo
 [01:58.00]ye ye
-[01.59:00]YEAH
+[01:59.00]YEAH
 [02:02.00]
 #endenhance
 

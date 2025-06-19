@@ -8,10 +8,11 @@
 [00:34.00]oh, se un giorno saprò sconfigger la gravità
 [00:40.50]di ogni parola detta
 [00:46.00]sarà un giorno perfetto così
-[00:51.00]libero 
-[00:53.00]icaro
+[00:51.00]LIBERO 
+[00:53.00]ICARO
 [00:54.50]nel cielo dipinto di blu
 
+#enhance
 [00:57.50]non lo so se sa
 [01:01.00]ma la sua mediocrità
 [01:04.00]è quello che più mi manca 
@@ -19,6 +20,7 @@
 [01:12.50]è la sua semplicità
 [01:15.80]che scambierei con l'ansia
 [01:20.02]
+#endenhance
 
 [01:31.00]e scusami se mi piango addosso
 [01:33.80]ma a quest'ora è impossibile trovare un posto
@@ -27,24 +29,29 @@
 [01:42.70]e lo so col tempo guarirà
 [01:46.50]ogni tua traccia
 [01:48.50]o lo trasformerà
+#enhance
 [01:51.50]in cirrosi epatica
 [01:53.90]
+#endenhance
 
 [01:56.80]ah
 [01:58.00]
 [02:02.50]ah
 [02:04.00]
 
-[02:04.80]blu
+[02:04.80]BLU
 [02:06.00]
+#enhance
 [02:08.00]volare è come cadere giù
 [02:12.00]
-
+#endenhance
 
 [02:16.50]non lo so se sa
 [02:20.00]ma la sua mediocrità
+#enhance
 [02:23.00]è quello che più mi manca 
 [02:28.00]sarà che non sa
 [02:32.00]è la sua semplicità
 [02:34.50]che scambierei con l'ansia
 [2:39.00]
+#endenhance
