@@ -108,30 +108,38 @@
             element.style.animation = 'none';
             
             if (styleMode === 'enhance') {
-                // Enhanced styling - bigger, more glow
-                element.style.fontSize = 'clamp(1.5rem, 3.2vw, 3.5rem)';
-                element.style.fontWeight = '400';
-                element.style.letterSpacing = '0.2em';
-                element.style.transform = 'scale(1.1)';
-                const enhanceGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.4)`;
-                element.style.textShadow = `0 0 40px ${enhanceGlow}, 0 0 20px rgba(255, 255, 255, 0.5)`;
-                element.style.transition = 'all 0.8s ease';
+                // Enhanced styling - same size, just bolder + music-reactive glow
+                element.style.fontSize = 'clamp(1.2rem, 2.5vw, 2.8rem)'; // Same as normal
+                element.style.fontWeight = '500'; // Bolder
+                element.style.letterSpacing = '0.15em'; // Same spacing
+                element.style.transform = 'scale(1)'; // No scaling
+                const enhanceGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.5)`;
+                element.style.textShadow = `0 0 30px ${enhanceGlow}, 0 0 15px rgba(255, 255, 255, 0.6)`;
+                element.style.transition = 'all 0.3s ease';
+                
+                // Add subtle pulsing with music
+                element.style.animation = 'enhancePulse 1.5s ease-in-out infinite';
                 
             } else if (styleMode === 'aggressive') {
-                // Aggressive styling - biggest, animated, intense
-                element.style.fontSize = 'clamp(1.8rem, 4vw, 5rem)';
-                element.style.fontWeight = '500';
-                element.style.letterSpacing = '0.25em';
-                element.style.transform = 'scale(1.15)';
-                const aggressiveGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.6)`;
-                element.style.textShadow = `0 0 60px ${aggressiveGlow}, 0 0 30px rgba(255, 255, 255, 0.7), 0 0 10px ${aggressiveGlow}`;
-                element.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                // Aggressive styling - same as enhance but with glitch effects
+                element.style.fontSize = 'clamp(1.2rem, 2.5vw, 2.8rem)'; // Same size
+                element.style.fontWeight = '500'; // Bold
+                element.style.letterSpacing = '0.15em'; // Same spacing
+                element.style.transform = 'scale(1)'; // No scaling
+                const aggressiveGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.7)`;
+                element.style.textShadow = `
+                    2px 0 0 rgba(255, 0, 0, 0.5),
+                    -2px 0 0 rgba(0, 255, 255, 0.5),
+                    0 0 30px ${aggressiveGlow},
+                    0 0 15px rgba(255, 255, 255, 0.8)
+                `;
+                element.style.transition = 'all 0.2s ease';
                 
-                // Add pulsing animation for aggressive text
-                element.style.animation = 'aggressivePulse 2s ease-in-out infinite';
+                // Add glitchy animation
+                element.style.animation = 'glitchEffect 1s ease-in-out infinite';
                 
             } else {
-                // Normal styling - reset to default
+                // Normal styling
                 element.style.fontSize = 'clamp(1.2rem, 2.5vw, 2.8rem)';
                 element.style.fontWeight = '300';
                 element.style.letterSpacing = '0.15em';

@@ -61,7 +61,7 @@
 [01:52.20]mi sotterra giù e sembra piombo
 [01:55.50]uccidi il rumore in sottofondo
 [01:58.00]ye ye
-[01:59:99]YEAH
+[01.59:00]YEAH
 [02:02.00]
 #endenhance
 
