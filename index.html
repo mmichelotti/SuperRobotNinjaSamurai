@@ -89,10 +89,11 @@
             background: none;
             border: none;
             color: #fff;
-            font-size: clamp(16px, 2vw, 20px);
+            font-size: 18px;
             padding: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-weight: 400;
             width: clamp(44px, 8vw, 50px);
             height: clamp(44px, 8vw, 50px);
             display: flex;
@@ -108,7 +109,7 @@
             -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            font-variant-numeric: tabular-nums;
+            text-rendering: optimizeLegibility;
         }
         
         .control-btn::before {
@@ -140,7 +141,7 @@
         .play-pause {
             width: clamp(54px, 10vw, 65px);
             height: clamp(54px, 10vw, 65px);
-            font-size: clamp(20px, 2.5vw, 24px);
+            font-size: 22px;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
@@ -225,8 +226,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: clamp(120px, 20vw, 320px);
-            height: clamp(120px, 20vw, 320px);
+            width: clamp(80px, 15vw, 320px);
+            height: clamp(80px, 15vw, 320px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             pointer-events: none;
@@ -245,8 +246,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: clamp(250px, 35vw, 600px);
-            height: clamp(250px, 35vw, 600px);
+            width: clamp(200px, 30vw, 600px);
+            height: clamp(200px, 30vw, 600px);
             border-radius: 50%;
             pointer-events: none;
             z-index: 1;
@@ -378,6 +379,24 @@
                 width: clamp(250px, 80vw, 350px);
                 height: clamp(3px, 1vh, 4px);
             }
+            
+            .control-btn {
+                font-size: 16px;
+            }
+            
+            .play-pause {
+                font-size: 20px;
+            }
+            
+            .beat-pulse {
+                width: clamp(60px, 12vw, 200px);
+                height: clamp(60px, 12vw, 200px);
+            }
+            
+            .spectrum-circle {
+                width: clamp(160px, 25vw, 400px);
+                height: clamp(160px, 25vw, 400px);
+            }
         }
 
         /* Ultra-wide screen adjustments */
@@ -403,13 +422,13 @@
             }
             
             .spectrum-circle {
-                width: clamp(220px, 50vw, 450px);
-                height: clamp(220px, 50vw, 450px);
+                width: clamp(140px, 35vw, 350px);
+                height: clamp(140px, 35vw, 350px);
             }
             
             .beat-pulse {
-                width: clamp(100px, 25vw, 250px);
-                height: clamp(100px, 25vw, 250px);
+                width: clamp(50px, 20vw, 180px);
+                height: clamp(50px, 20vw, 180px);
             }
         }
 
@@ -915,25 +934,25 @@
                     (palette.mid[2] + palette.high[2]) / 2
                 ];
                 
-                const maxRadius = Math.min(centerX, centerY) * 1.5;
-                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius + bassAverage * 2);
+                const maxRadius = Math.min(centerX, centerY) * (isMobile ? 0.8 : 1.5);
+                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius + bassAverage * (isMobile ? 1 : 2));
                 gradient.addColorStop(0, `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, ${pulseIntensity * 0.02})`);
                 gradient.addColorStop(0.5, `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, ${pulseIntensity * 0.01})`);
                 gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
                 
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.arc(centerX, centerY, maxRadius + bassAverage * 2, 0, 2 * Math.PI);
+                ctx.arc(centerX, centerY, maxRadius + bassAverage * (isMobile ? 1 : 2), 0, 2 * Math.PI);
                 ctx.fill();
             }
             
             // Enhanced circular spectrum visualization with responsive radius
             const screenSize = Math.min(centerX, centerY);
-            const baseRadius = screenSize * (isMobile ? 0.2 : 0.4);
+            const baseRadius = screenSize * (isMobile ? 0.15 : 0.4);
             const radius = baseRadius;
             
             for (let i = 0; i < bufferLength; i++) {
-                const barHeight = (dataArray[i] / 255) * (isMobile ? 80 : 200);
+                const barHeight = (dataArray[i] / 255) * (isMobile ? 60 : 200);
                 const angle = (i / bufferLength) * 2 * Math.PI - Math.PI / 2;
                 const intensity = dataArray[i] / 255;
                 
@@ -1024,7 +1043,7 @@
                 ctx.shadowBlur = bassIntensity * (isMobile ? 15 : 20);
                 
                 ctx.beginPath();
-                ctx.arc(centerX, centerY, bassAverage * (isMobile ? 0.3 : 1.2), 0, 2 * Math.PI);
+                ctx.arc(centerX, centerY, bassAverage * (isMobile ? 0.2 : 1.2), 0, 2 * Math.PI);
                 ctx.stroke();
                 ctx.shadowBlur = 0;
                 
