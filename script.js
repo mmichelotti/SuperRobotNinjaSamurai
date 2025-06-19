@@ -1,9 +1,9 @@
 // Your MP3 files - replace these paths with your actual file locations
         const songs = [
-            { title: "Estate", url: "./Songs/Estate.mp3" },
-            { title: "Lividi", url: "./Songs/Lividi.mp3" },
-            { title: "Piombo", url: "./Songs/Piombo.mp3" },
-            { title: "Denti", url: "./Songs/Denti.mp3" },
+            { title: "ESTATE", url: "./Songs/Estate.mp3" },
+            { title: "LIVIDI", url: "./Songs/Lividi.mp3" },
+            { title: "PIOMBO", url: "./Songs/Piombo.mp3" },
+            { title: "DENTI", url: "./Songs/Denti.mp3" },
             { title: "Track E", url: "./Songs/e.mp3" }
         ];
         
