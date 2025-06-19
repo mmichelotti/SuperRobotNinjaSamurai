@@ -77,20 +77,20 @@
             const lyricsText = document.createElement('div');
             lyricsText.id = 'lyricsText';
             lyricsText.style.cssText = `
-                font-size: clamp(1.2rem, 2.5vw, 2.8rem);
+                font-size: clamp(1rem, 2vw, 2.2rem);
                 font-weight: 300;
                 color: #fff;
                 letter-spacing: 0.15em;
                 line-height: 1.4;
                 text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
                 font-family: 'Inter', sans-serif;
-                white-space: pre-line;
+                white-space: nowrap;
                 filter: blur(0px);
                 transition: all 0.6s ease;
                 text-transform: uppercase;
                 opacity: 0.9;
-                max-width: 70vw;
                 text-align: center;
+                overflow: visible;
             `;
             
             lyricsContainer.appendChild(lyricsText);
@@ -109,7 +109,7 @@
             
             if (styleMode === 'enhance') {
                 // Enhanced styling - same size, just bolder + music-reactive glow
-                element.style.fontSize = 'clamp(1.2rem, 2.5vw, 2.8rem)'; // Same as normal
+                element.style.fontSize = 'clamp(1rem, 2vw, 2.2rem)'; // Same as normal
                 element.style.fontWeight = '500'; // Bolder
                 element.style.letterSpacing = '0.15em'; // Same spacing
                 element.style.transform = 'scale(1)'; // No scaling
@@ -117,12 +117,12 @@
                 element.style.textShadow = `0 0 30px ${enhanceGlow}, 0 0 15px rgba(255, 255, 255, 0.6)`;
                 element.style.transition = 'all 0.3s ease';
                 
-                // Add subtle pulsing with music
-                element.style.animation = 'enhancePulse 1.5s ease-in-out infinite';
+                // Add music-reactive pulsing
+                element.style.animation = 'musicPulse 0.8s ease-in-out infinite';
                 
             } else if (styleMode === 'aggressive') {
                 // Aggressive styling - same as enhance but with glitch effects
-                element.style.fontSize = 'clamp(1.2rem, 2.5vw, 2.8rem)'; // Same size
+                element.style.fontSize = 'clamp(1rem, 2vw, 2.2rem)'; // Same size
                 element.style.fontWeight = '500'; // Bold
                 element.style.letterSpacing = '0.15em'; // Same spacing
                 element.style.transform = 'scale(1)'; // No scaling
@@ -140,7 +140,7 @@
                 
             } else {
                 // Normal styling
-                element.style.fontSize = 'clamp(1.2rem, 2.5vw, 2.8rem)';
+                element.style.fontSize = 'clamp(1rem, 2vw, 2.2rem)';
                 element.style.fontWeight = '300';
                 element.style.letterSpacing = '0.15em';
                 element.style.transform = 'scale(1)';
