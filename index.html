@@ -89,7 +89,7 @@
             background: none;
             border: none;
             color: #fff;
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            font-size: clamp(16px, 2vw, 20px);
             padding: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: 'Inter', sans-serif;
@@ -106,6 +106,9 @@
             cursor: pointer;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-variant-numeric: tabular-nums;
         }
         
         .control-btn::before {
@@ -137,7 +140,7 @@
         .play-pause {
             width: clamp(54px, 10vw, 65px);
             height: clamp(54px, 10vw, 65px);
-            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            font-size: clamp(20px, 2.5vw, 24px);
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
@@ -222,8 +225,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: clamp(150px, 25vw, 320px);
-            height: clamp(150px, 25vw, 320px);
+            width: clamp(120px, 20vw, 320px);
+            height: clamp(120px, 20vw, 320px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             pointer-events: none;
@@ -242,8 +245,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: clamp(300px, 40vw, 600px);
-            height: clamp(300px, 40vw, 600px);
+            width: clamp(250px, 35vw, 600px);
+            height: clamp(250px, 35vw, 600px);
             border-radius: 50%;
             pointer-events: none;
             z-index: 1;
@@ -400,13 +403,13 @@
             }
             
             .spectrum-circle {
-                width: clamp(280px, 60vw, 450px);
-                height: clamp(280px, 60vw, 450px);
+                width: clamp(220px, 50vw, 450px);
+                height: clamp(220px, 50vw, 450px);
             }
             
             .beat-pulse {
-                width: clamp(120px, 35vw, 250px);
-                height: clamp(120px, 35vw, 250px);
+                width: clamp(100px, 25vw, 250px);
+                height: clamp(100px, 25vw, 250px);
             }
         }
 
@@ -926,11 +929,11 @@
             
             // Enhanced circular spectrum visualization with responsive radius
             const screenSize = Math.min(centerX, centerY);
-            const baseRadius = screenSize * (isMobile ? 0.25 : 0.4);
+            const baseRadius = screenSize * (isMobile ? 0.2 : 0.4);
             const radius = baseRadius;
             
             for (let i = 0; i < bufferLength; i++) {
-                const barHeight = (dataArray[i] / 255) * (isMobile ? 150 : 200);
+                const barHeight = (dataArray[i] / 255) * (isMobile ? 80 : 200);
                 const angle = (i / bufferLength) * 2 * Math.PI - Math.PI / 2;
                 const intensity = dataArray[i] / 255;
                 
@@ -1021,7 +1024,7 @@
                 ctx.shadowBlur = bassIntensity * (isMobile ? 15 : 20);
                 
                 ctx.beginPath();
-                ctx.arc(centerX, centerY, bassAverage * (isMobile ? 0.5 : 1.2), 0, 2 * Math.PI);
+                ctx.arc(centerX, centerY, bassAverage * (isMobile ? 0.3 : 1.2), 0, 2 * Math.PI);
                 ctx.stroke();
                 ctx.shadowBlur = 0;
                 
