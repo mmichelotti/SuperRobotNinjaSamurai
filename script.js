@@ -77,16 +77,20 @@
             const lyricsText = document.createElement('div');
             lyricsText.id = 'lyricsText';
             lyricsText.style.cssText = `
-                font-size: clamp(1.8rem, 4vw, 4.5rem);
-                font-weight: 200;
+                font-size: clamp(1.2rem, 2.5vw, 2.8rem);
+                font-weight: 300;
                 color: #fff;
-                letter-spacing: 0.08em;
-                line-height: 1.3;
-                text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+                letter-spacing: 0.15em;
+                line-height: 1.4;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
                 font-family: 'Inter', sans-serif;
                 white-space: pre-line;
                 filter: blur(0px);
                 transition: all 0.6s ease;
+                text-transform: uppercase;
+                opacity: 0.9;
+                max-width: 70vw;
+                text-align: center;
             `;
             
             lyricsContainer.appendChild(lyricsText);
@@ -130,18 +134,28 @@
         async function loadLyrics() {
             const currentSong = songs[currentSongIndex];
             const songName = currentSong.title;
+            // Try the exact case first, then try capitalized first letter
             const lyricsPath = `./Songs/${songName}.txt`;
+            const altLyricsPath = `./Songs/${songName.charAt(0).toUpperCase() + songName.slice(1).toLowerCase()}.txt`;
             
             try {
-                const response = await fetch(lyricsPath);
+                let response = await fetch(lyricsPath);
+                let finalPath = lyricsPath;
+                
+                // If first attempt fails, try alternative case
+                if (!response.ok) {
+                    response = await fetch(altLyricsPath);
+                    finalPath = altLyricsPath;
+                }
+                
                 if (response.ok) {
                     const lrcContent = await response.text();
                     currentLyrics = parseLyrics(lrcContent);
                     lyricsLoaded = currentLyrics.length > 0;
                     currentLyricIndex = 0;
-                    console.log(`Loaded ${currentLyrics.length} lyrics for ${songName}`);
+                    console.log(`Loaded ${currentLyrics.length} lyrics for ${songName} from ${finalPath}`);
                 } else {
-                    console.log(`No lyrics file found for ${songName}`);
+                    console.log(`No lyrics file found for ${songName} (tried both ${lyricsPath} and ${altLyricsPath})`);
                     currentLyrics = [];
                     lyricsLoaded = false;
                 }
@@ -187,11 +201,11 @@
                 
                 // Add subtle glow effect for new lyrics
                 const palette = colorPalettes[currentPalette];
-                const glowColor = `rgba(${palette.mid[0]}, ${palette.mid[1]}, ${palette.mid[2]}, 0.3)`;
-                lyricsDisplay.text.style.textShadow = `0 0 50px ${glowColor}, 0 0 30px rgba(255, 255, 255, 0.4)`;
+                const glowColor = `rgba(${palette.mid[0]}, ${palette.mid[1]}, ${palette.mid[2]}, 0.25)`;
+                lyricsDisplay.text.style.textShadow = `0 0 25px ${glowColor}, 0 0 15px rgba(255, 255, 255, 0.3)`;
                 
                 setTimeout(() => {
-                    lyricsDisplay.text.style.textShadow = '0 0 30px rgba(255, 255, 255, 0.4)';
+                    lyricsDisplay.text.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
                 }, 800);
             }
         }
