@@ -12,6 +12,10 @@
         let lastBassKick = 0;
         let particles = [];
         
+        // Liquid elements
+        let liquidShapes = [];
+        let liquidAnimationTime = 0;
+        
         // Lyrics system
         let currentLyrics = [];
         let currentLyricIndex = 0;
@@ -56,6 +60,196 @@
             // Ice
             { mid: [100, 200, 255], high: [200, 255, 255], name: 'ice' }
         ];
+
+        // Liquid shape definitions for each song
+        const liquidThemes = [
+            // ESTATE - Cyberpunk: Angular liquid crystals
+            {
+                type: 'crystals',
+                count: 3,
+                baseSize: 80,
+                complexity: 6,
+                flowSpeed: 0.8,
+                opacity: 0.12
+            },
+            // LIVIDI - Ocean: Flowing waves
+            {
+                type: 'waves',
+                count: 4,
+                baseSize: 120,
+                complexity: 8,
+                flowSpeed: 1.2,
+                opacity: 0.15
+            },
+            // PIOMBO - Fire: Molten blobs
+            {
+                type: 'molten',
+                count: 2,
+                baseSize: 100,
+                complexity: 5,
+                flowSpeed: 0.6,
+                opacity: 0.18
+            },
+            // DENTI - Purple Dream: Ethereal wisps
+            {
+                type: 'wisps',
+                count: 5,
+                baseSize: 60,
+                complexity: 10,
+                flowSpeed: 1.5,
+                opacity: 0.10
+            },
+            // Track E - Ice: Crystalline fractals
+            {
+                type: 'fractals',
+                count: 3,
+                baseSize: 90,
+                complexity: 7,
+                flowSpeed: 0.4,
+                opacity: 0.14
+            }
+        ];
+
+        // Initialize liquid shapes for current song
+        function initializeLiquidShapes() {
+            liquidShapes = [];
+            const theme = liquidThemes[currentSongIndex];
+            const palette = colorPalettes[currentPalette];
+            
+            for (let i = 0; i < theme.count; i++) {
+                liquidShapes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    baseSize: theme.baseSize + Math.random() * 40 - 20,
+                    currentSize: theme.baseSize,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: theme.flowSpeed * (0.5 + Math.random() * 0.5),
+                    complexity: theme.complexity,
+                    color: i % 2 === 0 ? palette.mid : palette.high,
+                    opacity: theme.opacity * (0.8 + Math.random() * 0.4),
+                    vertices: [],
+                    type: theme.type
+                });
+            }
+        }
+
+        // Generate vertices for liquid shape
+        function generateLiquidVertices(shape, audioIntensity) {
+            const vertices = [];
+            const vertexCount = shape.complexity;
+            const time = liquidAnimationTime * shape.speed;
+            const energyMultiplier = 1 + audioIntensity * 0.3;
+            
+            for (let i = 0; i < vertexCount; i++) {
+                const angle = (i / vertexCount) * Math.PI * 2;
+                const noise1 = Math.sin(time + angle * 2) * 0.3;
+                const noise2 = Math.cos(time * 1.3 + angle * 1.5) * 0.2;
+                const noise3 = Math.sin(time * 0.7 + angle * 3) * 0.1;
+                
+                let radius = shape.currentSize;
+                
+                // Shape-specific modifications
+                switch (shape.type) {
+                    case 'crystals':
+                        radius *= (1 + noise1 * 0.4 + Math.sin(angle * 3) * 0.2) * energyMultiplier;
+                        break;
+                    case 'waves':
+                        radius *= (1 + noise1 * 0.6 + noise2 * 0.3) * energyMultiplier;
+                        break;
+                    case 'molten':
+                        radius *= (1 + noise1 * 0.8 + noise2 * 0.4 + noise3 * 0.2) * energyMultiplier;
+                        break;
+                    case 'wisps':
+                        radius *= (1 + noise1 * 0.5 + Math.sin(time + angle * 5) * 0.3) * energyMultiplier;
+                        break;
+                    case 'fractals':
+                        radius *= (1 + noise1 * 0.3 + Math.sin(angle * 4) * 0.25) * energyMultiplier;
+                        break;
+                }
+                
+                vertices.push({
+                    x: shape.x + Math.cos(angle) * radius,
+                    y: shape.y + Math.sin(angle) * radius
+                });
+            }
+            
+            return vertices;
+        }
+
+        // Draw liquid shape with smooth curves
+        function drawLiquidShape(shape, vertices) {
+            if (vertices.length < 3) return;
+            
+            const [r, g, b] = shape.color;
+            const alpha = shape.opacity * (0.5 + Math.sin(liquidAnimationTime * 0.5) * 0.3);
+            
+            ctx.save();
+            
+            // Create gradient fill
+            const gradient = ctx.createRadialGradient(
+                shape.x, shape.y, 0,
+                shape.x, shape.y, shape.currentSize
+            );
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`);
+            gradient.addColorStop(0.7, `rgba(${r}, ${g}, ${b}, ${alpha * 0.4})`);
+            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+            
+            ctx.fillStyle = gradient;
+            
+            // Draw smooth curve through vertices
+            ctx.beginPath();
+            ctx.moveTo(vertices[0].x, vertices[0].y);
+            
+            for (let i = 0; i < vertices.length; i++) {
+                const current = vertices[i];
+                const next = vertices[(i + 1) % vertices.length];
+                const controlX = (current.x + next.x) / 2;
+                const controlY = (current.y + next.y) / 2;
+                
+                ctx.quadraticCurveTo(current.x, current.y, controlX, controlY);
+            }
+            
+            ctx.closePath();
+            ctx.fill();
+            
+            // Optional: Add subtle glow for certain shapes
+            if (shape.type === 'wisps' || shape.type === 'crystals') {
+                ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${alpha * 0.5})`;
+                ctx.shadowBlur = 20;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+            
+            ctx.restore();
+        }
+
+        // Update liquid shapes
+        function updateLiquidShapes(audioIntensity, bassAverage, midAverage, trebleAverage) {
+            liquidAnimationTime += 0.016; // ~60fps
+            
+            liquidShapes.forEach((shape, index) => {
+                // Gentle movement based on audio
+                const moveSpeed = 0.3;
+                const audioMove = audioIntensity * 2;
+                
+                shape.x += Math.sin(liquidAnimationTime * 0.3 + index) * moveSpeed + Math.sin(bassAverage / 255) * audioMove;
+                shape.y += Math.cos(liquidAnimationTime * 0.2 + index * 1.5) * moveSpeed + Math.cos(midAverage / 255) * audioMove;
+                
+                // Keep shapes on screen with wrapping
+                if (shape.x < -shape.baseSize) shape.x = canvas.width + shape.baseSize;
+                if (shape.x > canvas.width + shape.baseSize) shape.x = -shape.baseSize;
+                if (shape.y < -shape.baseSize) shape.y = canvas.height + shape.baseSize;
+                if (shape.y > canvas.height + shape.baseSize) shape.y = -shape.baseSize;
+                
+                // Size responds to audio
+                const targetSize = shape.baseSize * (1 + audioIntensity * 0.2);
+                shape.currentSize += (targetSize - shape.currentSize) * 0.1;
+                
+                // Generate and draw vertices
+                const vertices = generateLiquidVertices(shape, audioIntensity);
+                drawLiquidShape(shape, vertices);
+            });
+        }
 
         // Create lyrics display element
         function createLyricsDisplay() {
@@ -332,6 +526,10 @@
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                // Reinitialize liquid shapes when canvas is resized
+                if (liquidShapes.length > 0) {
+                    initializeLiquidShapes();
+                }
             }
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
@@ -349,6 +547,9 @@
             analyser.fftSize = 2048;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
+            
+            // Initialize liquid shapes
+            initializeLiquidShapes();
             
             // Start visualization
             visualize();
@@ -444,6 +645,12 @@
             
             // Update dynamic color system
             updateColorSystem(bassAverage, midAverage, trebleAverage, average);
+            
+            // Update liquid shapes BEFORE other visualizer elements (so they're in background)
+            if (isPlaying && liquidShapes.length > 0) {
+                const audioIntensity = average / 255;
+                updateLiquidShapes(audioIntensity, bassAverage, midAverage, trebleAverage);
+            }
             
             // Dynamic background pulse with current palette influence
             if (isPlaying) {
@@ -623,6 +830,11 @@
             colorPhase = 0;
             colorSpeed = 0.003;
             energyHistory = [];
+            
+            // Initialize liquid shapes for new song
+            if (canvas) {
+                initializeLiquidShapes();
+            }
             
             // Load lyrics for this song
             await loadLyrics();
