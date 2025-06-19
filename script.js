@@ -33,6 +33,14 @@
         let ctx;
         let animationId;
         
+        // Liquid Background Setup
+        let liquidCanvas;
+        let liquidCtx;
+        let liquidAnimationId;
+        let liquidTime = 0;
+        let liquidIntensity = 0;
+        let liquidColor = [100, 150, 255]; // Base liquid color
+        
         // Dynamic color system
         let colorPhase = 0;
         let colorSpeed = 0.003;
@@ -328,10 +336,19 @@
             canvas = document.getElementById('visualizerCanvas');
             ctx = canvas.getContext('2d');
             
+            // Initialize liquid background
+            initializeLiquidBackground();
+            
             // Set canvas size
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                
+                // Also resize liquid canvas
+                if (liquidCanvas) {
+                    liquidCanvas.width = window.innerWidth;
+                    liquidCanvas.height = window.innerHeight;
+                }
             }
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
@@ -352,6 +369,139 @@
             
             // Start visualization
             visualize();
+        }
+        
+        function initializeLiquidBackground() {
+            liquidCanvas = document.getElementById('liquidCanvas');
+            liquidCtx = liquidCanvas.getContext('2d');
+            
+            liquidCanvas.width = window.innerWidth;
+            liquidCanvas.height = window.innerHeight;
+            
+            // Start liquid animation
+            animateLiquid();
+        }
+        
+        function animateLiquid() {
+            liquidAnimationId = requestAnimationFrame(animateLiquid);
+            
+            const width = liquidCanvas.width;
+            const height = liquidCanvas.height;
+            
+            // Clear with very subtle fade
+            liquidCtx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+            liquidCtx.fillRect(0, 0, width, height);
+            
+            liquidTime += 0.005;
+            
+            // Update liquid intensity based on audio (if playing)
+            if (isPlaying && dataArray) {
+                const audioEnergy = dataArray.reduce((sum, val) => sum + val, 0) / dataArray.length;
+                liquidIntensity = Math.min(audioEnergy / 255 * 0.3, 0.3); // Very subtle max intensity
+            } else {
+                liquidIntensity = Math.max(liquidIntensity - 0.005, 0.05); // Gentle fallback
+            }
+            
+            // Update liquid color based on current palette
+            const palette = colorPalettes[currentPalette];
+            liquidColor = [
+                (palette.mid[0] + palette.high[0]) / 2,
+                (palette.mid[1] + palette.high[1]) / 2,
+                (palette.mid[2] + palette.high[2]) / 2
+            ];
+            
+            drawLiquidBlobs();
+        }
+        
+        function drawLiquidBlobs() {
+            const width = liquidCanvas.width;
+            const height = liquidCanvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Create multiple flowing liquid blobs
+            for (let i = 0; i < 3; i++) {
+                const offset = i * Math.PI * 0.67;
+                const scale = 0.8 + i * 0.1;
+                
+                // Calculate blob position with slow, organic movement
+                const x = centerX + Math.sin(liquidTime * 0.3 + offset) * width * 0.15;
+                const y = centerY + Math.cos(liquidTime * 0.2 + offset) * height * 0.1;
+                
+                // Create organic blob shape using multiple circles
+                const baseRadius = Math.min(width, height) * 0.15 * scale;
+                const radiusVariation = liquidIntensity * 50;
+                
+                // Draw blob with multiple overlapping circles for organic shape
+                for (let j = 0; j < 8; j++) {
+                    const angle = (j / 8) * Math.PI * 2;
+                    const radiusOffset = Math.sin(liquidTime * 2 + angle + offset) * radiusVariation;
+                    const radius = baseRadius + radiusOffset;
+                    
+                    const blobX = x + Math.cos(angle) * radius * 0.3;
+                    const blobY = y + Math.sin(angle) * radius * 0.3;
+                    
+                    // Create gradient for each blob circle
+                    const gradient = liquidCtx.createRadialGradient(blobX, blobY, 0, blobX, blobY, radius);
+                    const intensity = liquidIntensity * (1 - i * 0.2); // Reduce intensity for background blobs
+                    
+                    gradient.addColorStop(0, `rgba(${liquidColor[0]}, ${liquidColor[1]}, ${liquidColor[2]}, ${intensity * 0.15})`);
+                    gradient.addColorStop(0.5, `rgba(${liquidColor[0]}, ${liquidColor[1]}, ${liquidColor[2]}, ${intensity * 0.08})`);
+                    gradient.addColorStop(1, `rgba(${liquidColor[0]}, ${liquidColor[1]}, ${liquidColor[2]}, 0)`);
+                    
+                    liquidCtx.fillStyle = gradient;
+                    liquidCtx.beginPath();
+                    liquidCtx.arc(blobX, blobY, radius, 0, Math.PI * 2);
+                    liquidCtx.fill();
+                }
+            }
+            
+            // Add subtle flowing waves across the entire background
+            drawFlowingWaves();
+        }
+        
+        function drawFlowingWaves() {
+            const width = liquidCanvas.width;
+            const height = liquidCanvas.height;
+            
+            liquidCtx.save();
+            liquidCtx.globalCompositeOperation = 'overlay';
+            
+            // Create flowing wave patterns
+            for (let wave = 0; wave < 2; wave++) {
+                const waveOffset = wave * Math.PI;
+                const waveSpeed = 0.4 + wave * 0.1;
+                
+                liquidCtx.beginPath();
+                
+                for (let x = 0; x <= width; x += 5) {
+                    const y1 = height * 0.3 + Math.sin(x * 0.005 + liquidTime * waveSpeed + waveOffset) * height * 0.1;
+                    const y2 = height * 0.7 + Math.cos(x * 0.003 + liquidTime * waveSpeed + waveOffset) * height * 0.08;
+                    
+                    if (x === 0) {
+                        liquidCtx.moveTo(x, y1);
+                    } else {
+                        liquidCtx.lineTo(x, y1);
+                    }
+                }
+                
+                // Complete the wave shape
+                liquidCtx.lineTo(width, height);
+                liquidCtx.lineTo(0, height);
+                liquidCtx.closePath();
+                
+                // Fill with very subtle gradient
+                const waveGradient = liquidCtx.createLinearGradient(0, 0, 0, height);
+                const waveIntensity = liquidIntensity * 0.1;
+                waveGradient.addColorStop(0, `rgba(${liquidColor[0]}, ${liquidColor[1]}, ${liquidColor[2]}, 0)`);
+                waveGradient.addColorStop(0.5, `rgba(${liquidColor[0]}, ${liquidColor[1]}, ${liquidColor[2]}, ${waveIntensity})`);
+                waveGradient.addColorStop(1, `rgba(${liquidColor[0]}, ${liquidColor[1]}, ${liquidColor[2]}, 0)`);
+                
+                liquidCtx.fillStyle = waveGradient;
+                liquidCtx.fill();
+            }
+            
+            liquidCtx.restore();
         }
         
         // Enhanced particle system with colored particles
