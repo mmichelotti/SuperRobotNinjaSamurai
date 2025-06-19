@@ -118,12 +118,11 @@
                     
                     const timeInSeconds = minutes * 60 + seconds + centiseconds / 100;
                     
-                    if (text) { // Only add non-empty lyrics
-                        lyrics.push({
-                            time: timeInSeconds,
-                            text: text
-                        });
-                    }
+                    // Add both empty and non-empty lyrics to handle clearing
+                    lyrics.push({
+                        time: timeInSeconds,
+                        text: text // text can be empty string for clearing
+                    });
                 }
             });
             
@@ -184,29 +183,41 @@
                 }
             }
             
-            // Update display if we have a new lyric
+            // Update display if we have a new lyric (including empty ones for clearing)
             if (newLyricIndex !== currentLyricIndex && newLyricIndex >= 0) {
                 currentLyricIndex = newLyricIndex;
                 const currentLyric = currentLyrics[currentLyricIndex];
                 
-                // Update lyrics text with fade effect
-                lyricsDisplay.text.style.opacity = '0';
-                lyricsDisplay.text.style.transform = 'translateY(10px)';
-                
-                setTimeout(() => {
-                    lyricsDisplay.text.textContent = currentLyric.text;
-                    lyricsDisplay.text.style.opacity = '1';
-                    lyricsDisplay.text.style.transform = 'translateY(0)';
-                }, 300);
-                
-                // Add subtle glow effect for new lyrics
-                const palette = colorPalettes[currentPalette];
-                const glowColor = `rgba(${palette.mid[0]}, ${palette.mid[1]}, ${palette.mid[2]}, 0.25)`;
-                lyricsDisplay.text.style.textShadow = `0 0 25px ${glowColor}, 0 0 15px rgba(255, 255, 255, 0.3)`;
-                
-                setTimeout(() => {
-                    lyricsDisplay.text.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
-                }, 800);
+                // Handle empty text (clear lyrics)
+                if (!currentLyric.text || currentLyric.text.trim() === '') {
+                    lyricsDisplay.text.style.opacity = '0';
+                    lyricsDisplay.text.style.transform = 'translateY(10px)';
+                    
+                    setTimeout(() => {
+                        lyricsDisplay.text.textContent = '';
+                        lyricsDisplay.text.style.opacity = '1';
+                        lyricsDisplay.text.style.transform = 'translateY(0)';
+                    }, 300);
+                } else {
+                    // Update lyrics text with fade effect for non-empty text
+                    lyricsDisplay.text.style.opacity = '0';
+                    lyricsDisplay.text.style.transform = 'translateY(10px)';
+                    
+                    setTimeout(() => {
+                        lyricsDisplay.text.textContent = currentLyric.text;
+                        lyricsDisplay.text.style.opacity = '1';
+                        lyricsDisplay.text.style.transform = 'translateY(0)';
+                    }, 300);
+                    
+                    // Add subtle glow effect for new lyrics
+                    const palette = colorPalettes[currentPalette];
+                    const glowColor = `rgba(${palette.mid[0]}, ${palette.mid[1]}, ${palette.mid[2]}, 0.25)`;
+                    lyricsDisplay.text.style.textShadow = `0 0 25px ${glowColor}, 0 0 15px rgba(255, 255, 255, 0.3)`;
+                    
+                    setTimeout(() => {
+                        lyricsDisplay.text.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
+                    }, 800);
+                }
             }
         }
 
