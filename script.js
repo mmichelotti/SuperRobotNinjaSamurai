@@ -4,7 +4,7 @@ const songs = [
     { title: "LIVIDI", url: "./Songs/Lividi.mp3" },
     { title: "PIOMBO", url: "./Songs/Piombo.mp3" },
     { title: "DENTI", url: "./Songs/Denti.mp3" },
-    { title: "Track E", url: "./Songs/e.mp3" }
+    { title: "CLICHE", url: "./Songs/Cliché.mp3" }
 ];
 
 let currentSongIndex = 0;
@@ -68,8 +68,8 @@ const colorPalettes = [
     { mid: [255, 50, 0], high: [255, 255, 0], name: 'fire' },
     // Purple Dream
     { mid: [150, 50, 255], high: [255, 100, 200], name: 'dream' },
-    // Ice
-    { mid: [100, 200, 255], high: [200, 255, 255], name: 'ice' }
+    // Melancholy (deep indigo/soft lavender)
+    { mid: [75, 0, 130], high: [147, 112, 219], name: 'melancholy' }
 ];
 
 // Create lyrics display element
@@ -465,8 +465,6 @@ function triggerHiHatEffect(currentLevel, avgLevel) {
     }
 }
 
-// Remove the createElegantSparkle function since we don't need it anymore
-
 function initializeVisualizer() {
     canvas = document.getElementById('visualizerCanvas');
     ctx = canvas.getContext('2d');
@@ -752,7 +750,7 @@ function getSongPalette(songIndex) {
         2, // LIVIDI - Ocean (blue/aqua) 
         4, // PIOMBO - Fire (red/yellow)
         5, // DENTI - Purple Dream (purple/pink)
-        6  // Track E - Ice (light blue/white)
+        6  // CLICHE - Melancholy (deep indigo/soft lavender)
     ];
     return songPalettes[songIndex] || 0;
 }
@@ -776,11 +774,8 @@ async function loadCurrentSong() {
 }
 
 function togglePlay() {
-    const playBtn = document.getElementById('playBtn');
-    
     if (isPlaying) {
         audio.pause();
-        playBtn.textContent = '▶';
         isPlaying = false;
         
         bandTitle.classList.remove('playing');
@@ -801,7 +796,6 @@ function togglePlay() {
         
         if (playPromise !== undefined) {
             playPromise.then(() => {
-                playBtn.textContent = '⏸';
                 isPlaying = true;
                 
                 bandTitle.classList.add('playing');
@@ -815,7 +809,6 @@ function togglePlay() {
                 console.log('Playback failed:', error);
             });
         } else {
-            playBtn.textContent = '⏸';
             isPlaying = true;
             
             bandTitle.classList.add('playing');

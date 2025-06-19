@@ -56,7 +56,7 @@ body {
     transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 4rem;
     z-index: 100;
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(25px);
@@ -71,6 +71,25 @@ body {
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.18);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Invisible clickable area in center for play/pause */
+.center-play-area {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    z-index: 50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.center-play-area:hover {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
 }
 
 .control-btn {
@@ -118,15 +137,7 @@ body {
 }
 
 .play-pause {
-    width: 65px;
-    height: 65px;
-    font-size: 1.4rem;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.play-pause:hover {
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+    display: none;
 }
 
 .song-info {

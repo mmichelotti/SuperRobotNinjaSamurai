@@ -31,9 +31,11 @@
         
         <div class="controls">
             <button class="control-btn" onclick="previousSong()">⏮</button>
-            <button class="control-btn play-pause" onclick="togglePlay()" id="playBtn">▶</button>
             <button class="control-btn" onclick="nextSong()">⏭</button>
         </div>
+        
+        <!-- Invisible clickable area for play/pause in center -->
+        <div class="center-play-area" onclick="togglePlay()" id="centerPlayArea"></div>
     </div>
 
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
