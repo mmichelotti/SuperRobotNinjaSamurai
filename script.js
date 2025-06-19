@@ -102,6 +102,45 @@
         // Initialize lyrics display
         const lyricsDisplay = createLyricsDisplay();
 
+        // Apply styling based on lyric mode
+        function applyLyricStyling(element, styleMode, palette) {
+            // Reset any existing animations
+            element.style.animation = 'none';
+            
+            if (styleMode === 'enhance') {
+                // Enhanced styling - bigger, more glow
+                element.style.fontSize = 'clamp(1.5rem, 3.2vw, 3.5rem)';
+                element.style.fontWeight = '400';
+                element.style.letterSpacing = '0.2em';
+                element.style.transform = 'scale(1.1)';
+                const enhanceGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.4)`;
+                element.style.textShadow = `0 0 40px ${enhanceGlow}, 0 0 20px rgba(255, 255, 255, 0.5)`;
+                element.style.transition = 'all 0.8s ease';
+                
+            } else if (styleMode === 'aggressive') {
+                // Aggressive styling - biggest, animated, intense
+                element.style.fontSize = 'clamp(1.8rem, 4vw, 5rem)';
+                element.style.fontWeight = '500';
+                element.style.letterSpacing = '0.25em';
+                element.style.transform = 'scale(1.15)';
+                const aggressiveGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.6)`;
+                element.style.textShadow = `0 0 60px ${aggressiveGlow}, 0 0 30px rgba(255, 255, 255, 0.7), 0 0 10px ${aggressiveGlow}`;
+                element.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                
+                // Add pulsing animation for aggressive text
+                element.style.animation = 'aggressivePulse 2s ease-in-out infinite';
+                
+            } else {
+                // Normal styling - reset to default
+                element.style.fontSize = 'clamp(1.2rem, 2.5vw, 2.8rem)';
+                element.style.fontWeight = '300';
+                element.style.letterSpacing = '0.15em';
+                element.style.transform = 'scale(1)';
+                element.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
+                element.style.transition = 'all 0.6s ease';
+            }
+        }
+
         // Parse LRC format lyrics with regions and caps detection
         function parseLyrics(lrcContent) {
             const lines = lrcContent.split('\n');
