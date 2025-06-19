@@ -108,22 +108,22 @@
             element.style.animation = 'none';
             
             if (styleMode === 'enhance') {
-                // Enhanced styling - same size, just bolder + music-reactive glow
+                // Enhanced styling - same weight, just subtle glow animation
                 element.style.fontSize = 'clamp(1rem, 2vw, 2.2rem)'; // Same as normal
-                element.style.fontWeight = '500'; // Bolder
+                element.style.fontWeight = '300'; // Same weight, not bold
                 element.style.letterSpacing = '0.15em'; // Same spacing
                 element.style.transform = 'scale(1)'; // No scaling
                 const enhanceGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.5)`;
                 element.style.textShadow = `0 0 30px ${enhanceGlow}, 0 0 15px rgba(255, 255, 255, 0.6)`;
                 element.style.transition = 'all 0.3s ease';
                 
-                // Add music-reactive pulsing
-                element.style.animation = 'musicPulse 0.8s ease-in-out infinite';
+                // Add subtle glow pulsing only
+                element.style.animation = 'subtleGlow 1.2s ease-in-out infinite';
                 
             } else if (styleMode === 'aggressive') {
-                // Aggressive styling - same as enhance but with glitch effects
+                // Aggressive styling - bold with glitch effects
                 element.style.fontSize = 'clamp(1rem, 2vw, 2.2rem)'; // Same size
-                element.style.fontWeight = '500'; // Bold
+                element.style.fontWeight = '500'; // Bold for caps only
                 element.style.letterSpacing = '0.15em'; // Same spacing
                 element.style.transform = 'scale(1)'; // No scaling
                 const aggressiveGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.7)`;
