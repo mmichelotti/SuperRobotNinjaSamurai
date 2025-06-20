@@ -9,7 +9,8 @@ const state = {
     touch: { startX: 0, startY: 0, startTime: 0, isScrolling: false },
     isHoveringCenter: false,
     isDragging: false,
-    colorPhase: 0
+    colorPhase: 0,
+    backgroundAnimationPhase: 0
 };
 
 // Beat detection state
@@ -17,7 +18,8 @@ const beatDetection = {
     history: { bass: [], mid: [], treble: [], energy: [] },
     thresholds: { bass: 0, mid: 0, treble: 0 },
     lastTrigger: { kick: 0, snare: 0, hihat: 0 },
-    adaptiveSensitivity: 1.0
+    adaptiveSensitivity: 1.0,
+    lastBeatTrigger: 0
 };
 
 // Audio and visualization
@@ -59,6 +61,27 @@ const utils = {
     calculateVariance(array, mean) {
         const variance = array.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / array.length;
         return Math.sqrt(variance);
+    },
+
+    // Convert RGB to HSL
+    rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+
+        if (max === min) {
+            h = s = 0;
+        } else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return [h * 360, s * 100, l * 100];
     }
 };
 
@@ -67,18 +90,36 @@ const songManager = {
     async loadSongsList() {
         return await utils.fetchJson('./Songs/SongData.json') || [];
     },
-    // Add this new function to songManager:
+
     applyBackgroundBrightness() {
         // Get brightness value from song data (default to 0.85 if not specified)
         const brightness = state.currentSongData.backgroundBrightness || 0.85;
         
         // Apply the brightness to the overlay
-        const overlay = elements.songBackground.querySelector('::before') || 
-                    document.querySelector('.song-background::before');
-        
-        // Since we can't directly access pseudo-elements, we'll use CSS custom properties
         elements.songBackground.style.setProperty('--background-overlay-opacity', brightness);
     },
+
+    applyBackgroundTint() {
+        const palette = state.currentSongData.palette;
+        
+        // Use mid palette color for tinting
+        const tintColor = palette.mid || [255, 255, 255];
+        
+        // Convert to HSL to get the hue for color tinting
+        const [hue, saturation, lightness] = utils.rgbToHsl(tintColor[0], tintColor[1], tintColor[2]);
+        
+        // Apply color tint using CSS filters
+        // sepia(1) makes it monochrome, then we adjust hue and saturation
+        const filterValue = `sepia(1) saturate(1.5) hue-rotate(${hue - 60}deg) brightness(0.8) contrast(1.2)`;
+        
+        elements.songBackground.style.filter = filterValue;
+        
+        // Store palette colors as CSS variables for potential use in animations
+        document.documentElement.style.setProperty('--bg-tint-r', tintColor[0]);
+        document.documentElement.style.setProperty('--bg-tint-g', tintColor[1]);
+        document.documentElement.style.setProperty('--bg-tint-b', tintColor[2]);
+    },
+
     async discoverSongs() {
         const folderNames = await this.loadSongsList();
         const discoveredSongs = [];
@@ -92,7 +133,6 @@ const songManager = {
         return discoveredSongs;
     },
 
-    // Update your loadMetadata function in songManager:
     async loadMetadata(folderName) {
         const metadata = await utils.fetchJson(`./Songs/${folderName}/Data.json`);
         state.currentSongData = {
@@ -171,6 +211,7 @@ const songManager = {
         
         // Reset states
         state.colorPhase = 0;
+        state.backgroundAnimationPhase = 0;
         this.initializeBeatDetection();
         await this.loadLyrics();
     },
@@ -186,8 +227,9 @@ const songManager = {
             elements.songBackground.style.backgroundImage = `url('${backgroundPath}')`;
             elements.songBackground.classList.add('loaded');
             
-            // Apply background brightness from song data
+            // Apply background brightness and color tint
             this.applyBackgroundBrightness();
+            this.applyBackgroundTint();
         };
         
         testImage.onerror = () => {
@@ -199,13 +241,13 @@ const songManager = {
         // Start loading the image
         testImage.src = backgroundPath;
     },
-    
 
     initializeBeatDetection() {
         beatDetection.history.bass = new Array(20).fill(0);
         beatDetection.history.mid = new Array(15).fill(0);
         beatDetection.history.treble = new Array(10).fill(0);
         beatDetection.history.energy = new Array(30).fill(0);
+        beatDetection.lastBeatTrigger = 0;
     }
 };
 
@@ -499,6 +541,7 @@ const beatEffects = {
         // Trigger effects
         if (bassAvg > thresholds.bass && now - lastTrigger.kick > 200 && bassAvg > avgs.bass * 1.4) {
             this.triggerKickEffect(bassAvg, avgs.bass);
+            this.triggerBackgroundBeat(bassAvg, avgs.bass);
             lastTrigger.kick = now;
         }
         
@@ -510,6 +553,24 @@ const beatEffects = {
         if (trebleAvg > thresholds.treble && now - lastTrigger.hihat > 80 && trebleAvg > avgs.treble * 1.2) {
             this.triggerHiHatEffect(trebleAvg, avgs.treble);
             lastTrigger.hihat = now;
+        }
+    },
+
+    triggerBackgroundBeat(currentLevel, avgLevel) {
+        const now = Date.now();
+        const intensity = Math.min((currentLevel / avgLevel - 1), 1);
+        
+        // Only trigger background beat animation if enough time has passed and intensity is high enough
+        if (now - beatDetection.lastBeatTrigger > 400 && intensity > 0.3) {
+            beatDetection.lastBeatTrigger = now;
+            
+            // Add beat-active class for CSS animation
+            elements.songBackground.classList.add('beat-active');
+            
+            // Remove the class after animation completes
+            setTimeout(() => {
+                elements.songBackground.classList.remove('beat-active');
+            }, 600);
         }
     },
 
@@ -639,6 +700,32 @@ const lyrics = {
     }
 };
 
+// Background animation system
+const backgroundAnimation = {
+    updateAnimation() {
+        if (!state.isPlaying) return;
+        
+        // Increment animation phase
+        state.backgroundAnimationPhase += 0.001;
+        
+        // Calculate gentle animation values based on music analysis
+        const time = Date.now() * 0.001;
+        const slowWave = Math.sin(time * 0.1) * 0.5;
+        const mediumWave = Math.sin(time * 0.15) * 0.3;
+        const fastWave = Math.sin(time * 0.2) * 0.2;
+        
+        // Combine waves for complex movement
+        const xOffset = -5 + slowWave + mediumWave * 0.5;
+        const yOffset = -5 + fastWave + slowWave * 0.3;
+        const scale = 1 + (slowWave * 0.01) + (mediumWave * 0.005);
+        const rotation = (slowWave + fastWave) * 0.3;
+        
+        // Apply the transformation
+        const transform = `translate(${xOffset}%, ${yOffset}%) scale(${scale}) rotate(${rotation}deg)`;
+        elements.songBackground.style.transform = transform;
+    }
+};
+
 // Visualization
 const visualization = {
     init() {
@@ -666,6 +753,7 @@ const visualization = {
         songManager.initializeBeatDetection();
         this.visualize();
     },
+
     getFrequencyColor(type, intensity) {
         const palette = state.currentSongData.palette;
         const baseColor = type === 'mid' ? palette.mid : palette.high;
@@ -679,7 +767,10 @@ const visualization = {
         
         analyser.getByteFrequencyData(dataArray);
         
-        if (state.isPlaying) lyrics.update();
+        if (state.isPlaying) {
+            lyrics.update();
+            backgroundAnimation.updateAnimation();
+        }
         
         // Very light fade effect for visualizer trails (won't hide background)
         ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
@@ -834,7 +925,7 @@ const visualization = {
     }
 };
 
-// Main playback control
+// Main playbook control
 function togglePlay() {
     if (state.isPlaying) {
         elements.audio.pause();
@@ -842,7 +933,7 @@ function togglePlay() {
         state.isTransitioning = false; // Clear transition state when manually stopping
         
         // Remove playing classes
-        ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
+        ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea', 'songBackground'].forEach(el => {
             elements[el].classList.remove('playing');
         });
         
@@ -862,7 +953,7 @@ function togglePlay() {
                 state.isTransitioning = false; // Clear transition state when successfully playing
                 
                 // Add playing classes
-                ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
+                ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea', 'songBackground'].forEach(el => {
                     elements[el].classList.add('playing');
                 });
                 
@@ -876,7 +967,7 @@ function togglePlay() {
             state.isTransitioning = false; // Clear transition state
             
             // Add playing classes
-            ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
+            ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea', 'songBackground'].forEach(el => {
                 elements[el].classList.add('playing');
             });
             

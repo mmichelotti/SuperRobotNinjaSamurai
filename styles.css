@@ -8,6 +8,10 @@
     --hover-glow-secondary: 20px;
     --hover-glow-opacity: 0.8;
     --hover-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --bg-tint-r: 255;
+    --bg-tint-g: 255;
+    --bg-tint-b: 255;
+    --bg-animation-intensity: 0;
 }
 
 * {
@@ -41,18 +45,54 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 110%; /* Slightly larger for animation */
+    height: 110%; /* Slightly larger for animation */
     z-index: -1;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0;
     transition: opacity 1.5s ease;
+    transform: translate(-5%, -5%); /* Center the oversized background */
+    filter: sepia(1) saturate(2) hue-rotate(0deg) brightness(0.8);
 }
 
 .song-background.loaded {
     opacity: 1;
+}
+
+.song-background.playing {
+    animation: gentleFloat 20s ease-in-out infinite;
+}
+
+/* Gentle floating animation */
+@keyframes gentleFloat {
+    0%, 100% {
+        transform: translate(-5%, -5%) scale(1) rotate(0deg);
+    }
+    25% {
+        transform: translate(-4%, -6%) scale(1.02) rotate(0.5deg);
+    }
+    50% {
+        transform: translate(-6%, -4%) scale(1.01) rotate(0deg);
+    }
+    75% {
+        transform: translate(-4.5%, -5.5%) scale(1.015) rotate(-0.5deg);
+    }
+}
+
+/* Beat-responsive animation for intense moments */
+@keyframes beatPulse {
+    0%, 100% {
+        transform: translate(-5%, -5%) scale(1);
+    }
+    50% {
+        transform: translate(-5%, -5%) scale(1.03);
+    }
+}
+
+.song-background.beat-active {
+    animation: beatPulse 0.6s ease-out;
 }
 
 .song-background::after {
@@ -78,11 +118,6 @@ body {
     height: 100%;
     background: rgba(0, 0, 0, var(--background-overlay-opacity));
     z-index: 1; /* Below the hole */
-}
-
-/* Remove opacity from the main background class since we control it per-song now */
-.song-background.loaded {
-    opacity: 1; /* Keep this for the fade-in effect */
 }
 
 .band-title {
