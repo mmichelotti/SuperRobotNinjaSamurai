@@ -36,7 +36,8 @@ const elements = {
     progressBar: document.getElementById('progressBar'),
     songIndicators: document.getElementById('songIndicators'),
     centerPlayArea: document.getElementById('centerPlayArea'),
-    speakerStatic: document.getElementById('speakerStatic')
+    speakerStatic: document.getElementById('speakerStatic'),
+    songBackground: document.getElementById('songBackground')
 };
 
 // Utility functions
@@ -66,7 +67,18 @@ const songManager = {
     async loadSongsList() {
         return await utils.fetchJson('./Songs/SongData.json') || [];
     },
-
+    // Add this new function to songManager:
+    applyBackgroundBrightness() {
+        // Get brightness value from song data (default to 0.85 if not specified)
+        const brightness = state.currentSongData.backgroundBrightness || 0.85;
+        
+        // Apply the brightness to the overlay
+        const overlay = elements.songBackground.querySelector('::before') || 
+                    document.querySelector('.song-background::before');
+        
+        // Since we can't directly access pseudo-elements, we'll use CSS custom properties
+        elements.songBackground.style.setProperty('--background-overlay-opacity', brightness);
+    },
     async discoverSongs() {
         const folderNames = await this.loadSongsList();
         const discoveredSongs = [];
@@ -80,11 +92,13 @@ const songManager = {
         return discoveredSongs;
     },
 
+    // Update your loadMetadata function in songManager:
     async loadMetadata(folderName) {
         const metadata = await utils.fetchJson(`./Songs/${folderName}/Data.json`);
         state.currentSongData = {
             title: folderName,
             palette: { mid: [255, 255, 255], high: [255, 255, 255] },
+            backgroundBrightness: 0.85, // Default brightness
             ...metadata
         };
     },
@@ -152,11 +166,40 @@ const songManager = {
         elements.songTitle.textContent = state.currentSongData.title;
         elements.progressBar.style.width = '0%';
         
+        // Load background image for this song
+        this.loadSongBackground(folderName);
+        
         // Reset states
         state.colorPhase = 0;
         this.initializeBeatDetection();
         await this.loadLyrics();
     },
+
+    loadSongBackground(folderName) {
+        const backgroundPath = `./Songs/${folderName}/background.png`;
+        
+        // Create a new image to test if background exists
+        const testImage = new Image();
+        
+        testImage.onload = () => {
+            // Background image exists, show it
+            elements.songBackground.style.backgroundImage = `url('${backgroundPath}')`;
+            elements.songBackground.classList.add('loaded');
+            
+            // Apply background brightness from song data
+            this.applyBackgroundBrightness();
+        };
+        
+        testImage.onerror = () => {
+            // No background image found, hide background
+            elements.songBackground.style.backgroundImage = 'none';
+            elements.songBackground.classList.remove('loaded');
+        };
+        
+        // Start loading the image
+        testImage.src = backgroundPath;
+    },
+    
 
     initializeBeatDetection() {
         beatDetection.history.bass = new Array(20).fill(0);
@@ -638,6 +681,7 @@ const visualization = {
         
         if (state.isPlaying) lyrics.update();
         
+        // Very light fade effect for visualizer trails (won't hide background)
         ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         

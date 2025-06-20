@@ -35,6 +35,56 @@ body {
     align-items: center;
 }
 
+/* Song background - behind everything */
+.song-background {
+    --background-overlay-opacity: 0.85; /* Default value */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+
+.song-background.loaded {
+    opacity: 1;
+}
+
+.song-background::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1550px;
+    height: 1550px;
+    background: #000;
+    border-radius: 50%;
+    z-index: 2; /* Above the background image but below other elements */
+}
+
+/* Dynamic brightness overlay using CSS custom property */
+.song-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, var(--background-overlay-opacity));
+    z-index: 1; /* Below the hole */
+}
+
+/* Remove opacity from the main background class since we control it per-song now */
+.song-background.loaded {
+    opacity: 1; /* Keep this for the fade-in effect */
+}
+
 .band-title {
     font-size: clamp(2.5rem, 6vw, 8rem);
     font-weight: 100;
@@ -315,8 +365,8 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 1550px;
-    height: 1550px;
+    width: 1200px;
+    height: 1200px;
     background: rgba(5, 5, 5, 0.6);
     border-radius: 50%;
 }
@@ -329,6 +379,7 @@ body {
     height: 100%;
     z-index: 0;
     pointer-events: none;
+    mix-blend-mode: screen; /* This will make the visualizer blend with the background */
 }
 
 audio {

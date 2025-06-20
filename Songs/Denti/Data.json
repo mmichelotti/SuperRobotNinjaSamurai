@@ -3,6 +3,7 @@
     "mid": [150, 50, 255],
     "high": [255, 100, 200]
   },
+  "backgroundBrightness": 0.0,
   "mood": "dream",
   "bpm": 110,
   "genre": "Synthwave"
