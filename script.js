@@ -814,7 +814,7 @@ function visualize() {
         ctx.fill();
     }
     
-    const radius = 240;
+    const radius = 245;
     
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = (dataArray[i] / 255) * 200;
@@ -849,8 +849,8 @@ function visualize() {
             
             const [r, g, b] = getFrequencyColor('mid', intensity);
             const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${intensity * 0.2})`);
-            gradient.addColorStop(1, `rgba(255, 255, 255, ${intensity * 0.1})`);
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${intensity * 0.5})`);
+            gradient.addColorStop(1, `rgba(255, 255, 255, ${intensity * 0})`);
             
             ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
             ctx.shadowBlur = intensity * 6;
@@ -871,8 +871,8 @@ function visualize() {
             
             const [r, g, b] = getFrequencyColor('high', intensity);
             const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${intensity * 0.25})`);
-            gradient.addColorStop(1, `rgba(255, 255, 255, ${intensity * 0.15})`);
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${intensity * 0.5})`);
+            gradient.addColorStop(1, `rgba(255, 255, 255, ${intensity * 0})`);
             
             ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.5)`;
             ctx.shadowBlur = intensity * 8;

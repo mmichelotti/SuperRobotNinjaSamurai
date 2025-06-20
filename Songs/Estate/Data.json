@@ -1,8 +1,8 @@
 {
   "songname": "ESTATE",
   "palette": {
-    "mid": [255, 0, 150],
-    "high": [0, 255, 255]
+    "mid": [253,231,177],
+    "high": [255,197,165]
   },
   "mood": "cyberpunk",
   "bpm": 120,
