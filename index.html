@@ -27,12 +27,13 @@
             <div class="progress-container" id="progressContainer">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
+            <!-- Song indicator dots -->
+            <div class="song-indicators" id="songIndicators"></div>
         </div>
         
-        <div class="controls">
-            <button class="control-btn" onclick="previousSong()">⏮</button>
-            <button class="control-btn" onclick="nextSong()">⏭</button>
-        </div>
+        <!-- Invisible navigation areas -->
+        <div class="nav-area left" id="navLeft"></div>
+        <div class="nav-area right" id="navRight"></div>
         
         <!-- Invisible clickable area for play/pause in center -->
         <div class="center-play-area" onclick="togglePlay()" id="centerPlayArea"></div>

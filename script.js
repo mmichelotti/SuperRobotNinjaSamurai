@@ -12,6 +12,13 @@ let isPlaying = false;
 let lastBassKick = 0;
 let particles = [];
 
+// Gesture tracking variables
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+let isScrolling = false;
+let isHoveringCenter = false; // Track if we're hovering over center
+
 // Advanced beat detection variables
 let beatDetection = {
     bassHistory: [],
@@ -37,6 +44,8 @@ const bandTitle = document.getElementById('bandTitle');
 const songInfo = document.getElementById('songInfo');
 const songTitleEl = document.getElementById('songTitle');
 const beatPulse = document.getElementById('beatPulse');
+const navLeft = document.getElementById('navLeft');
+const navRight = document.getElementById('navRight');
 
 // Audio Visualizer Setup
 let audioContext;
@@ -71,6 +80,186 @@ const colorPalettes = [
     // Melancholy (deep indigo/soft lavender)
     { mid: [75, 0, 130], high: [147, 112, 219], name: 'melancholy' }
 ];
+
+// Create song indicator dots
+function createSongIndicators() {
+    const indicatorsContainer = document.getElementById('songIndicators');
+    indicatorsContainer.innerHTML = '';
+    
+    songs.forEach((song, index) => {
+        const dot = document.createElement('div');
+        dot.className = 'song-dot';
+        if (index === currentSongIndex) {
+            dot.classList.add('active');
+        }
+        
+        // Make dots clickable for direct song selection
+        dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (index !== currentSongIndex) {
+                goToSong(index);
+            }
+        });
+        
+        indicatorsContainer.appendChild(dot);
+    });
+}
+
+// Update song indicator dots
+function updateSongIndicators() {
+    const dots = document.querySelectorAll('.song-dot');
+    dots.forEach((dot, index) => {
+        if (index === currentSongIndex) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+}
+
+// Go to specific song
+function goToSong(index) {
+    // Don't hide lyrics if playing - just clear the current lyric text
+    if (isPlaying && lyricsLoaded) {
+        lyricsDisplay.text.style.opacity = '0';
+        setTimeout(() => {
+            lyricsDisplay.text.textContent = '';
+            currentLyricIndex = -1;
+        }, 300);
+    }
+    
+    currentSongIndex = index;
+    loadCurrentSong().then(() => {
+        updateSongIndicators();
+        if (isPlaying) {
+            audio.play().then(() => {
+                if (lyricsLoaded) {
+                    setTimeout(() => showLyrics(), 500);
+                }
+            }).catch(e => console.log('Song change play failed:', e));
+        }
+    });
+}
+
+// Gesture and touch event handlers
+function handleTouchStart(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchStartTime = Date.now();
+    isScrolling = false;
+}
+
+function handleTouchMove(e) {
+    if (!touchStartX || !touchStartY) return;
+    
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+    const diffX = touchStartX - touchX;
+    const diffY = touchStartY - touchY;
+    
+    // Detect if it's a horizontal swipe
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
+        isScrolling = true;
+        e.preventDefault(); // Prevent scrolling
+    }
+}
+
+function handleTouchEnd(e) {
+    if (!touchStartX || !touchStartY) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffX = touchStartX - touchEndX;
+    const diffY = touchStartY - touchEndY;
+    const timeDiff = Date.now() - touchStartTime;
+    
+    // Check for swipe gestures (minimum distance and speed)
+    if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) && timeDiff < 300) {
+        if (diffX > 0) {
+            // Swiped left (next song)
+            nextSong();
+        } else {
+            // Swiped right (previous song)
+            previousSong();
+        }
+    }
+    
+    // Reset values
+    touchStartX = 0;
+    touchStartY = 0;
+    touchStartTime = 0;
+    isScrolling = false;
+}
+
+// Mouse wheel handler for desktop
+function handleWheel(e) {
+    e.preventDefault();
+    
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        // Horizontal scroll
+        if (e.deltaX > 0) {
+            nextSong(); // Scroll right to left = next song
+        } else {
+            previousSong(); // Scroll left to right = previous song
+        }
+    }
+}
+
+// Navigation area click handlers
+function setupNavigationAreas() {
+    navLeft.addEventListener('click', (e) => {
+        e.stopPropagation();
+        previousSong();
+    });
+    
+    navRight.addEventListener('click', (e) => {
+        e.stopPropagation();
+        nextSong();
+    });
+}
+
+// Setup all gesture controls
+function setupGestureControls() {
+    // Touch events for mobile
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+    
+    // Mouse wheel for desktop
+    document.addEventListener('wheel', handleWheel, { passive: false });
+    
+    // Navigation area clicks
+    setupNavigationAreas();
+    
+    // Create song indicators
+    createSongIndicators();
+    
+    // Setup center play area hover effects
+    setupCenterAreaHover();
+}
+
+// Setup center area hover to darken lyrics
+function setupCenterAreaHover() {
+    const centerPlayArea = document.getElementById('centerPlayArea');
+    
+    centerPlayArea.addEventListener('mouseenter', () => {
+        isHoveringCenter = true;
+        if (isPlaying && lyricsLoaded && lyricsDisplay.text.textContent) {
+            // Darken lyrics on hover
+            lyricsDisplay.text.style.opacity = '0.3';
+            lyricsDisplay.text.style.transition = 'opacity 0.3s ease';
+        }
+    });
+    
+    centerPlayArea.addEventListener('mouseleave', () => {
+        isHoveringCenter = false;
+        if (isPlaying && lyricsLoaded) {
+            // Restore lyrics opacity when not hovering
+            lyricsDisplay.text.style.opacity = '0.9';
+            lyricsDisplay.text.style.transition = 'opacity 0.3s ease';
+        }
+    });
+}
 
 // Create lyrics display element
 function createLyricsDisplay() {
@@ -267,11 +456,16 @@ function updateLyrics() {
             
             setTimeout(() => {
                 lyricsDisplay.text.textContent = currentLyric.text;
-                lyricsDisplay.text.style.opacity = '1';
+                lyricsDisplay.text.style.opacity = isHoveringCenter ? '0.3' : '1'; // Check hover state
                 lyricsDisplay.text.style.transform = 'translateY(0)';
                 
                 const palette = colorPalettes[currentPalette];
                 applyLyricStyling(lyricsDisplay.text, currentLyric.style, palette);
+                
+                // Reapply hover state if needed
+                if (isHoveringCenter) {
+                    lyricsDisplay.text.style.opacity = '0.3';
+                }
                 
             }, 300);
         }
@@ -425,16 +619,6 @@ function triggerSnareEffect(currentLevel, avgLevel) {
             lyricsDisplay.text.style.transform = originalTransform;
         }, 150);
     }
-    
-    // Elegant controls pulse
-    const controls = document.querySelector('.controls');
-    controls.style.transform = `translateX(-50%) scale(${1 + intensity * 0.03})`;
-    controls.style.boxShadow = `0 ${8 + intensity * 8}px ${32 + intensity * 16}px rgba(0, 0, 0, ${0.3 + intensity * 0.2})`;
-    
-    setTimeout(() => {
-        controls.style.transform = 'translateX(-50%) scale(1)';
-        controls.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
-    }, 200);
 }
 
 function triggerHiHatEffect(currentLevel, avgLevel) {
@@ -598,7 +782,7 @@ function visualize() {
         ctx.fill();
     }
     
-    const radius = 240;
+    const radius = 250;
     
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = (dataArray[i] / 255) * 200;
@@ -774,6 +958,8 @@ async function loadCurrentSong() {
 }
 
 function togglePlay() {
+    const centerPlayArea = document.getElementById('centerPlayArea');
+    
     if (isPlaying) {
         audio.pause();
         isPlaying = false;
@@ -781,6 +967,7 @@ function togglePlay() {
         bandTitle.classList.remove('playing');
         songInfo.classList.remove('playing');
         songTitleEl.classList.remove('playing');
+        centerPlayArea.classList.remove('playing');
         
         hideLyrics();
     } else {
@@ -801,6 +988,7 @@ function togglePlay() {
                 bandTitle.classList.add('playing');
                 songInfo.classList.add('playing');
                 songTitleEl.classList.add('playing');
+                centerPlayArea.classList.add('playing');
                 
                 if (lyricsLoaded) {
                     showLyrics();
@@ -814,6 +1002,7 @@ function togglePlay() {
             bandTitle.classList.add('playing');
             songInfo.classList.add('playing');
             songTitleEl.classList.add('playing');
+            centerPlayArea.classList.add('playing');
             
             if (lyricsLoaded) {
                 showLyrics();
@@ -823,12 +1012,18 @@ function togglePlay() {
 }
 
 function nextSong() {
-    if (isPlaying) {
-        hideLyrics();
+    // Don't hide lyrics if playing - just clear the current lyric text
+    if (isPlaying && lyricsLoaded) {
+        lyricsDisplay.text.style.opacity = '0';
+        setTimeout(() => {
+            lyricsDisplay.text.textContent = '';
+            currentLyricIndex = -1;
+        }, 300);
     }
     
     currentSongIndex = (currentSongIndex + 1) % songs.length;
     loadCurrentSong().then(() => {
+        updateSongIndicators();
         if (isPlaying) {
             audio.play().then(() => {
                 if (lyricsLoaded) {
@@ -840,12 +1035,18 @@ function nextSong() {
 }
 
 function previousSong() {
-    if (isPlaying) {
-        hideLyrics();
+    // Don't hide lyrics if playing - just clear the current lyric text
+    if (isPlaying && lyricsLoaded) {
+        lyricsDisplay.text.style.opacity = '0';
+        setTimeout(() => {
+            lyricsDisplay.text.textContent = '';
+            currentLyricIndex = -1;
+        }, 300);
     }
     
     currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
     loadCurrentSong().then(() => {
+        updateSongIndicators();
         if (isPlaying) {
             audio.play().then(() => {
                 if (lyricsLoaded) {
@@ -921,7 +1122,9 @@ audio.addEventListener('ended', () => {
     nextSong();
 });
 
+// Initialize everything
 loadCurrentSong();
+setupGestureControls();
 
 bandTitle.addEventListener('mouseenter', () => {
     if (!isPlaying) {

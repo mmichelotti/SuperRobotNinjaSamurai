@@ -1,5 +1,4 @@
-[00:00.00]
-[00:00.10]se chiedo scusa per la gravità
+[00:00.00]se chiedo scusa per la gravità
 [00:02.20]ignorerai l'ombra del passato che precipita
 [00:05.50]e lo so distorco troppo spesso la mia realtà
 [00:09.20]ma è il grigio del cemento che mi soffoca
@@ -29,7 +28,9 @@
 [00:43.20]vorrei azzerare tutto e cambiare vita
 [00:46.50]perché ogni fitta che sento
 [00:48.50]è un errore già fatto
+#enhance
 [00:50.50]e anche se me ne pento
+#endenhance
 [00:52.30]non cambia mai
 
 [00:53.50]casco dalle nuvole ogni volta che
