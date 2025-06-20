@@ -305,7 +305,7 @@ body {
     transform: translate(-50%, -50%);
     width: 490px;
     height: 490px;
-    border: 1px solid rgba(80, 80, 80, 0.4);
+    border: 1px solid rgba(255, 255, 255, 1.0);
     border-radius: 50%;
 }
 
@@ -317,7 +317,7 @@ body {
     transform: translate(-50%, -50%);
     width: 1550px;
     height: 1550px;
-    background: rgba(5, 5, 5, 1.0);
+    background: rgba(5, 5, 5, 0.6);
     border-radius: 50%;
 }
 
