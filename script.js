@@ -22,7 +22,6 @@ const beatDetection = {
 
 // Audio and visualization
 let audioContext, analyser, source, dataArray, bufferLength, canvas, ctx, animationId;
-let particles = [];
 
 // DOM elements cache
 const elements = {
@@ -637,33 +636,6 @@ const visualization = {
         songManager.initializeBeatDetection();
         this.visualize();
     },
-
-    updateParticles() {
-        for (let i = particles.length - 1; i >= 0; i--) {
-            const particle = particles[i];
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            particle.life -= particle.decay;
-            particle.vx *= 0.99;
-            particle.vy *= 0.99;
-            
-            if (particle.life <= 0) {
-                particles.splice(i, 1);
-            }
-        }
-    },
-
-    drawParticles() {
-        particles.forEach(particle => {
-            const alpha = particle.life * particle.intensity * 0.6;
-            const [r, g, b] = particle.color;
-            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-            ctx.beginPath();
-            ctx.arc(particle.x, particle.y, particle.size * particle.life, 0, 2 * Math.PI);
-            ctx.fill();
-        });
-    },
-
     getFrequencyColor(type, intensity) {
         const palette = state.currentSongData.palette;
         const baseColor = type === 'mid' ? palette.mid : palette.high;
@@ -701,9 +673,6 @@ const visualization = {
         
         this.drawSpectrum(centerX, centerY);
         this.drawBassCircle(centerX, centerY, bassAverage);
-        
-        this.updateParticles();
-        this.drawParticles();
     },
 
     drawBackground(centerX, centerY, average, bassAverage) {
