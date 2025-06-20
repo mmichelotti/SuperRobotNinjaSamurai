@@ -159,7 +159,7 @@ body {
     opacity: 0;
     transition: var(--hover-transition);
     text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
-    transform: scale(0.8);
+    transform: scale(0.8) translateY(-6px);
     filter: blur(0px);
 }
 

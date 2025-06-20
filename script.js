@@ -650,12 +650,10 @@ const lyrics = {
         elements.bandTitle.style.transform = 'scale(0.95)';
         
         this.display.text.style.opacity = '0';
-        this.display.text.style.transform = 'translateY(10px)';
         
         setTimeout(() => {
             this.display.text.textContent = '';
             this.display.text.style.opacity = '1';
-            this.display.text.style.transform = 'translateY(0)';
         }, 300);
     },
 
@@ -664,12 +662,10 @@ const lyrics = {
         elements.bandTitle.style.transform = 'scale(0.95)';
         
         this.display.text.style.opacity = '0';
-        this.display.text.style.transform = 'translateY(10px)';
         
         setTimeout(() => {
             this.display.text.textContent = lyric.text;
             this.display.text.style.opacity = state.isHoveringCenter ? '0.3' : '1';
-            this.display.text.style.transform = 'translateY(0)';
             this.display.container.style.opacity = '1';
             
             ui.applyLyricStyling(this.display.text, lyric.style, state.currentSongData.palette);
