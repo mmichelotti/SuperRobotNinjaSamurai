@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
 
+/* CSS Custom Properties for hover effects */
+:root {
+    --hover-scale: 1;
+    --hover-opacity: 1;
+    --hover-glow-primary: 40px;
+    --hover-glow-secondary: 20px;
+    --hover-glow-opacity: 0.8;
+    --hover-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -34,7 +44,7 @@ body {
     position: absolute;
     letter-spacing: 0.12em;
     line-height: 1.05;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: var(--hover-transition);
     opacity: 0.95;
     text-transform: uppercase;
     text-shadow: 0 0 40px rgba(255, 255, 255, 0.25);
@@ -43,6 +53,26 @@ body {
 
 .band-title.playing {
     text-shadow: 0 0 60px rgba(255, 255, 255, 0.4);
+}
+
+/* Consolidated hover effect mixin */
+.hover-interactive {
+    transition: var(--hover-transition);
+}
+
+.hover-interactive::before {
+    opacity: 0;
+    transition: var(--hover-transition);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+    transform: scale(0.8);
+    filter: blur(0px);
+}
+
+.hover-interactive:hover::before {
+    opacity: var(--hover-opacity);
+    transform: scale(var(--hover-scale));
+    text-shadow: 0 0 var(--hover-glow-primary) rgba(255, 255, 255, var(--hover-glow-opacity)), 
+                 0 0 var(--hover-glow-secondary) rgba(255, 255, 255, 0.4);
 }
 
 /* Navigation and interaction areas */
@@ -54,7 +84,6 @@ body {
     height: 30vh;
     z-index: 60;
     cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
 }
@@ -75,7 +104,7 @@ body {
     font-size: 2.5rem;
     color: rgba(255, 255, 255, 0.9);
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: var(--hover-transition);
     text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
     transform: scale(0.8);
     filter: blur(0px);
@@ -100,7 +129,7 @@ body {
     border-radius: 50%;
     z-index: 50;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--hover-transition);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -111,7 +140,7 @@ body {
     font-size: 4rem;
     color: rgba(255, 255, 255, 0.95);
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: var(--hover-transition);
     text-shadow: 0 0 40px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.4);
     transform: scale(0.8) translateY(-6px);
     filter: blur(0px);
@@ -215,7 +244,7 @@ body {
     height: 8px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    transition: var(--hover-transition);
     border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
 }
@@ -250,19 +279,6 @@ body {
 .beat-pulse.active {
     opacity: 0.6;
     animation: pulseRing 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.spectrum-circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.4;
 }
 
 /* Static speaker representation when not playing */
@@ -342,13 +358,4 @@ audio {
         transform: translate(-50%, -50%) scale(1.15);
         opacity: 0;
     }
-}
-
-@keyframes subtleFloat {
-    0%, 100% { transform: translateX(-50%) translateY(0px); }
-    50% { transform: translateX(-50%) translateY(-8px); }
-}
-
-.song-info.playing {
-    animation: subtleFloat 4s ease-in-out infinite;
 }

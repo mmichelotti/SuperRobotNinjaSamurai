@@ -58,19 +58,6 @@ const utils = {
     calculateVariance(array, mean) {
         const variance = array.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / array.length;
         return Math.sqrt(variance);
-    },
-
-    createParticle(x, y, intensity, color = [255, 255, 255]) {
-        return {
-            x, y,
-            vx: (Math.random() - 0.5) * 2,
-            vy: (Math.random() - 0.5) * 2,
-            life: 1.0,
-            decay: 0.015 + Math.random() * 0.01,
-            size: 1 + intensity * 3,
-            intensity,
-            color
-        };
     }
 };
 
