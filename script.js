@@ -541,7 +541,6 @@ const beatEffects = {
         // Trigger effects
         if (bassAvg > thresholds.bass && now - lastTrigger.kick > 200 && bassAvg > avgs.bass * 1.4) {
             this.triggerKickEffect(bassAvg, avgs.bass);
-            this.triggerBackgroundBeat(bassAvg, avgs.bass);
             lastTrigger.kick = now;
         }
         
@@ -553,24 +552,6 @@ const beatEffects = {
         if (trebleAvg > thresholds.treble && now - lastTrigger.hihat > 80 && trebleAvg > avgs.treble * 1.2) {
             this.triggerHiHatEffect(trebleAvg, avgs.treble);
             lastTrigger.hihat = now;
-        }
-    },
-
-    triggerBackgroundBeat(currentLevel, avgLevel) {
-        const now = Date.now();
-        const intensity = Math.min((currentLevel / avgLevel - 1), 1);
-        
-        // Only trigger background beat animation if enough time has passed and intensity is high enough
-        if (now - beatDetection.lastBeatTrigger > 400 && intensity > 0.3) {
-            beatDetection.lastBeatTrigger = now;
-            
-            // Add beat-active class for CSS animation
-            elements.songBackground.classList.add('beat-active');
-            
-            // Remove the class after animation completes
-            setTimeout(() => {
-                elements.songBackground.classList.remove('beat-active');
-            }, 600);
         }
     },
 
@@ -769,7 +750,6 @@ const visualization = {
         
         if (state.isPlaying) {
             lyrics.update();
-            backgroundAnimation.updateAnimation();
         }
         
         // Very light fade effect for visualizer trails (won't hide background)
@@ -933,7 +913,7 @@ function togglePlay() {
         state.isTransitioning = false; // Clear transition state when manually stopping
         
         // Remove playing classes
-        ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea', 'songBackground'].forEach(el => {
+        ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
             elements[el].classList.remove('playing');
         });
         
@@ -953,7 +933,7 @@ function togglePlay() {
                 state.isTransitioning = false; // Clear transition state when successfully playing
                 
                 // Add playing classes
-                ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea', 'songBackground'].forEach(el => {
+                ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                     elements[el].classList.add('playing');
                 });
                 
@@ -967,7 +947,7 @@ function togglePlay() {
             state.isTransitioning = false; // Clear transition state
             
             // Add playing classes
-            ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea', 'songBackground'].forEach(el => {
+            ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                 elements[el].classList.add('playing');
             });
             
