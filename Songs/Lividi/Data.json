@@ -1,0 +1,9 @@
+{
+  "palette": {
+    "mid": [0, 150, 255],
+    "high": [100, 255, 200]
+  },
+  "mood": "ocean",
+  "bpm": 95,
+  "genre": "Ambient"
+}

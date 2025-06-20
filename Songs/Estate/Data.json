@@ -1,0 +1,10 @@
+{
+  "songname": "ESTATE",
+  "palette": {
+    "mid": [255, 0, 150],
+    "high": [0, 255, 255]
+  },
+  "mood": "cyberpunk",
+  "bpm": 120,
+  "genre": "Electronic"
+}

@@ -52,9 +52,10 @@ body {
 /* Navigation areas for gesture controls */
 .nav-area {
     position: absolute;
-    top: 0;
-    width: 25%;
-    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15%;
+    height: 30vh; /* Much smaller vertical area */
     z-index: 60;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -66,18 +67,18 @@ body {
 .nav-area.left {
     left: 0;
     justify-content: flex-start;
-    padding-left: 3rem;
+    padding-left: 2rem;
 }
 
 .nav-area.right {
     right: 0;
     justify-content: flex-end;
-    padding-right: 3rem;
+    padding-right: 2rem;
 }
 
 .nav-area::before {
     content: '';
-    font-size: 3rem;
+    font-size: 2.5rem;
     color: rgba(255, 255, 255, 0.9);
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -106,8 +107,8 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 50%;
-    height: 50%;
+    width: 25%; /* Reduced from 50% */
+    height: 25%; /* Reduced from 50% */
     border-radius: 50%;
     z-index: 50;
     cursor: pointer;

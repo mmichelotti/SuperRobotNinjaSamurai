@@ -1,23 +1,22 @@
-// Your MP3 files - replace these paths with your actual file locations
-const songs = [
-    { title: "ESTATE", url: "./Songs/Estate.mp3" },
-    { title: "LIVIDI", url: "./Songs/Lividi.mp3" },
-    { title: "PIOMBO", url: "./Songs/Piombo.mp3" },
-    { title: "DENTI", url: "./Songs/Denti.mp3" },
-    { title: "CLICHE", url: "./Songs/Cliché.mp3" }
-];
-
+// Songs array - will be loaded dynamically from folders
+let songs = [];
 let currentSongIndex = 0;
 let isPlaying = false;
 let lastBassKick = 0;
 let particles = [];
+
+// Current song metadata (loaded from JSON)
+let currentSongData = {
+    title: "",
+    palette: { mid: [255, 255, 255], high: [255, 255, 255] }
+};
 
 // Gesture tracking variables
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
 let isScrolling = false;
-let isHoveringCenter = false; // Track if we're hovering over center
+let isHoveringCenter = false;
 
 // Advanced beat detection variables
 let beatDetection = {
@@ -61,25 +60,76 @@ let animationId;
 let colorPhase = 0;
 let colorSpeed = 0.003;
 let energyHistory = [];
-let currentPalette = 0;
 
-// Color palettes for different moods/songs
-const colorPalettes = [
-    // Cyberpunk
-    { mid: [255, 0, 150], high: [0, 255, 255], name: 'cyberpunk' },
-    // Sunset
-    { mid: [255, 100, 0], high: [255, 200, 50], name: 'sunset' },
-    // Ocean
-    { mid: [0, 150, 255], high: [100, 255, 200], name: 'ocean' },
-    // Forest
-    { mid: [50, 255, 100], high: [150, 255, 50], name: 'forest' },
-    // Fire
-    { mid: [255, 50, 0], high: [255, 255, 0], name: 'fire' },
-    // Purple Dream
-    { mid: [150, 50, 255], high: [255, 100, 200], name: 'dream' },
-    // Melancholy (deep indigo/soft lavender)
-    { mid: [75, 0, 130], high: [147, 112, 219], name: 'melancholy' }
-];
+// Load the list of available songs from SongData.json
+async function loadSongsList() {
+    try {
+        const response = await fetch('./Songs/SongData.json');
+        if (response.ok) {
+            const songData = await response.json();
+            return songData;
+        }
+    } catch (error) {
+        console.error('Could not load SongData.json');
+    }
+    return [];
+}
+
+// Discover available songs by loading the song data
+async function discoverSongs() {
+    const folderNames = await loadSongsList();
+    const discoveredSongs = [];
+    
+    for (const folderName of folderNames) {
+        try {
+            const dataPath = `./Songs/${folderName}/Data.json`;
+            const response = await fetch(dataPath);
+            
+            if (response.ok) {
+                const data = await response.json();
+                discoveredSongs.push({
+                    folder: folderName,
+                    title: folderName,
+                    ...data
+                });
+            }
+        } catch (error) {
+            continue;
+        }
+    }
+    
+    return discoveredSongs;
+}
+
+// Load song metadata from Data.json file
+async function loadSongMetadata(folderName) {
+    const metadataPath = `./Songs/${folderName}/Data.json`;
+    
+    try {
+        const response = await fetch(metadataPath);
+        if (response.ok) {
+            const metadata = await response.json();
+            currentSongData = {
+                title: folderName, // Use folder name as title
+                palette: metadata.palette || { mid: [255, 255, 255], high: [255, 255, 255] },
+                ...metadata
+            };
+            return true;
+        } else {
+            currentSongData = {
+                title: folderName,
+                palette: { mid: [255, 255, 255], high: [255, 255, 255] }
+            };
+            return false;
+        }
+    } catch (error) {
+        currentSongData = {
+            title: folderName,
+            palette: { mid: [255, 255, 255], high: [255, 255, 255] }
+        };
+        return false;
+    }
+}
 
 // Create song indicator dots
 function createSongIndicators() {
@@ -93,7 +143,6 @@ function createSongIndicators() {
             dot.classList.add('active');
         }
         
-        // Make dots clickable for direct song selection
         dot.addEventListener('click', (e) => {
             e.stopPropagation();
             if (index !== currentSongIndex) {
@@ -119,7 +168,6 @@ function updateSongIndicators() {
 
 // Go to specific song
 function goToSong(index) {
-    // Don't hide lyrics if playing - just clear the current lyric text
     if (isPlaying && lyricsLoaded) {
         lyricsDisplay.text.style.opacity = '0';
         setTimeout(() => {
@@ -136,7 +184,7 @@ function goToSong(index) {
                 if (lyricsLoaded) {
                     setTimeout(() => showLyrics(), 500);
                 }
-            }).catch(e => console.log('Song change play failed:', e));
+            });
         }
     });
 }
@@ -157,10 +205,9 @@ function handleTouchMove(e) {
     const diffX = touchStartX - touchX;
     const diffY = touchStartY - touchY;
     
-    // Detect if it's a horizontal swipe
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
         isScrolling = true;
-        e.preventDefault(); // Prevent scrolling
+        e.preventDefault();
     }
 }
 
@@ -173,18 +220,14 @@ function handleTouchEnd(e) {
     const diffY = touchStartY - touchEndY;
     const timeDiff = Date.now() - touchStartTime;
     
-    // Check for swipe gestures (minimum distance and speed)
     if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) && timeDiff < 300) {
         if (diffX > 0) {
-            // Swiped left (next song)
             nextSong();
         } else {
-            // Swiped right (previous song)
             previousSong();
         }
     }
     
-    // Reset values
     touchStartX = 0;
     touchStartY = 0;
     touchStartTime = 0;
@@ -196,11 +239,10 @@ function handleWheel(e) {
     e.preventDefault();
     
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        // Horizontal scroll
         if (e.deltaX > 0) {
-            nextSong(); // Scroll right to left = next song
+            nextSong();
         } else {
-            previousSong(); // Scroll left to right = previous song
+            previousSong();
         }
     }
 }
@@ -220,21 +262,13 @@ function setupNavigationAreas() {
 
 // Setup all gesture controls
 function setupGestureControls() {
-    // Touch events for mobile
     document.addEventListener('touchstart', handleTouchStart, { passive: false });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd, { passive: false });
-    
-    // Mouse wheel for desktop
     document.addEventListener('wheel', handleWheel, { passive: false });
     
-    // Navigation area clicks
     setupNavigationAreas();
-    
-    // Create song indicators
     createSongIndicators();
-    
-    // Setup center play area hover effects
     setupCenterAreaHover();
 }
 
@@ -245,7 +279,6 @@ function setupCenterAreaHover() {
     centerPlayArea.addEventListener('mouseenter', () => {
         isHoveringCenter = true;
         if (isPlaying && lyricsLoaded && lyricsDisplay.text.textContent) {
-            // Darken lyrics on hover
             lyricsDisplay.text.style.opacity = '0.3';
             lyricsDisplay.text.style.transition = 'opacity 0.3s ease';
         }
@@ -254,7 +287,6 @@ function setupCenterAreaHover() {
     centerPlayArea.addEventListener('mouseleave', () => {
         isHoveringCenter = false;
         if (isPlaying && lyricsLoaded) {
-            // Restore lyrics opacity when not hovering
             lyricsDisplay.text.style.opacity = '0.9';
             lyricsDisplay.text.style.transition = 'opacity 0.3s ease';
         }
@@ -308,7 +340,6 @@ const lyricsDisplay = createLyricsDisplay();
 
 // Apply styling based on lyric mode
 function applyLyricStyling(element, styleMode, palette) {
-    // Reset any existing animations
     element.style.animation = 'none';
     
     if (styleMode === 'enhance') {
@@ -316,15 +347,17 @@ function applyLyricStyling(element, styleMode, palette) {
         element.style.fontWeight = '300';
         element.style.letterSpacing = '0.15em';
         element.style.transform = 'scale(1)';
+        element.style.whiteSpace = 'nowrap';
         const enhanceGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.5)`;
         element.style.textShadow = `0 0 30px ${enhanceGlow}, 0 0 15px rgba(255, 255, 255, 0.6)`;
         element.style.transition = 'all 0.3s ease';
-        element.style.animation = 'subtleGlow 1.2s ease-in-out infinite';
+        element.style.animation = 'glitchEffect 1.2s ease-in-out infinite';
     } else if (styleMode === 'aggressive') {
         element.style.fontSize = 'clamp(1rem, 2vw, 2.2rem)';
         element.style.fontWeight = '500';
         element.style.letterSpacing = '0.15em';
         element.style.transform = 'scale(1)';
+        element.style.whiteSpace = 'nowrap';
         const aggressiveGlow = `rgba(${palette.high[0]}, ${palette.high[1]}, ${palette.high[2]}, 0.7)`;
         element.style.textShadow = `
             2px 0 0 rgba(255, 0, 0, 0.5),
@@ -339,6 +372,7 @@ function applyLyricStyling(element, styleMode, palette) {
         element.style.fontWeight = '300';
         element.style.letterSpacing = '0.15em';
         element.style.transform = 'scale(1)';
+        element.style.whiteSpace = 'nowrap';
         element.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
         element.style.transition = 'all 0.6s ease';
     }
@@ -365,20 +399,26 @@ function parseLyrics(lrcContent) {
             const minutes = parseInt(match[1]);
             const seconds = parseInt(match[2]);
             const centiseconds = match[3] ? parseInt(match[3]) : 0;
-            const text = match[4].trim();
+            let text = match[4].trim();
             
             const timeInSeconds = minutes * 60 + seconds + centiseconds / 100;
             
             let styleMode = currentRegion;
+            let isTitle = false;
             
-            if (text && /[A-Z]/.test(text) && text === text.toUpperCase() && text !== text.toLowerCase()) {
+            if (text.toLowerCase() === '"title"' || text.toLowerCase() === 'title' || text === '"title"') {
+                isTitle = true;
+                text = 'SUPER ROBOT\nNINJA SAMURAI';
+                styleMode = 'title';
+            } else if (text && /[A-Z]/.test(text) && text === text.toUpperCase() && text !== text.toLowerCase()) {
                 styleMode = 'aggressive';
             }
             
             lyrics.push({
                 time: timeInSeconds,
                 text: text,
-                style: styleMode
+                style: styleMode,
+                isTitle: isTitle
             });
         }
     });
@@ -389,32 +429,22 @@ function parseLyrics(lrcContent) {
 // Load lyrics for current song
 async function loadLyrics() {
     const currentSong = songs[currentSongIndex];
-    const songName = currentSong.title;
-    const lyricsPath = `./Songs/${songName}.txt`;
-    const altLyricsPath = `./Songs/${songName.charAt(0).toUpperCase() + songName.slice(1).toLowerCase()}.txt`;
+    const folderName = currentSong.folder;
+    const lyricsPath = `./Songs/${folderName}/Lyrics.txt`;
     
     try {
         let response = await fetch(lyricsPath);
-        let finalPath = lyricsPath;
-        
-        if (!response.ok) {
-            response = await fetch(altLyricsPath);
-            finalPath = altLyricsPath;
-        }
         
         if (response.ok) {
             const lrcContent = await response.text();
             currentLyrics = parseLyrics(lrcContent);
             lyricsLoaded = currentLyrics.length > 0;
             currentLyricIndex = 0;
-            console.log(`Loaded ${currentLyrics.length} lyrics for ${songName} from ${finalPath}`);
         } else {
-            console.log(`No lyrics file found for ${songName}`);
             currentLyrics = [];
             lyricsLoaded = false;
         }
     } catch (error) {
-        console.log(`Error loading lyrics for ${songName}:`, error);
         currentLyrics = [];
         lyricsLoaded = false;
     }
@@ -441,9 +471,18 @@ function updateLyrics() {
         currentLyricIndex = newLyricIndex;
         const currentLyric = currentLyrics[currentLyricIndex];
         
-        if (!currentLyric.text || currentLyric.text.trim() === '') {
+        if (currentLyric.isTitle) {
+            lyricsDisplay.container.style.opacity = '0';
+            setTimeout(() => {
+                lyricsDisplay.text.textContent = '';
+                bandTitle.style.opacity = '0.95';
+                bandTitle.style.transform = 'scale(1)';
+            }, 400);
+        } else if (!currentLyric.text || currentLyric.text.trim() === '') {
             lyricsDisplay.text.style.opacity = '0';
             lyricsDisplay.text.style.transform = 'translateY(10px)';
+            bandTitle.style.opacity = '0';
+            bandTitle.style.transform = 'scale(0.95)';
             
             setTimeout(() => {
                 lyricsDisplay.text.textContent = '';
@@ -451,18 +490,21 @@ function updateLyrics() {
                 lyricsDisplay.text.style.transform = 'translateY(0)';
             }, 300);
         } else {
+            bandTitle.style.opacity = '0';
+            bandTitle.style.transform = 'scale(0.95)';
+            
             lyricsDisplay.text.style.opacity = '0';
             lyricsDisplay.text.style.transform = 'translateY(10px)';
             
             setTimeout(() => {
                 lyricsDisplay.text.textContent = currentLyric.text;
-                lyricsDisplay.text.style.opacity = isHoveringCenter ? '0.3' : '1'; // Check hover state
+                lyricsDisplay.text.style.opacity = isHoveringCenter ? '0.3' : '1';
                 lyricsDisplay.text.style.transform = 'translateY(0)';
+                lyricsDisplay.container.style.opacity = '1';
                 
-                const palette = colorPalettes[currentPalette];
+                const palette = currentSongData.palette;
                 applyLyricStyling(lyricsDisplay.text, currentLyric.style, palette);
                 
-                // Reapply hover state if needed
                 if (isHoveringCenter) {
                     lyricsDisplay.text.style.opacity = '0.3';
                 }
@@ -534,7 +576,6 @@ function updateBeatDetection(bassAvg, midAvg, trebleAvg, totalEnergy) {
     beatDetection.midThreshold = midHistoryAvg + (midVariance * 1.1 * beatDetection.adaptiveSensitivity);
     beatDetection.trebleThreshold = trebleHistoryAvg + (trebleVariance * 1.0 * beatDetection.adaptiveSensitivity);
     
-    // Detect kick drums
     if (bassAvg > beatDetection.bassThreshold && 
         now - beatDetection.lastKick > 200 && 
         bassAvg > bassHistoryAvg * 1.4) {
@@ -543,7 +584,6 @@ function updateBeatDetection(bassAvg, midAvg, trebleAvg, totalEnergy) {
         beatDetection.lastKick = now;
     }
     
-    // Detect snare drums
     if (midAvg > beatDetection.midThreshold && 
         now - beatDetection.lastSnare > 150 && 
         midAvg > midHistoryAvg * 1.3 &&
@@ -553,7 +593,6 @@ function updateBeatDetection(bassAvg, midAvg, trebleAvg, totalEnergy) {
         beatDetection.lastSnare = now;
     }
     
-    // Detect hi-hats
     if (trebleAvg > beatDetection.trebleThreshold && 
         now - beatDetection.lastHiHat > 80 && 
         trebleAvg > trebleHistoryAvg * 1.2) {
@@ -568,12 +607,11 @@ function calculateVariance(array, mean) {
     return Math.sqrt(variance);
 }
 
-// BEAUTIFUL BEAT EFFECTS - Enhance existing elements
+// Beat effects
 function triggerKickEffect(currentLevel, avgLevel) {
     const intensity = Math.min((currentLevel / avgLevel - 1), 1);
-    const palette = colorPalettes[currentPalette];
+    const palette = currentSongData.palette;
     
-    // Store kick intensity for use in visualize() function
     window.kickGlow = {
         intensity: intensity,
         timestamp: Date.now(),
@@ -584,7 +622,6 @@ function triggerKickEffect(currentLevel, avgLevel) {
         ]
     };
     
-    // Elegant title effect
     if (!lyricsLoaded || !isPlaying) {
         const titleIntensity = Math.min(intensity * 1.2, 1);
         bandTitle.style.transform = `scale(${1 + titleIntensity * 0.02})`;
@@ -602,16 +639,14 @@ function triggerKickEffect(currentLevel, avgLevel) {
 
 function triggerSnareEffect(currentLevel, avgLevel) {
     const intensity = Math.min((currentLevel / avgLevel - 1), 1);
-    const palette = colorPalettes[currentPalette];
+    const palette = currentSongData.palette;
     
-    // Store snare intensity for use in visualize() function
     window.snareFlash = {
         intensity: intensity,
         timestamp: Date.now(),
         color: palette.high
     };
     
-    // Subtle lyrics pulse if visible
     if (lyricsLoaded && isPlaying && lyricsDisplay.text.textContent) {
         const originalTransform = lyricsDisplay.text.style.transform;
         lyricsDisplay.text.style.transform = `${originalTransform} scale(${1 + intensity * 0.03})`;
@@ -623,9 +658,8 @@ function triggerSnareEffect(currentLevel, avgLevel) {
 
 function triggerHiHatEffect(currentLevel, avgLevel) {
     const intensity = Math.min((currentLevel / avgLevel - 1), 1);
-    const palette = colorPalettes[currentPalette];
+    const palette = currentSongData.palette;
     
-    // NO MORE SPARKLES - just spectrum shimmer
     const spectrumCircle = document.getElementById('spectrumCircle');
     if (spectrumCircle) {
         const shimmerColor = palette.high;
@@ -639,9 +673,7 @@ function triggerHiHatEffect(currentLevel, avgLevel) {
         }, 250);
     }
     
-    // Add a subtle pulse to the canvas spectrum bars instead
     if (ctx) {
-        // This will make the next frame's spectrum slightly brighter
         const trebleBoost = intensity * 30;
         for (let i = Math.floor(bufferLength / 2); i < bufferLength; i++) {
             dataArray[i] = Math.min(255, dataArray[i] + trebleBoost);
@@ -721,7 +753,7 @@ function updateColorSystem(bassAvg, midAvg, trebleAvg, totalEnergy) {
 }
 
 function getFrequencyColor(type, intensity) {
-    const palette = colorPalettes[currentPalette];
+    const palette = currentSongData.palette;
     const baseColor = type === 'mid' ? palette.mid : palette.high;
     
     const phaseShift = Math.sin(colorPhase + intensity * 2) * 0.1;
@@ -764,7 +796,7 @@ function visualize() {
     
     if (isPlaying) {
         const pulseIntensity = average / 255;
-        const palette = colorPalettes[currentPalette];
+        const palette = currentSongData.palette;
         const bgColor = [
             (palette.mid[0] + palette.high[0]) / 2,
             (palette.mid[1] + palette.high[1]) / 2,
@@ -782,7 +814,7 @@ function visualize() {
         ctx.fill();
     }
     
-    const radius = 250;
+    const radius = 240;
     
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = (dataArray[i] / 255) * 200;
@@ -795,7 +827,7 @@ function visualize() {
             const x2 = centerX + Math.cos(angle * 4) * (radius + barHeight);
             const y2 = centerY + Math.sin(angle * 4) * (radius + barHeight);
             
-            const palette = colorPalettes[currentPalette];
+            const palette = currentSongData.palette;
             const tintStrength = 0.1;
             const r = 255 - (255 - palette.mid[0]) * tintStrength;
             const g = 255 - (255 - palette.mid[1]) * tintStrength;
@@ -854,12 +886,11 @@ function visualize() {
         }
     }    
     
-    // Enhanced bass visualization with kick detection glow
     if (bassAverage > 80) {
         const now = Date.now();
         
         const bassIntensity = Math.min(bassAverage / 255, 1);
-        const palette = colorPalettes[currentPalette];
+        const palette = currentSongData.palette;
         let bassColor = [
             Math.floor((palette.mid[0] + palette.high[0]) / 2),
             Math.floor((palette.mid[1] + palette.high[1]) / 2),
@@ -870,29 +901,25 @@ function visualize() {
         let shadowBlur = bassIntensity * 20;
         let lineWidth = 3;
         
-        // KICK GLOW ENHANCEMENT - Make the existing circle SUPER bright and white on kicks!
         if (window.kickGlow && (now - window.kickGlow.timestamp) < 400) {
             const kickFade = 1 - ((now - window.kickGlow.timestamp) / 400);
             const kickIntensity = window.kickGlow.intensity * kickFade;
             
-            // Make it MUCH brighter and whiter
             bassColor = [
-                Math.min(255, bassColor[0] + (255 - bassColor[0]) * kickIntensity * 0.8), // Add white
-                Math.min(255, bassColor[1] + (255 - bassColor[1]) * kickIntensity * 0.8), // Add white
-                Math.min(255, bassColor[2] + (255 - bassColor[2]) * kickIntensity * 0.8)  // Add white
+                Math.min(255, bassColor[0] + (255 - bassColor[0]) * kickIntensity * 0.8),
+                Math.min(255, bassColor[1] + (255 - bassColor[1]) * kickIntensity * 0.8),
+                Math.min(255, bassColor[2] + (255 - bassColor[2]) * kickIntensity * 0.8)
             ];
             
-            strokeOpacity = Math.min(1, strokeOpacity + kickIntensity * 0.6); // Much more visible
-            shadowBlur = shadowBlur + kickIntensity * 40; // Much more glow
-            lineWidth = lineWidth + kickIntensity * 6; // Thicker line
+            strokeOpacity = Math.min(1, strokeOpacity + kickIntensity * 0.6);
+            shadowBlur = shadowBlur + kickIntensity * 40;
+            lineWidth = lineWidth + kickIntensity * 6;
         }
         
-        // SNARE FLASH ENHANCEMENT - Add flash effect to the background
         if (window.snareFlash && (now - window.snareFlash.timestamp) < 150) {
             const snareFade = 1 - ((now - window.snareFlash.timestamp) / 150);
             const snareIntensity = window.snareFlash.intensity * snareFade;
             
-            // Add background flash
             const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 800);
             flashGradient.addColorStop(0, `rgba(${window.snareFlash.color[0]}, ${window.snareFlash.color[1]}, ${window.snareFlash.color[2]}, ${snareIntensity * 0.1})`);
             flashGradient.addColorStop(0.5, `rgba(${window.snareFlash.color[0]}, ${window.snareFlash.color[1]}, ${window.snareFlash.color[2]}, ${snareIntensity * 0.05})`);
@@ -928,24 +955,16 @@ function visualize() {
     drawParticles();
 }
 
-function getSongPalette(songIndex) {
-    const songPalettes = [
-        0, // ESTATE - Cyberpunk (magenta/cyan)
-        2, // LIVIDI - Ocean (blue/aqua) 
-        4, // PIOMBO - Fire (red/yellow)
-        5, // DENTI - Purple Dream (purple/pink)
-        6  // CLICHE - Melancholy (deep indigo/soft lavender)
-    ];
-    return songPalettes[songIndex] || 0;
-}
-
 async function loadCurrentSong() {
     const currentSong = songs[currentSongIndex];
-    audio.src = currentSong.url;
-    document.getElementById('songTitle').textContent = currentSong.title;
+    const folderName = currentSong.folder;
+    
+    await loadSongMetadata(folderName);
+    
+    audio.src = `./Songs/${folderName}/Song.mp3`;
+    document.getElementById('songTitle').textContent = currentSongData.title;
     document.getElementById('progressBar').style.width = '0%';
     
-    currentPalette = getSongPalette(currentSongIndex);
     colorPhase = 0;
     colorSpeed = 0.003;
     energyHistory = [];
@@ -993,8 +1012,6 @@ function togglePlay() {
                 if (lyricsLoaded) {
                     showLyrics();
                 }
-            }).catch(error => {
-                console.log('Playback failed:', error);
             });
         } else {
             isPlaying = true;
@@ -1012,7 +1029,6 @@ function togglePlay() {
 }
 
 function nextSong() {
-    // Don't hide lyrics if playing - just clear the current lyric text
     if (isPlaying && lyricsLoaded) {
         lyricsDisplay.text.style.opacity = '0';
         setTimeout(() => {
@@ -1029,13 +1045,12 @@ function nextSong() {
                 if (lyricsLoaded) {
                     setTimeout(() => showLyrics(), 500);
                 }
-            }).catch(e => console.log('Next song play failed:', e));
+            });
         }
     });
 }
 
 function previousSong() {
-    // Don't hide lyrics if playing - just clear the current lyric text
     if (isPlaying && lyricsLoaded) {
         lyricsDisplay.text.style.opacity = '0';
         setTimeout(() => {
@@ -1052,7 +1067,7 @@ function previousSong() {
                 if (lyricsLoaded) {
                     setTimeout(() => showLyrics(), 500);
                 }
-            }).catch(e => console.log('Previous song play failed:', e));
+            });
         }
     });
 }
@@ -1067,40 +1082,6 @@ audio.addEventListener('timeupdate', () => {
 });
 
 const progressContainer = document.getElementById('progressContainer');
-
-progressContainer.addEventListener('click', (e) => {
-    e.stopPropagation();
-    seekToPosition(e);
-});
-
-progressContainer.addEventListener('mousedown', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    isDragging = true;
-    seekToPosition(e);
-    progressContainer.style.transform = 'scaleY(1.2)';
-});
-
-document.addEventListener('mousemove', (e) => {
-    if (isDragging && audio.duration) {
-        e.preventDefault();
-        const rect = progressContainer.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickPercent = Math.max(0, Math.min(1, clickX / rect.width));
-        const newTime = clickPercent * audio.duration;
-        
-        audio.currentTime = newTime;
-        document.getElementById('progressBar').style.width = (clickPercent * 100) + '%';
-    }
-});
-
-document.addEventListener('mouseup', (e) => {
-    if (isDragging) {
-        isDragging = false;
-        progressContainer.style.transform = 'scaleY(1)';
-        e.preventDefault();
-    }
-});
 
 function seekToPosition(e) {
     if (!audio.duration) return;
@@ -1118,24 +1099,128 @@ function seekToPosition(e) {
     }
 }
 
+const progressHitArea = document.createElement('div');
+progressHitArea.style.cssText = `
+    position: absolute;
+    top: -20px;
+    left: -10px;
+    right: -10px;
+    bottom: -20px;
+    z-index: 101;
+    cursor: pointer;
+`;
+progressContainer.style.position = 'relative';
+progressContainer.appendChild(progressHitArea);
+
+progressHitArea.addEventListener('click', (e) => {
+    e.stopPropagation();
+    seekToPosition(e);
+});
+
+progressHitArea.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    isDragging = true;
+    seekToPosition(e);
+    progressContainer.style.transform = 'scaleY(1.2)';
+    
+    const handleMouseMove = (e) => {
+        if (isDragging && audio.duration) {
+            e.preventDefault();
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickPercent = Math.max(0, Math.min(1, clickX / rect.width));
+            const newTime = clickPercent * audio.duration;
+            
+            audio.currentTime = newTime;
+            document.getElementById('progressBar').style.width = (clickPercent * 100) + '%';
+        }
+    };
+    
+    const handleMouseUp = () => {
+        if (isDragging) {
+            isDragging = false;
+            progressContainer.style.transform = 'scaleY(1)';
+        }
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+});
+
+progressHitArea.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    isDragging = true;
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent('mousedown', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    seekToPosition(mouseEvent);
+    progressContainer.style.transform = 'scaleY(1.2)';
+    
+    const handleTouchMove = (e) => {
+        if (isDragging && audio.duration) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = touch.clientX - rect.left;
+            const clickPercent = Math.max(0, Math.min(1, clickX / rect.width));
+            const newTime = clickPercent * audio.duration;
+            
+            audio.currentTime = newTime;
+            document.getElementById('progressBar').style.width = (clickPercent * 100) + '%';
+        }
+    };
+    
+    const handleTouchEnd = () => {
+        if (isDragging) {
+            isDragging = false;
+            progressContainer.style.transform = 'scaleY(1)';
+        }
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+    };
+    
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+});
+
 audio.addEventListener('ended', () => {
     nextSong();
 });
 
 // Initialize everything
-loadCurrentSong();
-setupGestureControls();
-
-bandTitle.addEventListener('mouseenter', () => {
-    if (!isPlaying) {
-        bandTitle.style.transform = 'scale(1.015)';
-        bandTitle.style.textShadow = '0 0 70px rgba(255, 255, 255, 0.4)';
+async function initializeApp() {
+    // Discover available songs first
+    songs = await discoverSongs();
+    
+    if (songs.length === 0) {
+        console.error('No songs found! Make sure you have Data.json files in your song folders.');
+        return;
     }
-});
+    
+    // Load first song and setup everything
+    await loadCurrentSong();
+    setupGestureControls();
 
-bandTitle.addEventListener('mouseleave', () => {
-    if (!isPlaying) {
-        bandTitle.style.transform = 'scale(1)';
-        bandTitle.style.textShadow = '0 0 40px rgba(255, 255, 255, 0.25)';
-    }
-});
+    bandTitle.addEventListener('mouseenter', () => {
+        if (!isPlaying) {
+            bandTitle.style.transform = 'scale(1.015)';
+            bandTitle.style.textShadow = '0 0 70px rgba(255, 255, 255, 0.4)';
+        }
+    });
+
+    bandTitle.addEventListener('mouseleave', () => {
+        if (!isPlaying) {
+            bandTitle.style.transform = 'scale(1)';
+            bandTitle.style.textShadow = '0 0 40px rgba(255, 255, 255, 0.25)';
+        }
+    });
+}
+
+// Start the app
+initializeApp();

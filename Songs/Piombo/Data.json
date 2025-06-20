@@ -1,0 +1,9 @@
+{
+  "palette": {
+    "mid": [255, 50, 0],
+    "high": [255, 255, 0]
+  },
+  "mood": "fire",
+  "bpm": 140,
+  "genre": "Rock"
+}

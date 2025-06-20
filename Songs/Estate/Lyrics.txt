@@ -53,5 +53,6 @@
 [02:28.00]sarà che non sa
 [02:32.00]è la sua felicità
 [02:34.50]che scambierei con l'ansia
-[02:39.00]
 #endenhance
+[02:39.00]"title"
+[03:08.00]
