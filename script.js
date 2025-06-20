@@ -430,7 +430,7 @@ function parseLyrics(lrcContent) {
 async function loadLyrics() {
     const currentSong = songs[currentSongIndex];
     const folderName = currentSong.folder;
-    const lyricsPath = `./Songs/${folderName}/Lyrics.txt`;
+    const lyricsPath = `./Songs/${folderName}/Lyrics.lrc`;
     
     try {
         let response = await fetch(lyricsPath);
