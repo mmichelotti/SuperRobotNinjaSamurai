@@ -3,7 +3,7 @@ const state = {
     songs: [],
     currentSongIndex: 0,
     isPlaying: false,
-    isTransitioning: false,
+    isTransitioning: false, // Add transition state
     currentSongData: { title: "", palette: { mid: [255, 255, 255], high: [255, 255, 255] } },
     lyrics: { current: [], index: 0, loaded: false },
     touch: { startX: 0, startY: 0, startTime: 0, isScrolling: false },
@@ -11,28 +11,7 @@ const state = {
     isDragging: false,
     colorPhase: 0,
     backgroundAnimationPhase: 0,
-    isMobile: false,
-    performanceMode: 'auto'
-};
-
-// Performance settings based on device
-const performanceConfig = {
-    desktop: {
-        fftSize: 2048,
-        animationFPS: 60,
-        visualizerEnabled: true,
-        particleCount: 1024,
-        beatDetectionSensitivity: 1.0,
-        backgroundAnimation: true
-    },
-    mobile: {
-        fftSize: 512,
-        animationFPS: 30,
-        visualizerEnabled: true,
-        particleCount: 256,
-        beatDetectionSensitivity: 0.5,
-        backgroundAnimation: false
-    }
+    isMobile: false
 };
 
 // Beat detection state
@@ -46,8 +25,6 @@ const beatDetection = {
 
 // Audio and visualization
 let audioContext, analyser, source, dataArray, bufferLength, canvas, ctx, animationId;
-let lastFrameTime = 0;
-let frameCount = 0;
 
 // DOM elements cache
 const elements = {
@@ -66,24 +43,10 @@ const elements = {
     songBackground: document.getElementById('songBackground')
 };
 
-// Performance detection and optimization
-function detectPerformance() {
+// Mobile detection
+function detectMobile() {
     state.isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || 
                     (window.matchMedia && window.matchMedia("(hover: none)").matches);
-    
-    const isLowEnd = navigator.hardwareConcurrency <= 4 || 
-                     (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
-                     /Android.*[4-6]\.|iPhone.*[4-8]\./.test(navigator.userAgent);
-    
-    if (state.isMobile || isLowEnd) {
-        state.performanceMode = 'mobile';
-        console.log('Mobile/Low-end performance mode enabled');
-    } else {
-        state.performanceMode = 'desktop';
-        console.log('Desktop performance mode enabled');
-    }
-    
-    return performanceConfig[state.performanceMode];
 }
 
 // Mobile animation helpers
@@ -117,33 +80,26 @@ const utils = {
         return Math.sqrt(variance);
     },
 
-    rgbToHsl: (() => {
-        const cache = new Map();
-        return (r, g, b) => {
-            const key = `${r},${g},${b}`;
-            if (cache.has(key)) return cache.get(key);
-            
-            r /= 255; g /= 255; b /= 255;
-            const max = Math.max(r, g, b), min = Math.min(r, g, b);
-            let h, s, l = (max + min) / 2;
+    // Convert RGB to HSL
+    rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
 
-            if (max === min) {
-                h = s = 0;
-            } else {
-                const d = max - min;
-                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                switch (max) {
-                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                    case g: h = (b - r) / d + 2; break;
-                    case b: h = (r - g) / d + 4; break;
-                }
-                h /= 6;
+        if (max === min) {
+            h = s = 0;
+        } else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
             }
-            const result = [h * 360, s * 100, l * 100];
-            cache.set(key, result);
-            return result;
-        };
-    })()
+            h /= 6;
+        }
+        return [h * 360, s * 100, l * 100];
+    }
 };
 
 // Song management
@@ -153,18 +109,29 @@ const songManager = {
     },
 
     applyBackgroundBrightness() {
+        // Get brightness value from song data (default to 0.85 if not specified)
         const brightness = state.currentSongData.backgroundBrightness || 0.85;
+        
+        // Apply the brightness to the overlay
         elements.songBackground.style.setProperty('--background-overlay-opacity', brightness);
     },
 
     applyBackgroundTint() {
         const palette = state.currentSongData.palette;
+        
+        // Use mid palette color for tinting
         const tintColor = palette.mid || [255, 255, 255];
+        
+        // Convert to HSL to get the hue for color tinting
         const [hue, saturation, lightness] = utils.rgbToHsl(tintColor[0], tintColor[1], tintColor[2]);
         
+        // Apply color tint using CSS filters
+        // sepia(1) makes it monochrome, then we adjust hue and saturation
         const filterValue = `sepia(1) saturate(1.5) hue-rotate(${hue - 60}deg) brightness(0.8) contrast(1.2)`;
+        
         elements.songBackground.style.filter = filterValue;
         
+        // Store palette colors as CSS variables for potential use in animations
         document.documentElement.style.setProperty('--bg-tint-r', tintColor[0]);
         document.documentElement.style.setProperty('--bg-tint-g', tintColor[1]);
         document.documentElement.style.setProperty('--bg-tint-b', tintColor[2]);
@@ -188,7 +155,7 @@ const songManager = {
         state.currentSongData = {
             title: folderName,
             palette: { mid: [255, 255, 255], high: [255, 255, 255] },
-            backgroundBrightness: 0.85,
+            backgroundBrightness: 0.85, // Default brightness
             ...metadata
         };
     },
@@ -256,8 +223,10 @@ const songManager = {
         elements.songTitle.textContent = state.currentSongData.title;
         elements.progressBar.style.width = '0%';
         
+        // Load background image for this song
         this.loadSongBackground(folderName);
         
+        // Reset states
         state.colorPhase = 0;
         state.backgroundAnimationPhase = 0;
         this.initializeBeatDetection();
@@ -266,32 +235,35 @@ const songManager = {
 
     loadSongBackground(folderName) {
         const backgroundPath = `./Songs/${folderName}/background.png`;
+        
+        // Create a new image to test if background exists
         const testImage = new Image();
         
         testImage.onload = () => {
+            // Background image exists, show it
             elements.songBackground.style.backgroundImage = `url('${backgroundPath}')`;
             elements.songBackground.classList.add('loaded');
+            
+            // Apply background brightness and color tint
             this.applyBackgroundBrightness();
             this.applyBackgroundTint();
         };
         
         testImage.onerror = () => {
+            // No background image found, hide background
             elements.songBackground.style.backgroundImage = 'none';
             elements.songBackground.classList.remove('loaded');
         };
         
+        // Start loading the image
         testImage.src = backgroundPath;
     },
 
     initializeBeatDetection() {
-        const historySize = state.performanceMode === 'mobile' ? 
-            { bass: 10, mid: 8, treble: 5, energy: 15 } :
-            { bass: 20, mid: 15, treble: 10, energy: 30 };
-            
-        beatDetection.history.bass = new Array(historySize.bass).fill(0);
-        beatDetection.history.mid = new Array(historySize.mid).fill(0);
-        beatDetection.history.treble = new Array(historySize.treble).fill(0);
-        beatDetection.history.energy = new Array(historySize.energy).fill(0);
+        beatDetection.history.bass = new Array(20).fill(0);
+        beatDetection.history.mid = new Array(15).fill(0);
+        beatDetection.history.treble = new Array(10).fill(0);
+        beatDetection.history.energy = new Array(30).fill(0);
         beatDetection.lastBeatTrigger = 0;
     }
 };
@@ -357,12 +329,6 @@ const ui = {
         
         Object.assign(element.style, baseStyle);
         
-        if (state.performanceMode === 'mobile') {
-            element.style.fontWeight = '300';
-            element.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
-            return;
-        }
-        
         if (styleMode === 'enhance') {
             element.style.fontWeight = '300';
             const enhanceGlow = `rgba(${palette.high.join(', ')}, 0.5)`;
@@ -387,6 +353,7 @@ const ui = {
             this.hideLyrics();
         }
         
+        // Set transition state to prevent title from showing
         const wasPlaying = state.isPlaying;
         state.isTransitioning = true;
         
@@ -396,16 +363,18 @@ const ui = {
             
             if (wasPlaying) {
                 elements.audio.play().then(() => {
-                    state.isTransitioning = false;
+                    state.isTransitioning = false; // Clear transition state
+                    // Keep static speaker hidden during transitions if we were playing
                     elements.speakerStatic.classList.add('hidden');
                     if (state.lyrics.loaded) {
                         setTimeout(() => this.showLyrics(), 500);
                     }
                 }).catch(() => {
-                    state.isTransitioning = false;
+                    state.isTransitioning = false; // Clear on error too
                 });
             } else {
-                state.isTransitioning = false;
+                state.isTransitioning = false; // Clear if not playing
+                // Show static speaker if not playing
                 elements.speakerStatic.classList.remove('hidden');
             }
         });
@@ -422,6 +391,7 @@ const ui = {
     hideLyrics() {
         lyricsDisplay.container.style.opacity = '0';
         
+        // Only show title if not transitioning and not playing
         if (!state.isTransitioning && !state.isPlaying) {
             setTimeout(() => {
                 elements.bandTitle.style.opacity = '0.95';
@@ -447,9 +417,10 @@ const events = {
     setupGestureControls() {
         document.addEventListener('touchstart', this.handleTouchStart, { passive: false });
         document.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-        document.addEventListener('touchend', this.handleTouchEnd, { passive: true });
+        document.addEventListener('touchend', this.handleTouchEnd, { passive: false });
         document.addEventListener('wheel', this.handleWheel, { passive: false });
         
+        // Enhanced navigation with mobile support
         elements.navLeft.addEventListener('click', (e) => { 
             e.stopPropagation(); 
             showMobileIcon(elements.navLeft);
@@ -506,7 +477,8 @@ const events = {
     },
 
     setupCenterAreaHover() {
-        if (state.performanceMode === 'desktop') {
+        // Only setup hover events for desktop
+        if (!state.isMobile) {
             elements.centerPlayArea.addEventListener('mouseenter', () => {
                 state.isHoveringCenter = true;
                 if (state.isPlaying && state.lyrics.loaded && lyricsDisplay.text.textContent) {
@@ -543,24 +515,23 @@ const events = {
 
         hitArea.addEventListener('click', (e) => { e.stopPropagation(); seekToPosition(e); });
         
-        if (state.performanceMode === 'desktop') {
-            hitArea.addEventListener('mousedown', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                state.isDragging = true;
-                seekToPosition(e);
-                
-                const handleMove = (e) => state.isDragging && seekToPosition(e);
-                const handleUp = () => {
-                    state.isDragging = false;
-                    document.removeEventListener('mousemove', handleMove);
-                    document.removeEventListener('mouseup', handleUp);
-                };
-                
-                document.addEventListener('mousemove', handleMove);
-                document.addEventListener('mouseup', handleUp);
-            });
-        }
+        // Mouse drag handling
+        hitArea.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            state.isDragging = true;
+            seekToPosition(e);
+            
+            const handleMove = (e) => state.isDragging && seekToPosition(e);
+            const handleUp = () => {
+                state.isDragging = false;
+                document.removeEventListener('mousemove', handleMove);
+                document.removeEventListener('mouseup', handleUp);
+            };
+            
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('mouseup', handleUp);
+        });
     }
 };
 
@@ -570,11 +541,13 @@ const beatEffects = {
         const now = Date.now();
         const { history, thresholds, lastTrigger } = beatDetection;
         
+        // Update history arrays
         history.bass.shift(); history.bass.push(bassAvg);
         history.mid.shift(); history.mid.push(midAvg);
         history.treble.shift(); history.treble.push(trebleAvg);
         history.energy.shift(); history.energy.push(totalEnergy);
         
+        // Calculate averages and thresholds
         const avgs = {
             bass: history.bass.reduce((a, b) => a + b) / history.bass.length,
             mid: history.mid.reduce((a, b) => a + b) / history.mid.length,
@@ -582,39 +555,30 @@ const beatEffects = {
             energy: history.energy.reduce((a, b) => a + b) / history.energy.length
         };
         
-        if (state.performanceMode === 'mobile') {
-            thresholds.bass = avgs.bass * 1.3;
-            thresholds.mid = avgs.mid * 1.25;
-            thresholds.treble = avgs.treble * 1.2;
-        } else {
-            const variances = {
-                bass: utils.calculateVariance(history.bass, avgs.bass),
-                mid: utils.calculateVariance(history.mid, avgs.mid),
-                treble: utils.calculateVariance(history.treble, avgs.treble)
-            };
-            
-            beatDetection.adaptiveSensitivity = Math.max(0.5, Math.min(2.0, totalEnergy / Math.max(avgs.energy, 1)));
-            
-            thresholds.bass = avgs.bass + (variances.bass * 1.2 * beatDetection.adaptiveSensitivity);
-            thresholds.mid = avgs.mid + (variances.mid * 1.1 * beatDetection.adaptiveSensitivity);
-            thresholds.treble = avgs.treble + (variances.treble * 1.0 * beatDetection.adaptiveSensitivity);
-        }
+        const variances = {
+            bass: utils.calculateVariance(history.bass, avgs.bass),
+            mid: utils.calculateVariance(history.mid, avgs.mid),
+            treble: utils.calculateVariance(history.treble, avgs.treble)
+        };
         
-        const cooldowns = state.performanceMode === 'mobile' ? 
-            { kick: 400, snare: 300, hihat: 200 } : 
-            { kick: 200, snare: 150, hihat: 80 };
+        beatDetection.adaptiveSensitivity = Math.max(0.5, Math.min(2.0, totalEnergy / Math.max(avgs.energy, 1)));
         
-        if (bassAvg > thresholds.bass && now - lastTrigger.kick > cooldowns.kick && bassAvg > avgs.bass * 1.4) {
+        thresholds.bass = avgs.bass + (variances.bass * 1.2 * beatDetection.adaptiveSensitivity);
+        thresholds.mid = avgs.mid + (variances.mid * 1.1 * beatDetection.adaptiveSensitivity);
+        thresholds.treble = avgs.treble + (variances.treble * 1.0 * beatDetection.adaptiveSensitivity);
+        
+        // Trigger effects
+        if (bassAvg > thresholds.bass && now - lastTrigger.kick > 200 && bassAvg > avgs.bass * 1.4) {
             this.triggerKickEffect(bassAvg, avgs.bass);
             lastTrigger.kick = now;
         }
         
-        if (midAvg > thresholds.mid && now - lastTrigger.snare > cooldowns.snare && midAvg > avgs.mid * 1.3 && bassAvg < avgs.bass * 1.2) {
+        if (midAvg > thresholds.mid && now - lastTrigger.snare > 150 && midAvg > avgs.mid * 1.3 && bassAvg < avgs.bass * 1.2) {
             this.triggerSnareEffect(midAvg, avgs.mid);
             lastTrigger.snare = now;
         }
         
-        if (trebleAvg > thresholds.treble && now - lastTrigger.hihat > cooldowns.hihat && trebleAvg > avgs.treble * 1.2) {
+        if (trebleAvg > thresholds.treble && now - lastTrigger.hihat > 80 && trebleAvg > avgs.treble * 1.2) {
             this.triggerHiHatEffect(trebleAvg, avgs.treble);
             lastTrigger.hihat = now;
         }
@@ -630,6 +594,7 @@ const beatEffects = {
             color: palette.mid.map((c, i) => Math.floor((c + palette.high[i]) / 2))
         };
         
+        // Only trigger title effects if not transitioning and lyrics are not loaded/playing
         if (!state.isTransitioning && (!state.lyrics.loaded || !state.isPlaying)) {
             const titleIntensity = Math.min(intensity * 1.2, 1);
             elements.bandTitle.style.transform = `scale(${1 + titleIntensity * 0.02})`;
@@ -657,8 +622,6 @@ const beatEffects = {
     },
 
     triggerHiHatEffect(currentLevel, avgLevel) {
-        if (state.performanceMode === 'mobile') return;
-        
         const intensity = Math.min((currentLevel / avgLevel - 1), 1);
         const spectrumCircle = document.getElementById('spectrumCircle');
         if (spectrumCircle) {
@@ -731,12 +694,14 @@ const lyrics = {
         
         setTimeout(() => {
             this.display.text.textContent = lyric.text;
-            this.display.text.style.opacity = (state.isHoveringCenter && state.performanceMode === 'desktop') ? '0.3' : '1';
+            // On mobile, never fade lyrics on center interaction
+            this.display.text.style.opacity = (state.isHoveringCenter && !state.isMobile) ? '0.3' : '1';
             this.display.container.style.opacity = '1';
             
             ui.applyLyricStyling(this.display.text, lyric.style, state.currentSongData.palette);
             
-            if (state.isHoveringCenter && state.performanceMode === 'desktop') {
+            // Only apply hover dimming on desktop
+            if (state.isHoveringCenter && !state.isMobile) {
                 this.display.text.style.opacity = '0.3';
             }
         }, 300);
@@ -746,20 +711,24 @@ const lyrics = {
 // Background animation system
 const backgroundAnimation = {
     updateAnimation() {
-        if (!state.isPlaying || state.performanceMode === 'mobile') return;
+        if (!state.isPlaying) return;
         
+        // Increment animation phase
         state.backgroundAnimationPhase += 0.001;
         
+        // Calculate gentle animation values based on music analysis
         const time = Date.now() * 0.001;
         const slowWave = Math.sin(time * 0.1) * 0.5;
         const mediumWave = Math.sin(time * 0.15) * 0.3;
         const fastWave = Math.sin(time * 0.2) * 0.2;
         
+        // Combine waves for complex movement
         const xOffset = -5 + slowWave + mediumWave * 0.5;
         const yOffset = -5 + fastWave + slowWave * 0.3;
         const scale = 1 + (slowWave * 0.01) + (mediumWave * 0.005);
         const rotation = (slowWave + fastWave) * 0.3;
         
+        // Apply the transformation
         const transform = `translate(${xOffset}%, ${yOffset}%) scale(${scale}) rotate(${rotation}deg)`;
         elements.songBackground.style.transform = transform;
     }
@@ -771,18 +740,9 @@ const visualization = {
         canvas = document.getElementById('visualizerCanvas');
         ctx = canvas.getContext('2d');
         
-        const config = performanceConfig[state.performanceMode];
-        
         const resizeCanvas = () => {
-            if (state.performanceMode === 'mobile') {
-                canvas.width = Math.floor(window.innerWidth * 0.75);
-                canvas.height = Math.floor(window.innerHeight * 0.75);
-                canvas.style.width = window.innerWidth + 'px';
-                canvas.style.height = window.innerHeight + 'px';
-            } else {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         };
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -794,8 +754,7 @@ const visualization = {
         source.connect(analyser);
         analyser.connect(audioContext.destination);
         
-        analyser.fftSize = config.fftSize;
-        analyser.smoothingTimeConstant = state.performanceMode === 'mobile' ? 0.9 : 0.8;
+        analyser.fftSize = 2048;
         bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
         
@@ -807,25 +766,11 @@ const visualization = {
         const palette = state.currentSongData.palette;
         const baseColor = type === 'mid' ? palette.mid : palette.high;
         
-        if (state.performanceMode === 'mobile') {
-            return baseColor;
-        }
-        
         const phaseShift = Math.sin(state.colorPhase + intensity * 2) * 0.1;
         return baseColor.map(c => Math.max(0, Math.min(255, c + phaseShift * 20)));
     },
 
     visualize() {
-        const now = performance.now();
-        const config = performanceConfig[state.performanceMode];
-        const targetFrameTime = 1000 / config.animationFPS;
-        
-        if (now - lastFrameTime < targetFrameTime) {
-            animationId = requestAnimationFrame(() => this.visualize());
-            return;
-        }
-        lastFrameTime = now;
-        
         animationId = requestAnimationFrame(() => this.visualize());
         
         analyser.getByteFrequencyData(dataArray);
@@ -834,27 +779,21 @@ const visualization = {
             lyrics.update();
         }
         
-        if (state.performanceMode === 'mobile') {
-            frameCount++;
-            if (frameCount % 2 === 0) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-        } else {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+        // Very light fade effect for visualizer trails (won't hide background)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         
+        // Calculate frequency averages
         const total = dataArray.reduce((sum, val) => sum + val, 0);
         const average = total / bufferLength;
         const bassAverage = dataArray.slice(0, bufferLength / 8).reduce((a, b) => a + b) / (bufferLength / 8);
         const midAverage = dataArray.slice(bufferLength / 8, bufferLength / 2).reduce((a, b) => a + b) / (bufferLength * 3 / 8);
         const trebleAverage = dataArray.slice(bufferLength / 2).reduce((a, b) => a + b) / (bufferLength / 2);
         
-        state.colorPhase += state.performanceMode === 'mobile' ? 0.002 : 0.003;
+        state.colorPhase += 0.003;
         
         if (state.isPlaying) {
             beatEffects.updateBeatDetection(bassAverage, midAverage, trebleAverage, average);
@@ -866,8 +805,6 @@ const visualization = {
     },
 
     drawBackground(centerX, centerY, average, bassAverage) {
-        if (state.performanceMode === 'mobile' && frameCount % 3 !== 0) return;
-        
         const pulseIntensity = average / 255;
         const palette = state.currentSongData.palette;
         const bgColor = palette.mid.map((c, i) => (c + palette.high[i]) / 2);
@@ -885,10 +822,9 @@ const visualization = {
 
     drawSpectrum(centerX, centerY) {
         const radius = 245;
-        const step = state.performanceMode === 'mobile' ? 4 : 1;
         
-        for (let i = 0; i < bufferLength; i += step) {
-            const barHeight = (dataArray[i] / 255) * (state.performanceMode === 'mobile' ? 150 : 200);
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = (dataArray[i] / 255) * 200;
             const angle = (i / bufferLength) * 2 * Math.PI - Math.PI / 2;
             const intensity = dataArray[i] / 255;
             
@@ -898,54 +834,42 @@ const visualization = {
             const y2 = centerY + Math.sin(angle * 4) * (radius + barHeight);
             
             if (i < bufferLength / 4) {
+                // Bass frequencies
                 const palette = state.currentSongData.palette;
                 const tintStrength = 0.1;
                 const color = palette.mid.map(c => 255 - (255 - c) * tintStrength);
                 
                 ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.8})`;
-                ctx.lineWidth = state.performanceMode === 'mobile' ? 1 : 0.5;
+                ctx.lineWidth = 0.5;
             } else if (i < bufferLength / 2) {
+                // Mid frequencies
                 const color = this.getFrequencyColor('mid', intensity);
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
+                gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
                 
-                if (state.performanceMode === 'mobile') {
-                    ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.5})`;
-                    ctx.lineWidth = 2;
-                } else {
-                    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-                    gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
-                    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
-                    
-                    ctx.shadowColor = `rgba(${color.join(', ')}, 0.4)`;
-                    ctx.shadowBlur = intensity * 6;
-                    ctx.strokeStyle = gradient;
-                    ctx.lineWidth = 2 + intensity * 4;
-                }
+                ctx.shadowColor = `rgba(${color.join(', ')}, 0.4)`;
+                ctx.shadowBlur = intensity * 6;
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 2 + intensity * 4;
             } else {
+                // High frequencies
                 const color = this.getFrequencyColor('high', intensity);
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
+                gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
                 
-                if (state.performanceMode === 'mobile') {
-                    ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.4})`;
-                    ctx.lineWidth = 1;
-                } else {
-                    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-                    gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
-                    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
-                    
-                    ctx.shadowColor = `rgba(${color.join(', ')}, 0.5)`;
-                    ctx.shadowBlur = intensity * 8;
-                    ctx.strokeStyle = gradient;
-                    ctx.lineWidth = 1 + intensity * 5;
-                }
+                ctx.shadowColor = `rgba(${color.join(', ')}, 0.5)`;
+                ctx.shadowBlur = intensity * 8;
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 1 + intensity * 5;
             }
             
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
             ctx.stroke();
-            
-            if (state.performanceMode === 'desktop') {
-                ctx.shadowBlur = 0;
-            }
+            ctx.shadowBlur = 0;
         }
     },
 
@@ -961,6 +885,7 @@ const visualization = {
         let shadowBlur = intensity * 20;
         let lineWidth = 3;
         
+        // Apply kick glow effect
         if (window.kickGlow && (now - window.kickGlow.timestamp) < 400) {
             const kickFade = 1 - ((now - window.kickGlow.timestamp) / 400);
             const kickIntensity = window.kickGlow.intensity * kickFade;
@@ -971,42 +896,35 @@ const visualization = {
             lineWidth = lineWidth + kickIntensity * 6;
         }
         
+        // Apply snare flash effect
         if (window.snareFlash && (now - window.snareFlash.timestamp) < 150) {
             const snareFade = 1 - ((now - window.snareFlash.timestamp) / 150);
             const snareIntensity = window.snareFlash.intensity * snareFade;
             
-            if (state.performanceMode === 'desktop') {
-                const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 800);
-                const color = window.snareFlash.color;
-                flashGradient.addColorStop(0, `rgba(${color.join(', ')}, ${snareIntensity * 0.1})`);
-                flashGradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${snareIntensity * 0.05})`);
-                flashGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                
-                ctx.fillStyle = flashGradient;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, 800, 0, 2 * Math.PI);
-                ctx.fill();
-            }
+            const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 800);
+            const color = window.snareFlash.color;
+            flashGradient.addColorStop(0, `rgba(${color.join(', ')}, ${snareIntensity * 0.1})`);
+            flashGradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${snareIntensity * 0.05})`);
+            flashGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.fillStyle = flashGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 800, 0, 2 * Math.PI);
+            ctx.fill();
         }
         
         ctx.strokeStyle = `rgba(${bassColor.join(', ')}, ${strokeOpacity})`;
         ctx.lineWidth = lineWidth;
-        
-        if (state.performanceMode === 'desktop') {
-            ctx.shadowColor = `rgba(${bassColor.join(', ')}, 0.8)`;
-            ctx.shadowBlur = shadowBlur;
-        }
+        ctx.shadowColor = `rgba(${bassColor.join(', ')}, 0.8)`;
+        ctx.shadowBlur = shadowBlur;
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, bassAverage * 1.2, 0, 2 * Math.PI);
         ctx.stroke();
+        ctx.shadowBlur = 0;
         
-        if (state.performanceMode === 'desktop') {
-            ctx.shadowBlur = 0;
-        }
-        
-        const cooldown = state.performanceMode === 'mobile' ? 600 : 300;
-        if (bassAverage > 100 && now - (window.lastBassKick || 0) > cooldown) {
+        // Trigger beat pulse effect
+        if (bassAverage > 100 && now - (window.lastBassKick || 0) > 300) {
             window.lastBassKick = now;
             elements.beatPulse.classList.add('active');
             setTimeout(() => elements.beatPulse.classList.remove('active'), 800);
@@ -1014,20 +932,24 @@ const visualization = {
     }
 };
 
-// Main playbook control
+// Main playbook control with mobile icon support
 function togglePlay() {
+    // Show mobile icon animation
     showMobileIcon(elements.centerPlayArea);
     
     if (state.isPlaying) {
         elements.audio.pause();
         state.isPlaying = false;
-        state.isTransitioning = false;
+        state.isTransitioning = false; // Clear transition state when manually stopping
         
+        // Remove playing classes
         ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
             elements[el].classList.remove('playing');
         });
         
+        // Show static speaker when stopped
         elements.speakerStatic.classList.remove('hidden');
+        
         ui.hideLyrics();
     } else {
         if (!audioContext) visualization.init();
@@ -1038,24 +960,28 @@ function togglePlay() {
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 state.isPlaying = true;
-                state.isTransitioning = false;
+                state.isTransitioning = false; // Clear transition state when successfully playing
                 
+                // Add playing classes
                 ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                     elements[el].classList.add('playing');
                 });
                 
+                // Hide static speaker when playing
                 elements.speakerStatic.classList.add('hidden');
                 
                 if (state.lyrics.loaded) ui.showLyrics();
             });
         } else {
             state.isPlaying = true;
-            state.isTransitioning = false;
+            state.isTransitioning = false; // Clear transition state
             
+            // Add playing classes
             ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                 elements[el].classList.add('playing');
             });
             
+            // Hide static speaker when playing
             elements.speakerStatic.classList.add('hidden');
             
             if (state.lyrics.loaded) ui.showLyrics();
@@ -1075,8 +1001,8 @@ elements.audio.addEventListener('ended', navigation.nextSong);
 
 // Initialize application
 async function initializeApp() {
-    const config = detectPerformance();
-    console.log(`Performance mode: ${state.performanceMode}`, config);
+    // Detect mobile first
+    detectMobile();
     
     state.songs = await songManager.discoverSongs();
     
@@ -1089,7 +1015,8 @@ async function initializeApp() {
     lyrics.init();
     events.setupGestureControls();
     
-    if (state.performanceMode === 'desktop') {
+    // Band title hover effects (desktop only)
+    if (!state.isMobile) {
         elements.bandTitle.addEventListener('mouseenter', () => {
             if (!state.isPlaying) {
                 elements.bandTitle.style.transform = 'scale(1.015)';
@@ -1104,27 +1031,9 @@ async function initializeApp() {
             }
         });
     }
-    
-    if (state.performanceMode === 'mobile') {
-        document.documentElement.style.setProperty('--hover-transition', 'none');
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            * {
-                -webkit-transform: translateZ(0);
-                transform: translateZ(0);
-                -webkit-backface-visibility: hidden;
-                backface-visibility: hidden;
-            }
-            #visualizerCanvas {
-                will-change: transform;
-            }
-        `;
-        document.head.appendChild(style);
-    }
 }
 
-// Global variable for lyrics display
+// Global variable for lyrics display (referenced by UI functions)
 let lyricsDisplay;
 
 // Start the application
