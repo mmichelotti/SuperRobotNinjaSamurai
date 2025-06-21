@@ -384,11 +384,17 @@ const ui = {
             opacity: 0.9; 
             text-align: center;
             touch-action: manipulation;
-            white-space: nowrap;
             max-width: 90vw;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            padding: 0 5vw;
         `;
+        
+        // Set white-space based on device type
+        if (state.isMobile) {
+            text.style.whiteSpace = 'normal';
+            text.style.wordBreak = 'break-word';
+        } else {
+            text.style.whiteSpace = 'nowrap';
+        }
         
         container.appendChild(text);
         document.querySelector('.container').appendChild(container);
@@ -402,11 +408,17 @@ const ui = {
             fontSize: 'clamp(1rem, 2vw, 2.2rem)',
             letterSpacing: '0.15em',
             transform: 'scale(1)',
-            whiteSpace: 'nowrap',
             maxWidth: '90vw',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+            padding: '0 5vw'
         };
+        
+        // Apply white-space based on device type
+        if (state.isMobile) {
+            baseStyle.whiteSpace = 'normal';
+            baseStyle.wordBreak = 'break-word';
+        } else {
+            baseStyle.whiteSpace = 'nowrap';
+        }
         
         Object.assign(element.style, baseStyle);
         
