@@ -176,10 +176,72 @@ body {
     border-bottom: 12px solid transparent;
 }
 
-.nav-area:hover::before {
-    opacity: 1;
-    transform: scale(1);
-    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+/* Desktop hover behavior */
+@media (hover: hover) and (pointer: fine) {
+    .nav-area:hover::before {
+        opacity: 1;
+        transform: scale(1);
+        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    }
+    
+    .center-play-area:hover::before {
+        opacity: 1;
+        transform: scale(1) translateX(3px);
+        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
+    }
+    
+    .center-play-area.playing:hover::before {
+        transform: scale(1);
+        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
+    }
+    
+    .song-dot:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(1.2);
+    }
+    
+    .progress-container:hover {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.12);
+    }
+}
+
+/* Mobile click animations */
+@media (hover: none) and (pointer: coarse) {
+    .nav-area.mobile-click::before {
+        opacity: 1;
+        transform: scale(1);
+        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+        animation: mobileIconPop 0.3s ease-out;
+    }
+    
+    .center-play-area.mobile-click::before {
+        opacity: 1;
+        transform: scale(1) translateX(3px);
+        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
+        animation: mobileIconPop 0.3s ease-out;
+    }
+    
+    .center-play-area.playing.mobile-click::before {
+        transform: scale(1);
+        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
+        animation: mobileIconPop 0.3s ease-out;
+    }
+}
+
+@keyframes mobileIconPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Center play area */
@@ -218,12 +280,6 @@ body {
     margin-top: -14px;  /* Half of total height (border-top + border-bottom) */
 }
 
-.center-play-area:hover::before {
-    opacity: 1;
-    transform: scale(1) translateX(3px);
-    filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
-}
-
 /* CSS-drawn pause button */
 .center-play-area.playing::before {
     content: '';
@@ -239,11 +295,6 @@ body {
     top: 50%;
     margin-left: -9px; /* Half of total width (6px + 6px gap + 6px) */
     margin-top: -14px; /* Half of height */
-}
-
-.center-play-area.playing:hover::before {
-    transform: scale(1);
-    filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
 }
 
 /* Song info and controls */
@@ -281,11 +332,6 @@ body {
     position: relative;
     transition: all 0.2s ease;
     margin-bottom: 1.5rem;
-}
-
-.progress-container:hover {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.12);
 }
 
 .progress-bar {
@@ -332,11 +378,6 @@ body {
     background: rgba(255, 255, 255, 0.8);
     box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
     border-color: rgba(255, 255, 255, 0.6);
-}
-
-.song-dot:hover {
-    background: rgba(255, 255, 255, 0.4);
-    transform: scale(1.2);
 }
 
 /* Visual effects */

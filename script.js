@@ -10,7 +10,8 @@ const state = {
     isHoveringCenter: false,
     isDragging: false,
     colorPhase: 0,
-    backgroundAnimationPhase: 0
+    backgroundAnimationPhase: 0,
+    isMobile: false
 };
 
 // Beat detection state
@@ -41,6 +42,22 @@ const elements = {
     speakerStatic: document.getElementById('speakerStatic'),
     songBackground: document.getElementById('songBackground')
 };
+
+// Mobile detection
+function detectMobile() {
+    state.isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || 
+                    (window.matchMedia && window.matchMedia("(hover: none)").matches);
+}
+
+// Mobile animation helpers
+function showMobileIcon(element) {
+    if (!state.isMobile) return;
+    
+    element.classList.add('mobile-click');
+    setTimeout(() => {
+        element.classList.remove('mobile-click');
+    }, 300);
+}
 
 // Utility functions
 const utils = {
@@ -403,8 +420,17 @@ const events = {
         document.addEventListener('touchend', this.handleTouchEnd, { passive: false });
         document.addEventListener('wheel', this.handleWheel, { passive: false });
         
-        elements.navLeft.addEventListener('click', (e) => { e.stopPropagation(); navigation.previousSong(); });
-        elements.navRight.addEventListener('click', (e) => { e.stopPropagation(); navigation.nextSong(); });
+        // Enhanced navigation with mobile support
+        elements.navLeft.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            showMobileIcon(elements.navLeft);
+            navigation.previousSong(); 
+        });
+        elements.navRight.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            showMobileIcon(elements.navRight);
+            navigation.nextSong(); 
+        });
         
         ui.createSongIndicators();
         this.setupCenterAreaHover();
@@ -451,19 +477,22 @@ const events = {
     },
 
     setupCenterAreaHover() {
-        elements.centerPlayArea.addEventListener('mouseenter', () => {
-            state.isHoveringCenter = true;
-            if (state.isPlaying && state.lyrics.loaded && lyricsDisplay.text.textContent) {
-                lyricsDisplay.text.style.opacity = '0.3';
-            }
-        });
-        
-        elements.centerPlayArea.addEventListener('mouseleave', () => {
-            state.isHoveringCenter = false;
-            if (state.isPlaying && state.lyrics.loaded) {
-                lyricsDisplay.text.style.opacity = '0.9';
-            }
-        });
+        // Only setup hover events for desktop
+        if (!state.isMobile) {
+            elements.centerPlayArea.addEventListener('mouseenter', () => {
+                state.isHoveringCenter = true;
+                if (state.isPlaying && state.lyrics.loaded && lyricsDisplay.text.textContent) {
+                    lyricsDisplay.text.style.opacity = '0.3';
+                }
+            });
+            
+            elements.centerPlayArea.addEventListener('mouseleave', () => {
+                state.isHoveringCenter = false;
+                if (state.isPlaying && state.lyrics.loaded) {
+                    lyricsDisplay.text.style.opacity = '0.9';
+                }
+            });
+        }
     },
 
     setupProgressBar() {
@@ -665,12 +694,14 @@ const lyrics = {
         
         setTimeout(() => {
             this.display.text.textContent = lyric.text;
-            this.display.text.style.opacity = state.isHoveringCenter ? '0.3' : '1';
+            // On mobile, never fade lyrics on center interaction
+            this.display.text.style.opacity = (state.isHoveringCenter && !state.isMobile) ? '0.3' : '1';
             this.display.container.style.opacity = '1';
             
             ui.applyLyricStyling(this.display.text, lyric.style, state.currentSongData.palette);
             
-            if (state.isHoveringCenter) {
+            // Only apply hover dimming on desktop
+            if (state.isHoveringCenter && !state.isMobile) {
                 this.display.text.style.opacity = '0.3';
             }
         }, 300);
@@ -901,8 +932,11 @@ const visualization = {
     }
 };
 
-// Main playbook control
+// Main playbook control with mobile icon support
 function togglePlay() {
+    // Show mobile icon animation
+    showMobileIcon(elements.centerPlayArea);
+    
     if (state.isPlaying) {
         elements.audio.pause();
         state.isPlaying = false;
@@ -965,23 +999,11 @@ elements.audio.addEventListener('timeupdate', () => {
 
 elements.audio.addEventListener('ended', navigation.nextSong);
 
-// Band title hover effects
-elements.bandTitle.addEventListener('mouseenter', () => {
-    if (!state.isPlaying) {
-        elements.bandTitle.style.transform = 'scale(1.015)';
-        elements.bandTitle.style.textShadow = '0 0 70px rgba(255, 255, 255, 0.4)';
-    }
-});
-
-elements.bandTitle.addEventListener('mouseleave', () => {
-    if (!state.isPlaying) {
-        elements.bandTitle.style.transform = 'scale(1)';
-        elements.bandTitle.style.textShadow = '0 0 40px rgba(255, 255, 255, 0.25)';
-    }
-});
-
 // Initialize application
 async function initializeApp() {
+    // Detect mobile first
+    detectMobile();
+    
     state.songs = await songManager.discoverSongs();
     
     if (state.songs.length === 0) {
@@ -992,6 +1014,23 @@ async function initializeApp() {
     await songManager.loadCurrentSong();
     lyrics.init();
     events.setupGestureControls();
+    
+    // Band title hover effects (desktop only)
+    if (!state.isMobile) {
+        elements.bandTitle.addEventListener('mouseenter', () => {
+            if (!state.isPlaying) {
+                elements.bandTitle.style.transform = 'scale(1.015)';
+                elements.bandTitle.style.textShadow = '0 0 70px rgba(255, 255, 255, 0.4)';
+            }
+        });
+
+        elements.bandTitle.addEventListener('mouseleave', () => {
+            if (!state.isPlaying) {
+                elements.bandTitle.style.transform = 'scale(1)';
+                elements.bandTitle.style.textShadow = '0 0 40px rgba(255, 255, 255, 0.25)';
+            }
+        });
+    }
 }
 
 // Global variable for lyrics display (referenced by UI functions)
