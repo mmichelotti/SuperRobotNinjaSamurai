@@ -5,7 +5,5 @@
     "high": [255,197,165]
   },
   "backgroundBrightness": 0.0,
-  "mood": "cyberpunk",
-  "bpm": 120,
-  "genre": "Electronic"
+  "bpm": 120
 }

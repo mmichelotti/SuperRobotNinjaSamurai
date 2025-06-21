@@ -4,7 +4,5 @@
     "high": [147, 112, 219]
   },
   "backgroundBrightness": 0.0,
-  "mood": "melancholy",
-  "bpm": 85,
-  "genre": "Indie"
+  "bpm": 85
 }

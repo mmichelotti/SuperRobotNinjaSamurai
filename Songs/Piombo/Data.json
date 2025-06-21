@@ -4,7 +4,5 @@
     "high": [255, 255, 0]
   },
   "backgroundBrightness": 0.0,
-  "mood": "fire",
-  "bpm": 140,
-  "genre": "Rock"
+  "bpm": 140
 }
