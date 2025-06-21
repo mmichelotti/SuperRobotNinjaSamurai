@@ -61,8 +61,6 @@ body {
     opacity: 1;
 }
 
-
-
 .song-background::after {
     content: '';
     position: absolute;
@@ -128,7 +126,7 @@ body {
                  0 0 var(--hover-glow-secondary) rgba(255, 255, 255, 0.4);
 }
 
-/* Navigation and interaction areas */
+/* Navigation areas */
 .nav-area {
     position: absolute;
     top: 50%;
@@ -153,25 +151,38 @@ body {
     padding-right: 2rem;
 }
 
+/* CSS-drawn previous/next buttons */
 .nav-area::before {
-    font-size: 2.5rem;
-    color: rgba(255, 255, 255, 0.9);
+    content: '';
+    width: 0;
+    height: 0;
     opacity: 0;
     transition: var(--hover-transition);
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
-    transform: scale(0.8) translateY(-6px);
-    filter: blur(0px);
+    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.6));
+    transform: scale(0.8);
 }
 
-.nav-area.left::before { content: '⏮'; }
-.nav-area.right::before { content: '⏭'; }
+/* Left arrow (previous) - simple triangle pointing left */
+.nav-area.left::before {
+    border-right: 20px solid rgba(255, 255, 255, 0.9);
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+}
+
+/* Right arrow (next) - simple triangle pointing right */
+.nav-area.right::before {
+    border-left: 20px solid rgba(255, 255, 255, 0.9);
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+}
 
 .nav-area:hover::before {
     opacity: 1;
     transform: scale(1);
-    text-shadow: 0 0 40px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
+    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
 }
 
+/* Center play area */
 .center-play-area {
     position: absolute;
     top: 50%;
@@ -188,36 +199,51 @@ body {
     justify-content: center;
 }
 
+/* CSS-drawn play button */
 .center-play-area::before {
-    content: '▶';
-    font-size: 4rem;
-    color: rgba(255, 255, 255, 0.95);
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 24px solid rgba(255, 255, 255, 0.95);
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
     opacity: 0;
     transition: var(--hover-transition);
-    text-shadow: 0 0 40px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.4);
-    transform: scale(0.8) translateY(-6px);
-    filter: blur(0px);
-    font-family: 'Inter', sans-serif;
-    font-weight: 200;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    transform: scale(0.8) translateX(3px); /* Slightly increased offset for better centering */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -12px; /* Half of border-left width */
+    margin-top: -14px;  /* Half of total height (border-top + border-bottom) */
 }
 
 .center-play-area:hover::before {
     opacity: 1;
-    transform: scale(1) translateY(-6px);
-    text-shadow: 0 0 50px rgba(255, 255, 255, 0.9), 0 0 25px rgba(255, 255, 255, 0.6);
+    transform: scale(1) translateX(3px);
+    filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
 }
 
+/* CSS-drawn pause button */
 .center-play-area.playing::before {
-    content: '⏸';
-    transform: scale(0.8) translateY(-6px);
+    content: '';
+    width: 6px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    transform: scale(0.8);
+    box-shadow: 12px 0 0 rgba(255, 255, 255, 0.95);
+    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -9px; /* Half of total width (6px + 6px gap + 6px) */
+    margin-top: -14px; /* Half of height */
 }
 
 .center-play-area.playing:hover::before {
-    transform: scale(1) translateY(-6px);
+    transform: scale(1);
+    filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
 }
 
 /* Song info and controls */
