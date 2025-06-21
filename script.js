@@ -352,19 +352,42 @@ const ui = {
         const container = document.createElement('div');
         container.id = 'lyricsContainer';
         container.style.cssText = `
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 15; text-align: center; opacity: 0; transition: opacity 0.8s ease;
-            pointer-events: none; max-width: 80vw; touch-action: manipulation;
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            z-index: 15; 
+            text-align: center; 
+            opacity: 0; 
+            transition: opacity 0.8s ease;
+            pointer-events: none; 
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
         `;
         
         const text = document.createElement('div');
         text.id = 'lyricsText';
         text.style.cssText = `
-            font-size: clamp(1rem, 2vw, 2.2rem); font-weight: 300; color: #fff;
-            letter-spacing: 0.15em; line-height: 1.4; text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-            font-family: 'Inter', sans-serif; white-space: nowrap; filter: blur(0px);
-            transition: all 0.6s ease; text-transform: uppercase; opacity: 0.9; text-align: center;
+            font-size: clamp(1rem, 2vw, 2.2rem); 
+            font-weight: 300; 
+            color: #fff;
+            letter-spacing: 0.15em; 
+            line-height: 1.4; 
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            font-family: 'Inter', sans-serif; 
+            filter: blur(0px);
+            transition: all 0.6s ease; 
+            text-transform: uppercase; 
+            opacity: 0.9; 
+            text-align: center;
             touch-action: manipulation;
+            white-space: nowrap;
+            max-width: 90vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
         `;
         
         container.appendChild(text);
@@ -379,7 +402,10 @@ const ui = {
             fontSize: 'clamp(1rem, 2vw, 2.2rem)',
             letterSpacing: '0.15em',
             transform: 'scale(1)',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            maxWidth: '90vw',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
         };
         
         Object.assign(element.style, baseStyle);
