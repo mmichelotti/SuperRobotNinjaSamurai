@@ -49,6 +49,60 @@ function detectMobile() {
                     (window.matchMedia && window.matchMedia("(hover: none)").matches);
 }
 
+// Prevent zoom and pinch gestures
+function preventZoom() {
+    // Prevent double-tap zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // Prevent pinch zoom
+    document.addEventListener('gesturestart', function (event) {
+        event.preventDefault();
+    });
+
+    document.addEventListener('gesturechange', function (event) {
+        event.preventDefault();
+    });
+
+    document.addEventListener('gestureend', function (event) {
+        event.preventDefault();
+    });
+
+    // Prevent zoom on input focus (if any inputs are added later)
+    document.addEventListener('touchstart', function(event) {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    });
+
+    // Additional prevention for iOS Safari
+    document.addEventListener('touchmove', function(event) {
+        if (event.scale !== 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    // Prevent zoom keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+        if ((event.ctrlKey || event.metaKey) && (event.key === '+' || event.key === '-' || event.key === '=' || event.key === '0')) {
+            event.preventDefault();
+        }
+    });
+
+    // Prevent mouse wheel zoom
+    document.addEventListener('wheel', function(event) {
+        if (event.ctrlKey) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+}
+
 // Mobile animation helpers
 function showMobileIcon(element) {
     if (!state.isMobile) return;
@@ -300,7 +354,7 @@ const ui = {
         container.style.cssText = `
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             z-index: 15; text-align: center; opacity: 0; transition: opacity 0.8s ease;
-            pointer-events: none; max-width: 80vw;
+            pointer-events: none; max-width: 80vw; touch-action: manipulation;
         `;
         
         const text = document.createElement('div');
@@ -310,6 +364,7 @@ const ui = {
             letter-spacing: 0.15em; line-height: 1.4; text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
             font-family: 'Inter', sans-serif; white-space: nowrap; filter: blur(0px);
             transition: all 0.6s ease; text-transform: uppercase; opacity: 0.9; text-align: center;
+            touch-action: manipulation;
         `;
         
         container.appendChild(text);
@@ -499,7 +554,7 @@ const events = {
         const hitArea = document.createElement('div');
         hitArea.style.cssText = `
             position: absolute; top: -20px; left: -10px; right: -10px; bottom: -20px;
-            z-index: 101; cursor: pointer;
+            z-index: 101; cursor: pointer; touch-action: manipulation;
         `;
         elements.progressContainer.style.position = 'relative';
         elements.progressContainer.appendChild(hitArea);
@@ -1003,6 +1058,11 @@ elements.audio.addEventListener('ended', navigation.nextSong);
 async function initializeApp() {
     // Detect mobile first
     detectMobile();
+    
+    // Prevent zoom gestures on mobile
+    if (state.isMobile) {
+        preventZoom();
+    }
     
     state.songs = await songManager.discoverSongs();
     

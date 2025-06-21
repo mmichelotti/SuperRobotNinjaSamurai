@@ -19,6 +19,22 @@
     padding: 0;
     box-sizing: border-box;
     user-select: none;
+    /* Prevent zooming and pinching on mobile */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+html {
+    /* Prevent zoom on iOS Safari */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    /* Prevent double-tap zoom */
+    touch-action: manipulation;
+    overflow: hidden;
 }
 
 body {
@@ -27,6 +43,16 @@ body {
     color: #fff;
     overflow: hidden;
     height: 100vh;
+    width: 100vw;
+    position: fixed;
+    /* Additional mobile zoom prevention */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-text-size-adjust: none;
+    -webkit-font-smoothing: antialiased;
+    /* Prevent overscroll bounce on iOS */
+    overscroll-behavior: none;
 }
 
 .container {
@@ -37,6 +63,9 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    /* Ensure container blocks all zoom gestures */
+    touch-action: manipulation;
+    overflow: hidden;
 }
 
 /* Song background - behind everything */
@@ -55,6 +84,8 @@ body {
     transition: opacity 1.5s ease;
     transform: translate(0%, 0%); /* Back to normal position */
     filter: sepia(1) saturate(2) hue-rotate(0deg) brightness(0.8);
+    /* Prevent zoom on background */
+    touch-action: manipulation;
 }
 
 .song-background.loaded {
@@ -100,6 +131,8 @@ body {
     text-transform: uppercase;
     text-shadow: 0 0 40px rgba(255, 255, 255, 0.25);
     filter: blur(0px);
+    /* Prevent zoom on title */
+    touch-action: manipulation;
 }
 
 .band-title.playing {
@@ -137,6 +170,8 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
+    /* Prevent zoom on navigation */
+    touch-action: manipulation;
 }
 
 .nav-area.left {
@@ -259,6 +294,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Prevent zoom on play area */
+    touch-action: manipulation;
 }
 
 /* CSS-drawn play button */
@@ -306,6 +343,8 @@ body {
     text-align: center;
     z-index: 100;
     opacity: 0.85;
+    /* Prevent zoom on song info */
+    touch-action: manipulation;
 }
 
 .song-title {
@@ -332,6 +371,8 @@ body {
     position: relative;
     transition: all 0.2s ease;
     margin-bottom: 1.5rem;
+    /* Prevent zoom on progress bar */
+    touch-action: manipulation;
 }
 
 .progress-bar {
@@ -362,6 +403,8 @@ body {
     justify-content: center;
     gap: 0.8rem;
     margin-top: 0.5rem;
+    /* Prevent zoom on indicators */
+    touch-action: manipulation;
 }
 
 .song-dot {
@@ -372,6 +415,8 @@ body {
     transition: var(--hover-transition);
     border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
+    /* Prevent zoom on dots */
+    touch-action: manipulation;
 }
 
 .song-dot.active {
@@ -456,6 +501,8 @@ body {
     z-index: 0;
     pointer-events: none;
     mix-blend-mode: screen; /* This will make the visualizer blend with the background */
+    /* Prevent zoom on canvas */
+    touch-action: manipulation;
 }
 
 audio {
