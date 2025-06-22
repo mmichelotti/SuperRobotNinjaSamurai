@@ -181,6 +181,15 @@ const songManager = {
         document.documentElement.style.setProperty('--bg-tint-r', tintColor[0]);
         document.documentElement.style.setProperty('--bg-tint-g', tintColor[1]);
         document.documentElement.style.setProperty('--bg-tint-b', tintColor[2]);
+        // Subtle tint for section headers
+        const sectionHeaders = document.querySelectorAll('.section-title');
+        const shadowColor = `rgba(${tintColor[0]}, ${tintColor[1]}, ${tintColor[2]}, 1.0)`;
+
+        sectionHeaders.forEach(header => {
+            header.style.textShadow = `0 0 20px ${shadowColor}`;
+        });
+
+
     },
 
     async discoverSongs() {
