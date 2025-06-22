@@ -505,6 +505,9 @@ const scrollHandler = {
             state.isScrolled = scrolled;
             elements.navOverlay.classList.toggle('scrolled', scrolled);
             elements.scrollIndicator.classList.toggle('hidden', scrolled);
+            
+            // Fade out music controls when header appears (matching header timing)
+            elements.songInfo.classList.toggle('scrolled', scrolled);
         }
     },
 
