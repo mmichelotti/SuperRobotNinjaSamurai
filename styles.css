@@ -505,6 +505,21 @@ body {
     touch-action: manipulation;
 }
 
+/* Hide visualizer canvas on mobile devices */
+@media (hover: none) and (pointer: coarse) {
+    #visualizerCanvas {
+        display: none;
+    }
+    
+    .beat-pulse {
+        display: none;
+    }
+    
+    .spectrum-circle {
+        display: none;
+    }
+}
+
 audio {
     display: none;
 }

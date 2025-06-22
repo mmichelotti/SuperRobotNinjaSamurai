@@ -14,7 +14,7 @@ const state = {
     isMobile: false
 };
 
-// Beat detection state
+// Beat detection state - only used on desktop
 const beatDetection = {
     history: { bass: [], mid: [], treble: [], energy: [] },
     thresholds: { bass: 0, mid: 0, treble: 0 },
@@ -23,7 +23,7 @@ const beatDetection = {
     lastBeatTrigger: 0
 };
 
-// Audio and visualization
+// Audio and visualization - only initialized on desktop
 let audioContext, analyser, source, dataArray, bufferLength, canvas, ctx, animationId;
 
 // DOM elements cache
@@ -283,7 +283,12 @@ const songManager = {
         // Reset states
         state.colorPhase = 0;
         state.backgroundAnimationPhase = 0;
-        this.initializeBeatDetection();
+        
+        // Only initialize beat detection on desktop
+        if (!state.isMobile) {
+            this.initializeBeatDetection();
+        }
+        
         await this.loadLyrics();
     },
 
@@ -314,6 +319,9 @@ const songManager = {
     },
 
     initializeBeatDetection() {
+        // Only initialize on desktop
+        if (state.isMobile) return;
+        
         beatDetection.history.bass = new Array(20).fill(0);
         beatDetection.history.mid = new Array(15).fill(0);
         beatDetection.history.treble = new Array(10).fill(0);
@@ -628,9 +636,12 @@ const events = {
     }
 };
 
-// Beat detection and effects
+// Beat detection and effects - only used on desktop
 const beatEffects = {
     updateBeatDetection(bassAvg, midAvg, trebleAvg, totalEnergy) {
+        // Skip beat detection on mobile
+        if (state.isMobile) return;
+        
         const now = Date.now();
         const { history, thresholds, lastTrigger } = beatDetection;
         
@@ -678,6 +689,9 @@ const beatEffects = {
     },
 
     triggerKickEffect(currentLevel, avgLevel) {
+        // Skip on mobile
+        if (state.isMobile) return;
+        
         const intensity = Math.min((currentLevel / avgLevel - 1), 1);
         const palette = state.currentSongData.palette;
         
@@ -704,6 +718,9 @@ const beatEffects = {
     },
 
     triggerSnareEffect(currentLevel, avgLevel) {
+        // Skip on mobile
+        if (state.isMobile) return;
+        
         const intensity = Math.min((currentLevel / avgLevel - 1), 1);
         window.snareFlash = { intensity, timestamp: Date.now(), color: state.currentSongData.palette.high };
         
@@ -715,6 +732,9 @@ const beatEffects = {
     },
 
     triggerHiHatEffect(currentLevel, avgLevel) {
+        // Skip on mobile
+        if (state.isMobile) return;
+        
         const intensity = Math.min((currentLevel / avgLevel - 1), 1);
         const spectrumCircle = document.getElementById('spectrumCircle');
         if (spectrumCircle) {
@@ -801,35 +821,44 @@ const lyrics = {
     }
 };
 
-// Background animation system
+// Background animation system - simplified for mobile
 const backgroundAnimation = {
     updateAnimation() {
         if (!state.isPlaying) return;
         
-        // Increment animation phase
-        state.backgroundAnimationPhase += 0.001;
-        
-        // Calculate gentle animation values based on music analysis
-        const time = Date.now() * 0.001;
-        const slowWave = Math.sin(time * 0.1) * 0.5;
-        const mediumWave = Math.sin(time * 0.15) * 0.3;
-        const fastWave = Math.sin(time * 0.2) * 0.2;
-        
-        // Combine waves for complex movement
-        const xOffset = -5 + slowWave + mediumWave * 0.5;
-        const yOffset = -5 + fastWave + slowWave * 0.3;
-        const scale = 1 + (slowWave * 0.01) + (mediumWave * 0.005);
-        const rotation = (slowWave + fastWave) * 0.3;
-        
-        // Apply the transformation
-        const transform = `translate(${xOffset}%, ${yOffset}%) scale(${scale}) rotate(${rotation}deg)`;
-        elements.songBackground.style.transform = transform;
+        // Only do complex animations on desktop
+        if (!state.isMobile) {
+            // Increment animation phase
+            state.backgroundAnimationPhase += 0.001;
+            
+            // Calculate gentle animation values based on music analysis
+            const time = Date.now() * 0.001;
+            const slowWave = Math.sin(time * 0.1) * 0.5;
+            const mediumWave = Math.sin(time * 0.15) * 0.3;
+            const fastWave = Math.sin(time * 0.2) * 0.2;
+            
+            // Combine waves for complex movement
+            const xOffset = -5 + slowWave + mediumWave * 0.5;
+            const yOffset = -5 + fastWave + slowWave * 0.3;
+            const scale = 1 + (slowWave * 0.01) + (mediumWave * 0.005);
+            const rotation = (slowWave + fastWave) * 0.3;
+            
+            // Apply the transformation
+            const transform = `translate(${xOffset}%, ${yOffset}%) scale(${scale}) rotate(${rotation}deg)`;
+            elements.songBackground.style.transform = transform;
+        }
     }
 };
 
-// Visualization
+// Visualization - only on desktop
 const visualization = {
     init() {
+        // Skip visualization on mobile
+        if (state.isMobile) {
+            console.log('Mobile detected - skipping visualizer initialization');
+            return;
+        }
+        
         canvas = document.getElementById('visualizerCanvas');
         ctx = canvas.getContext('2d');
         
@@ -864,6 +893,16 @@ const visualization = {
     },
 
     visualize() {
+        // Skip on mobile
+        if (state.isMobile) {
+            // Still update lyrics on mobile
+            if (state.isPlaying) {
+                lyrics.update();
+            }
+            animationId = requestAnimationFrame(() => this.visualize());
+            return;
+        }
+        
         animationId = requestAnimationFrame(() => this.visualize());
         
         analyser.getByteFrequencyData(dataArray);
@@ -1016,8 +1055,8 @@ const visualization = {
         ctx.stroke();
         ctx.shadowBlur = 0;
         
-        // Trigger beat pulse effect
-        if (bassAverage > 100 && now - (window.lastBassKick || 0) > 300) {
+        // Trigger beat pulse effect - only on desktop
+        if (!state.isMobile && bassAverage > 100 && now - (window.lastBassKick || 0) > 300) {
             window.lastBassKick = now;
             elements.beatPulse.classList.add('active');
             setTimeout(() => elements.beatPulse.classList.remove('active'), 800);
@@ -1045,8 +1084,15 @@ function togglePlay() {
         
         ui.hideLyrics();
     } else {
-        if (!audioContext) visualization.init();
-        if (audioContext.state === 'suspended') audioContext.resume();
+        // Only initialize visualization on desktop
+        if (!audioContext && !state.isMobile) {
+            visualization.init();
+        }
+        
+        // Resume audio context if needed (desktop only)
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
         
         const playPromise = elements.audio.play();
         
@@ -1064,6 +1110,11 @@ function togglePlay() {
                 elements.speakerStatic.classList.add('hidden');
                 
                 if (state.lyrics.loaded) ui.showLyrics();
+                
+                // Start mobile-friendly visualization loop if on mobile
+                if (state.isMobile && !animationId) {
+                    visualization.visualize();
+                }
             });
         } else {
             state.isPlaying = true;
@@ -1078,6 +1129,11 @@ function togglePlay() {
             elements.speakerStatic.classList.add('hidden');
             
             if (state.lyrics.loaded) ui.showLyrics();
+            
+            // Start mobile-friendly visualization loop if on mobile
+            if (state.isMobile && !animationId) {
+                visualization.visualize();
+            }
         }
     }
 }
