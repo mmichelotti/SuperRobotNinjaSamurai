@@ -1,0 +1,174 @@
+{
+  "band": {
+    "name": "SUPER ROBOT NINJA SAMURAI",
+    "shortName": "SRNS",
+    "tagline": "SUPER ROBOT<br>NINJA SAMURAI"
+  },
+  "navigation": {
+    "links": [
+      { "text": "About", "target": "about" },
+      { "text": "Dates", "target": "dates" },
+      { "text": "Contact", "target": "contact" }
+    ]
+  },
+  "about": {
+    "title": "ABOUT",
+    "content": {
+      "sound": {
+        "title": "The Sound",
+        "description": "Super Robot Ninja Samurai emerges from the intersection of electronic precision and organic chaos. Our sound is a relentless fusion of synthesized fury and human emotion, crafted for those who seek intensity in their sonic experience."
+      },
+      "vision": {
+        "title": "The Vision",
+        "description": "We are architects of digital rebellion, building soundscapes that challenge the boundaries between technology and soul. Every track is a battle cry against the mundane."
+      }
+    },
+    "members": [
+      {
+        "name": "Alex Chen",
+        "role": "Synths & Programming",
+        "avatar": "🤖"
+      },
+      {
+        "name": "Maya Rodriguez",
+        "role": "Vocals & Design",
+        "avatar": "🥷"
+      },
+      {
+        "name": "Kai Nakamura",
+        "role": "Beats & Production",
+        "avatar": "⚔️"
+      }
+    ]
+  },
+  "dates": {
+    "title": "DATES",
+    "shows": [
+      {
+        "date": "JUL 15",
+        "year": "2025",
+        "venue": "DIGITAL FORTRESS",
+        "location": "Los Angeles, CA",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      },
+      {
+        "date": "JUL 22",
+        "year": "2025",
+        "venue": "NEON UNDERGROUND",
+        "location": "Brooklyn, NY",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      },
+      {
+        "date": "AUG 05",
+        "year": "2025",
+        "venue": "CYBER DOME",
+        "location": "Tokyo, Japan",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      },
+      {
+        "date": "AUG 18",
+        "year": "2025",
+        "venue": "ELECTRIC CATHEDRAL",
+        "location": "Berlin, Germany",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      }
+    ],
+    "gallery": {
+      "title": "Live Moments",
+      "items": [
+        {
+          "caption": "Digital Fortress, LA",
+          "gradient": "linear-gradient(45deg, #ff006e, #8338ec)"
+        },
+        {
+          "caption": "Studio Sessions",
+          "gradient": "linear-gradient(45deg, #3a86ff, #06ffa5)"
+        },
+        {
+          "caption": "Behind the Scenes",
+          "gradient": "linear-gradient(45deg, #ffbe0b, #fb5607)"
+        },
+        {
+          "caption": "Live Performance",
+          "gradient": "linear-gradient(45deg, #8338ec, #3a86ff)"
+        },
+        {
+          "caption": "Sound Check",
+          "gradient": "linear-gradient(45deg, #06ffa5, #ffbe0b)"
+        }
+      ]
+    }
+  },
+  "contact": {
+    "title": "CONTACT",
+    "info": [
+      {
+        "title": "Booking",
+        "email": "booking@superrobotninja.com"
+      },
+      {
+        "title": "Management",
+        "email": "mgmt@superrobotninja.com"
+      },
+      {
+        "title": "Press",
+        "email": "press@superrobotninja.com"
+      }
+    ],
+    "social": {
+      "title": "Follow the Signal",
+      "links": [
+        {
+          "name": "Instagram",
+          "icon": "📱",
+          "url": "#"
+        },
+        {
+          "name": "Spotify",
+          "icon": "🎵",
+          "url": "#"
+        },
+        {
+          "name": "YouTube",
+          "icon": "📺",
+          "url": "#"
+        },
+        {
+          "name": "Twitter",
+          "icon": "🐦",
+          "url": "#"
+        },
+        {
+          "name": "SoundCloud",
+          "icon": "🎶",
+          "url": "#"
+        },
+        {
+          "name": "Bandcamp",
+          "icon": "🎧",
+          "url": "#"
+        }
+      ]
+    },
+    "newsletter": {
+      "title": "Join the Resistance",
+      "description": "Get notified about new releases, shows, and exclusive content.",
+      "placeholder": "Enter your email",
+      "buttonText": "SUBSCRIBE",
+      "subscribingText": "SUBSCRIBING...",
+      "subscribedText": "SUBSCRIBED!"
+    }
+  },
+  "meta": {
+    "title": "Super Robot Ninja Samurai",
+    "favicon": "Images/Acronym.png"
+  }
+}

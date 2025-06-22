@@ -3,194 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Super Robot Ninja Samurai</title>
-    <link rel="icon" href="Images/Acronym.png" type="image/png">
+    <title>Loading...</title>
+    <link rel="icon" href="" type="image/png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Subtle navigation - only appears on scroll -->
     <nav class="nav-overlay" id="navOverlay">
         <div class="nav-container">
-            <div class="nav-logo" onclick="scrollToSection('homepage')">SUPER ROBOT NINJA SAMURAI</div>
-            <div class="nav-links">
-                <a class="nav-link" onclick="scrollToSection('about')">About</a>
-                <a class="nav-link" onclick="scrollToSection('dates')">Dates</a>
-                <a class="nav-link" onclick="scrollToSection('contact')">Contact</a>
-            </div>
+            <div class="nav-logo" onclick="scrollToSection('homepage')">Loading...</div>
+            <div class="nav-links"></div>
         </div>
     </nav>
 
-    <!-- Your original homepage - exactly as is -->
     <section class="homepage" id="homepage">
         <div class="container">
-            <!-- Song background (behind everything) -->
             <div class="song-background" id="songBackground"></div>
-            
-            <!-- Audio Visualizer Canvas -->
             <canvas id="visualizerCanvas"></canvas>
-            
-            <!-- Static speaker representation when not playing -->
             <div class="speaker-static" id="speakerStatic"></div>
-            
-            <!-- Spectrum circle -->
             <div class="spectrum-circle" id="spectrumCircle"></div>
-            
-            <!-- Beat detection effects -->
             <div class="beat-pulse" id="beatPulse"></div>
             
-            <h1 class="band-title" id="bandTitle">SUPER ROBOT<br>NINJA SAMURAI</h1>
+            <h1 class="band-title" id="bandTitle">Loading...</h1>
             
             <div class="song-info" id="songInfo">
                 <div class="song-title" id="songTitle">Track A</div>
                 <div class="progress-container" id="progressContainer">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
-                <!-- Song indicator dots -->
                 <div class="song-indicators" id="songIndicators"></div>
             </div>
             
-            <!-- Invisible navigation areas -->
             <div class="nav-area left" id="navLeft"></div>
             <div class="nav-area right" id="navRight"></div>
-            
-            <!-- Invisible clickable area for play/pause in center -->
             <div class="center-play-area" onclick="togglePlay()" id="centerPlayArea"></div>
         </div>
 
-        <!-- Scroll indicator -->
         <div class="scroll-indicator" id="scrollIndicator">
             <div class="scroll-arrow"></div>
             <div class="scroll-text">SCROLL</div>
         </div>
     </section>
 
-    <!-- Content sections -->
     <div class="content-sections">
-        
-        <!-- About Section -->
         <section class="section" id="about">
             <div class="section-container">
-                <h2 class="section-title">ABOUT</h2>
+                <h2 class="section-title">Loading...</h2>
                 <div class="section-content">
                     <div class="about-content">
-                        <div class="about-text">
-                            <h3>The Sound</h3>
-                            <p>Super Robot Ninja Samurai emerges from the intersection of electronic precision and organic chaos. Our sound is a relentless fusion of synthesized fury and human emotion, crafted for those who seek intensity in their sonic experience.</p>
-                            
-                            <h3>The Vision</h3>
-                            <p>We are architects of digital rebellion, building soundscapes that challenge the boundaries between technology and soul. Every track is a battle cry against the mundane.</p>
-                        </div>
-                        <div class="band-members">
-                            <div class="member">
-                                <div class="member-avatar">🤖</div>
-                                <div class="member-name">Alex Chen</div>
-                                <div class="member-role">Synths & Programming</div>
-                            </div>
-                            <div class="member">
-                                <div class="member-avatar">🥷</div>
-                                <div class="member-name">Maya Rodriguez</div>
-                                <div class="member-role">Vocals & Design</div>
-                            </div>
-                            <div class="member">
-                                <div class="member-avatar">⚔️</div>
-                                <div class="member-name">Kai Nakamura</div>
-                                <div class="member-role">Beats & Production</div>
-                            </div>
-                        </div>
+                        <div class="about-text"></div>
+                        <div class="band-members"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Tour Dates Section -->
         <section class="section" id="dates">
             <div class="section-container">
-                <h2 class="section-title">DATES</h2>
+                <h2 class="section-title">Loading...</h2>
                 <div class="section-content">
-                    <div class="dates-container">
-                        <div class="date-item">
-                            <div class="date-info">
-                                <div class="date">JUL 15</div>
-                                <div class="year">2025</div>
-                            </div>
-                            <div class="venue-info">
-                                <div class="venue">DIGITAL FORTRESS</div>
-                                <div class="location">Los Angeles, CA</div>
-                            </div>
-                            <div class="date-action">
-                                <button class="ticket-btn">TICKETS</button>
-                            </div>
-                        </div>
-                        
-                        <div class="date-item">
-                            <div class="date-info">
-                                <div class="date">JUL 22</div>
-                                <div class="year">2025</div>
-                            </div>
-                            <div class="venue-info">
-                                <div class="venue">NEON UNDERGROUND</div>
-                                <div class="location">Brooklyn, NY</div>
-                            </div>
-                            <div class="date-action">
-                                <button class="ticket-btn">TICKETS</button>
-                            </div>
-                        </div>
-                        
-                        <div class="date-item">
-                            <div class="date-info">
-                                <div class="date">AUG 05</div>
-                                <div class="year">2025</div>
-                            </div>
-                            <div class="venue-info">
-                                <div class="venue">CYBER DOME</div>
-                                <div class="location">Tokyo, Japan</div>
-                            </div>
-                            <div class="date-action">
-                                <button class="ticket-btn">TICKETS</button>
-                            </div>
-                        </div>
-                        
-                        <div class="date-item">
-                            <div class="date-info">
-                                <div class="date">AUG 18</div>
-                                <div class="year">2025</div>
-                            </div>
-                            <div class="venue-info">
-                                <div class="venue">ELECTRIC CATHEDRAL</div>
-                                <div class="location">Berlin, Germany</div>
-                            </div>
-                            <div class="date-action">
-                                <button class="ticket-btn">TICKETS</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Image Gallery Carousel -->
+                    <div class="dates-container"></div>
                     <div class="gallery-section">
-                        <h3 class="gallery-title">Live Moments</h3>
+                        <h3 class="gallery-title">Loading...</h3>
                         <div class="gallery-carousel" id="galleryCarousel">
-                            <div class="gallery-track" id="galleryTrack">
-                                <div class="gallery-item">
-                                    <div class="gallery-image" style="background: linear-gradient(45deg, #ff006e, #8338ec);"></div>
-                                    <div class="gallery-caption">Digital Fortress, LA</div>
-                                </div>
-                                <div class="gallery-item">
-                                    <div class="gallery-image" style="background: linear-gradient(45deg, #3a86ff, #06ffa5);"></div>
-                                    <div class="gallery-caption">Studio Sessions</div>
-                                </div>
-                                <div class="gallery-item">
-                                    <div class="gallery-image" style="background: linear-gradient(45deg, #ffbe0b, #fb5607);"></div>
-                                    <div class="gallery-caption">Behind the Scenes</div>
-                                </div>
-                                <div class="gallery-item">
-                                    <div class="gallery-image" style="background: linear-gradient(45deg, #8338ec, #3a86ff);"></div>
-                                    <div class="gallery-caption">Live Performance</div>
-                                </div>
-                                <div class="gallery-item">
-                                    <div class="gallery-image" style="background: linear-gradient(45deg, #06ffa5, #ffbe0b);"></div>
-                                    <div class="gallery-caption">Sound Check</div>
-                                </div>
-                            </div>
+                            <div class="gallery-track" id="galleryTrack"></div>
                             <button class="gallery-nav prev" id="galleryPrev">‹</button>
                             <button class="gallery-nav next" id="galleryNext">›</button>
                         </div>
@@ -199,74 +74,24 @@
             </div>
         </section>
 
-        <!-- Contact Section -->
         <section class="section" id="contact">
             <div class="section-container">
-                <h2 class="section-title">CONTACT</h2>
+                <h2 class="section-title">Loading...</h2>
                 <div class="section-content">
                     <div class="contact-content">
-                        <div class="contact-info">
-                            <div class="contact-item">
-                                <h3>Booking</h3>
-                                <p>booking@superrobotninja.com</p>
-                            </div>
-                            <div class="contact-item">
-                                <h3>Management</h3>
-                                <p>mgmt@superrobotninja.com</p>
-                            </div>
-                            <div class="contact-item">
-                                <h3>Press</h3>
-                                <p>press@superrobotninja.com</p>
-                            </div>
-                        </div>
-                        
+                        <div class="contact-info"></div>
                         <div class="social-links">
-                            <h3>Follow the Signal</h3>
-                            <div class="social-grid">
-                                <a href="#" class="social-link">
-                                    <span class="social-icon">📱</span>
-                                    <span class="social-name">Instagram</span>
-                                </a>
-                                <a href="#" class="social-link">
-                                    <span class="social-icon">🎵</span>
-                                    <span class="social-name">Spotify</span>
-                                </a>
-                                <a href="#" class="social-link">
-                                    <span class="social-icon">📺</span>
-                                    <span class="social-name">YouTube</span>
-                                </a>
-                                <a href="#" class="social-link">
-                                    <span class="social-icon">🐦</span>
-                                    <span class="social-name">Twitter</span>
-                                </a>
-                                <a href="#" class="social-link">
-                                    <span class="social-icon">🎶</span>
-                                    <span class="social-name">SoundCloud</span>
-                                </a>
-                                <a href="#" class="social-link">
-                                    <span class="social-icon">🎧</span>
-                                    <span class="social-name">Bandcamp</span>
-                                </a>
-                            </div>
+                            <h3>Loading...</h3>
+                            <div class="social-grid"></div>
                         </div>
                     </div>
-                    
-                    <!-- Newsletter signup -->
-                    <div class="newsletter">
-                        <h3>Join the Resistance</h3>
-                        <p>Get notified about new releases, shows, and exclusive content.</p>
-                        <form class="newsletter-form" id="newsletterForm">
-                            <input type="email" placeholder="Enter your email" class="newsletter-input" required>
-                            <button type="submit" class="newsletter-btn">SUBSCRIBE</button>
-                        </form>
-                    </div>
+                    <div class="newsletter"></div>
                 </div>
             </div>
         </section>
     </div>
 
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
-    
     <script src="script.js"></script>
 </body>
 </html>

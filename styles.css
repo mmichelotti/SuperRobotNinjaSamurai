@@ -57,6 +57,31 @@ body {
     overscroll-behavior: none;
 }
 
+/* Performance optimizations */
+.homepage {
+    will-change: auto;
+}
+
+.homepage.optimized {
+    will-change: transform, opacity;
+}
+
+.song-background {
+    will-change: auto;
+}
+
+.song-background.animating {
+    will-change: transform;
+}
+
+#visualizerCanvas {
+    will-change: auto;
+}
+
+#visualizerCanvas.active {
+    will-change: transform;
+}
+
 /* Navigation - subtle and elegant */
 .nav-overlay {
     position: fixed;
