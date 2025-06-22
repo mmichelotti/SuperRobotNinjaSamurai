@@ -3,7 +3,7 @@ const state = {
     songs: [],
     currentSongIndex: 0,
     isPlaying: false,
-    isTransitioning: false, // Add transition state
+    isTransitioning: false,
     currentSongData: { title: "", palette: { mid: [255, 255, 255], high: [255, 255, 255] } },
     lyrics: { current: [], index: 0, loaded: false },
     touch: { startX: 0, startY: 0, startTime: 0, isScrolling: false },
@@ -11,7 +11,9 @@ const state = {
     isDragging: false,
     colorPhase: 0,
     backgroundAnimationPhase: 0,
-    isMobile: false
+    isMobile: false,
+    currentGalleryIndex: 0,
+    isScrolled: false
 };
 
 // Beat detection state
@@ -40,7 +42,13 @@ const elements = {
     songIndicators: document.getElementById('songIndicators'),
     centerPlayArea: document.getElementById('centerPlayArea'),
     speakerStatic: document.getElementById('speakerStatic'),
-    songBackground: document.getElementById('songBackground')
+    songBackground: document.getElementById('songBackground'),
+    navOverlay: document.getElementById('navOverlay'),
+    scrollIndicator: document.getElementById('scrollIndicator'),
+    galleryTrack: document.getElementById('galleryTrack'),
+    galleryPrev: document.getElementById('galleryPrev'),
+    galleryNext: document.getElementById('galleryNext'),
+    newsletterForm: document.getElementById('newsletterForm')
 };
 
 // Mobile detection
@@ -51,7 +59,6 @@ function detectMobile() {
 
 // Prevent zoom and pinch gestures
 function preventZoom() {
-    // Prevent double-tap zoom
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function (event) {
         const now = (new Date()).getTime();
@@ -61,7 +68,6 @@ function preventZoom() {
         lastTouchEnd = now;
     }, false);
 
-    // Prevent pinch zoom
     document.addEventListener('gesturestart', function (event) {
         event.preventDefault();
     });
@@ -74,32 +80,30 @@ function preventZoom() {
         event.preventDefault();
     });
 
-    // Prevent zoom on input focus (if any inputs are added later)
     document.addEventListener('touchstart', function(event) {
         if (event.touches.length > 1) {
             event.preventDefault();
         }
     });
 
-    // Additional prevention for iOS Safari
     document.addEventListener('touchmove', function(event) {
         if (event.scale !== 1) {
             event.preventDefault();
         }
     }, { passive: false });
 
-    // Prevent zoom keyboard shortcuts
     document.addEventListener('keydown', function(event) {
         if ((event.ctrlKey || event.metaKey) && (event.key === '+' || event.key === '-' || event.key === '=' || event.key === '0')) {
             event.preventDefault();
         }
     });
 
-    // Prevent mouse wheel zoom
+    // FIXED: Only prevent zoom with Ctrl+wheel, allow normal scrolling
     document.addEventListener('wheel', function(event) {
         if (event.ctrlKey) {
             event.preventDefault();
         }
+        // Remove the general wheel prevention to allow scrolling
     }, { passive: false });
 }
 
@@ -134,7 +138,6 @@ const utils = {
         return Math.sqrt(variance);
     },
 
-    // Convert RGB to HSL
     rgbToHsl(r, g, b) {
         r /= 255; g /= 255; b /= 255;
         const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -163,29 +166,18 @@ const songManager = {
     },
 
     applyBackgroundBrightness() {
-        // Get brightness value from song data (default to 0.85 if not specified)
         const brightness = state.currentSongData.backgroundBrightness || 0.85;
-        
-        // Apply the brightness to the overlay
         elements.songBackground.style.setProperty('--background-overlay-opacity', brightness);
     },
 
     applyBackgroundTint() {
         const palette = state.currentSongData.palette;
-        
-        // Use mid palette color for tinting
         const tintColor = palette.mid || [255, 255, 255];
-        
-        // Convert to HSL to get the hue for color tinting
         const [hue, saturation, lightness] = utils.rgbToHsl(tintColor[0], tintColor[1], tintColor[2]);
-        
-        // Apply color tint using CSS filters
-        // sepia(1) makes it monochrome, then we adjust hue and saturation
         const filterValue = `sepia(1) saturate(1.5) hue-rotate(${hue - 60}deg) brightness(0.8) contrast(1.2)`;
         
         elements.songBackground.style.filter = filterValue;
         
-        // Store palette colors as CSS variables for potential use in animations
         document.documentElement.style.setProperty('--bg-tint-r', tintColor[0]);
         document.documentElement.style.setProperty('--bg-tint-g', tintColor[1]);
         document.documentElement.style.setProperty('--bg-tint-b', tintColor[2]);
@@ -209,7 +201,7 @@ const songManager = {
         state.currentSongData = {
             title: folderName,
             palette: { mid: [255, 255, 255], high: [255, 255, 255] },
-            backgroundBrightness: 0.85, // Default brightness
+            backgroundBrightness: 0.85,
             ...metadata
         };
     },
@@ -277,10 +269,8 @@ const songManager = {
         elements.songTitle.textContent = state.currentSongData.title;
         elements.progressBar.style.width = '0%';
         
-        // Load background image for this song
         this.loadSongBackground(folderName);
         
-        // Reset states
         state.colorPhase = 0;
         state.backgroundAnimationPhase = 0;
         this.initializeBeatDetection();
@@ -289,27 +279,20 @@ const songManager = {
 
     loadSongBackground(folderName) {
         const backgroundPath = `./Songs/${folderName}/background.png`;
-        
-        // Create a new image to test if background exists
         const testImage = new Image();
         
         testImage.onload = () => {
-            // Background image exists, show it
             elements.songBackground.style.backgroundImage = `url('${backgroundPath}')`;
             elements.songBackground.classList.add('loaded');
-            
-            // Apply background brightness and color tint
             this.applyBackgroundBrightness();
             this.applyBackgroundTint();
         };
         
         testImage.onerror = () => {
-            // No background image found, hide background
             elements.songBackground.style.backgroundImage = 'none';
             elements.songBackground.classList.remove('loaded');
         };
         
-        // Start loading the image
         testImage.src = backgroundPath;
     },
 
@@ -388,7 +371,6 @@ const ui = {
             padding: 0 5vw;
         `;
         
-        // Set white-space based on device type
         if (state.isMobile) {
             text.style.whiteSpace = 'normal';
             text.style.wordBreak = 'break-word';
@@ -412,7 +394,6 @@ const ui = {
             padding: '0 5vw'
         };
         
-        // Apply white-space based on device type
         if (state.isMobile) {
             baseStyle.whiteSpace = 'normal';
             baseStyle.wordBreak = 'break-word';
@@ -446,7 +427,6 @@ const ui = {
             this.hideLyrics();
         }
         
-        // Set transition state to prevent title from showing
         const wasPlaying = state.isPlaying;
         state.isTransitioning = true;
         
@@ -456,18 +436,16 @@ const ui = {
             
             if (wasPlaying) {
                 elements.audio.play().then(() => {
-                    state.isTransitioning = false; // Clear transition state
-                    // Keep static speaker hidden during transitions if we were playing
+                    state.isTransitioning = false;
                     elements.speakerStatic.classList.add('hidden');
                     if (state.lyrics.loaded) {
                         setTimeout(() => this.showLyrics(), 500);
                     }
                 }).catch(() => {
-                    state.isTransitioning = false; // Clear on error too
+                    state.isTransitioning = false;
                 });
             } else {
-                state.isTransitioning = false; // Clear if not playing
-                // Show static speaker if not playing
+                state.isTransitioning = false;
                 elements.speakerStatic.classList.remove('hidden');
             }
         });
@@ -484,7 +462,6 @@ const ui = {
     hideLyrics() {
         lyricsDisplay.container.style.opacity = '0';
         
-        // Only show title if not transitioning and not playing
         if (!state.isTransitioning && !state.isPlaying) {
             setTimeout(() => {
                 elements.bandTitle.style.opacity = '0.95';
@@ -505,6 +482,114 @@ const navigation = {
     previousSong() { ui.goToSong((state.currentSongIndex - 1 + state.songs.length) % state.songs.length); }
 };
 
+// Scroll and navigation functionality
+const scrollHandler = {
+    init() {
+        window.addEventListener('scroll', this.handleScroll.bind(this));
+        this.setupSectionObserver();
+    },
+
+    handleScroll() {
+        const scrolled = window.scrollY > 50;
+        
+        if (scrolled !== state.isScrolled) {
+            state.isScrolled = scrolled;
+            elements.navOverlay.classList.toggle('scrolled', scrolled);
+            elements.scrollIndicator.classList.toggle('hidden', scrolled);
+        }
+    },
+
+    setupSectionObserver() {
+        const sections = document.querySelectorAll('.section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        sections.forEach(section => observer.observe(section));
+    }
+};
+
+// Gallery functionality
+const gallery = {
+    init() {
+        if (elements.galleryPrev && elements.galleryNext) {
+            elements.galleryPrev.addEventListener('click', () => this.navigate(-1));
+            elements.galleryNext.addEventListener('click', () => this.navigate(1));
+            
+            setInterval(() => this.autoAdvance(), 5000);
+        }
+    },
+
+    navigate(direction) {
+        const items = document.querySelectorAll('.gallery-item');
+        const maxIndex = items.length - Math.floor(elements.galleryTrack.offsetWidth / 300);
+        
+        state.currentGalleryIndex += direction;
+        
+        if (state.currentGalleryIndex < 0) {
+            state.currentGalleryIndex = 0;
+        } else if (state.currentGalleryIndex > maxIndex) {
+            state.currentGalleryIndex = maxIndex;
+        }
+        
+        const translateX = -state.currentGalleryIndex * 301;
+        elements.galleryTrack.style.transform = `translateX(${translateX}px)`;
+    },
+
+    autoAdvance() {
+        const items = document.querySelectorAll('.gallery-item');
+        const maxIndex = items.length - Math.floor(elements.galleryTrack.offsetWidth / 300);
+        
+        if (state.currentGalleryIndex >= maxIndex) {
+            state.currentGalleryIndex = -1;
+        }
+        
+        this.navigate(1);
+    }
+};
+
+// Newsletter functionality
+const newsletter = {
+    init() {
+        if (elements.newsletterForm) {
+            elements.newsletterForm.addEventListener('submit', this.handleSubmit.bind(this));
+        }
+    },
+
+    handleSubmit(e) {
+        e.preventDefault();
+        const email = e.target.querySelector('.newsletter-input').value;
+        
+        const btn = e.target.querySelector('.newsletter-btn');
+        const originalText = btn.textContent;
+        
+        btn.textContent = 'SUBSCRIBING...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.textContent = 'SUBSCRIBED!';
+            e.target.querySelector('.newsletter-input').value = '';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 2000);
+        }, 1000);
+    }
+};
+
+// Global navigation functions
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
 // Event handlers
 const events = {
     setupGestureControls() {
@@ -513,7 +598,6 @@ const events = {
         document.addEventListener('touchend', this.handleTouchEnd, { passive: false });
         document.addEventListener('wheel', this.handleWheel, { passive: false });
         
-        // Enhanced navigation with mobile support
         elements.navLeft.addEventListener('click', (e) => { 
             e.stopPropagation(); 
             showMobileIcon(elements.navLeft);
@@ -563,14 +647,15 @@ const events = {
     },
 
     handleWheel(e) {
-        e.preventDefault();
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        // Only handle wheel events for song navigation when on the homepage (not scrolled)
+        if (window.scrollY === 0 && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            e.preventDefault();
             e.deltaX > 0 ? navigation.nextSong() : navigation.previousSong();
         }
+        // Allow normal vertical scrolling when not on homepage or when vertical scroll
     },
 
     setupCenterAreaHover() {
-        // Only setup hover events for desktop
         if (!state.isMobile) {
             elements.centerPlayArea.addEventListener('mouseenter', () => {
                 state.isHoveringCenter = true;
@@ -608,7 +693,6 @@ const events = {
 
         hitArea.addEventListener('click', (e) => { e.stopPropagation(); seekToPosition(e); });
         
-        // Mouse drag handling
         hitArea.addEventListener('mousedown', (e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -634,13 +718,11 @@ const beatEffects = {
         const now = Date.now();
         const { history, thresholds, lastTrigger } = beatDetection;
         
-        // Update history arrays
         history.bass.shift(); history.bass.push(bassAvg);
         history.mid.shift(); history.mid.push(midAvg);
         history.treble.shift(); history.treble.push(trebleAvg);
         history.energy.shift(); history.energy.push(totalEnergy);
         
-        // Calculate averages and thresholds
         const avgs = {
             bass: history.bass.reduce((a, b) => a + b) / history.bass.length,
             mid: history.mid.reduce((a, b) => a + b) / history.mid.length,
@@ -660,7 +742,6 @@ const beatEffects = {
         thresholds.mid = avgs.mid + (variances.mid * 1.1 * beatDetection.adaptiveSensitivity);
         thresholds.treble = avgs.treble + (variances.treble * 1.0 * beatDetection.adaptiveSensitivity);
         
-        // Trigger effects
         if (bassAvg > thresholds.bass && now - lastTrigger.kick > 200 && bassAvg > avgs.bass * 1.4) {
             this.triggerKickEffect(bassAvg, avgs.bass);
             lastTrigger.kick = now;
@@ -687,7 +768,6 @@ const beatEffects = {
             color: palette.mid.map((c, i) => Math.floor((c + palette.high[i]) / 2))
         };
         
-        // Only trigger title effects if not transitioning and lyrics are not loaded/playing
         if (!state.isTransitioning && (!state.lyrics.loaded || !state.isPlaying)) {
             const titleIntensity = Math.min(intensity * 1.2, 1);
             elements.bandTitle.style.transform = `scale(${1 + titleIntensity * 0.02})`;
@@ -787,13 +867,11 @@ const lyrics = {
         
         setTimeout(() => {
             this.display.text.textContent = lyric.text;
-            // On mobile, never fade lyrics on center interaction
             this.display.text.style.opacity = (state.isHoveringCenter && !state.isMobile) ? '0.3' : '1';
             this.display.container.style.opacity = '1';
             
             ui.applyLyricStyling(this.display.text, lyric.style, state.currentSongData.palette);
             
-            // Only apply hover dimming on desktop
             if (state.isHoveringCenter && !state.isMobile) {
                 this.display.text.style.opacity = '0.3';
             }
@@ -806,22 +884,18 @@ const backgroundAnimation = {
     updateAnimation() {
         if (!state.isPlaying) return;
         
-        // Increment animation phase
         state.backgroundAnimationPhase += 0.001;
         
-        // Calculate gentle animation values based on music analysis
         const time = Date.now() * 0.001;
         const slowWave = Math.sin(time * 0.1) * 0.5;
         const mediumWave = Math.sin(time * 0.15) * 0.3;
         const fastWave = Math.sin(time * 0.2) * 0.2;
         
-        // Combine waves for complex movement
         const xOffset = -5 + slowWave + mediumWave * 0.5;
         const yOffset = -5 + fastWave + slowWave * 0.3;
         const scale = 1 + (slowWave * 0.01) + (mediumWave * 0.005);
         const rotation = (slowWave + fastWave) * 0.3;
         
-        // Apply the transformation
         const transform = `translate(${xOffset}%, ${yOffset}%) scale(${scale}) rotate(${rotation}deg)`;
         elements.songBackground.style.transform = transform;
     }
@@ -872,14 +946,12 @@ const visualization = {
             lyrics.update();
         }
         
-        // Very light fade effect for visualizer trails (won't hide background)
         ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         
-        // Calculate frequency averages
         const total = dataArray.reduce((sum, val) => sum + val, 0);
         const average = total / bufferLength;
         const bassAverage = dataArray.slice(0, bufferLength / 8).reduce((a, b) => a + b) / (bufferLength / 8);
@@ -897,21 +969,19 @@ const visualization = {
         this.drawBassCircle(centerX, centerY, bassAverage);
     },
 
-    drawBackground(centerX, centerY, average, bassAverage) {
-        const pulseIntensity = average / 255;
-        const palette = state.currentSongData.palette;
-        const bgColor = palette.mid.map((c, i) => (c + palette.high[i]) / 2);
-        
-        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 500 + bassAverage * 2);
-        gradient.addColorStop(0, `rgba(${bgColor.join(', ')}, ${pulseIntensity * 0.02})`);
-        gradient.addColorStop(0.5, `rgba(${bgColor.join(', ')}, ${pulseIntensity * 0.01})`);
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 500 + bassAverage * 2, 0, 2 * Math.PI);
-        ctx.fill();
-    },
+drawBackground(centerX, centerY, average, bassAverage) {
+    const pulseIntensity = average / 255;
+    const palette = state.currentSongData.palette;
+    const bgColor = palette.mid.map((c, i) => (c + palette.high[i]) / 2);
+    
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(canvas.width, canvas.height));
+    gradient.addColorStop(0, `rgba(${bgColor.join(', ')}, ${pulseIntensity * 0.02})`);
+    gradient.addColorStop(0.5, `rgba(${bgColor.join(', ')}, ${pulseIntensity * 0.01})`);
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+},
 
     drawSpectrum(centerX, centerY) {
         const radius = 245;
@@ -923,11 +993,10 @@ const visualization = {
             
             const x1 = centerX + Math.cos(angle * 4) * radius;
             const y1 = centerY + Math.sin(angle * 4) * radius;
-            const x2 = centerX + Math.cos(angle * 4) * (radius + barHeight);
-            const y2 = centerY + Math.sin(angle * 4) * (radius + barHeight);
+            const x2 = centerX + Math.cos(angle * 4) * (radius + barHeight*0.75);
+            const y2 = centerY + Math.sin(angle * 4) * (radius + barHeight*0.75);
             
             if (i < bufferLength / 4) {
-                // Bass frequencies
                 const palette = state.currentSongData.palette;
                 const tintStrength = 0.1;
                 const color = palette.mid.map(c => 255 - (255 - c) * tintStrength);
@@ -935,7 +1004,6 @@ const visualization = {
                 ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.8})`;
                 ctx.lineWidth = 0.5;
             } else if (i < bufferLength / 2) {
-                // Mid frequencies
                 const color = this.getFrequencyColor('mid', intensity);
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
@@ -946,7 +1014,6 @@ const visualization = {
                 ctx.strokeStyle = gradient;
                 ctx.lineWidth = 2 + intensity * 4;
             } else {
-                // High frequencies
                 const color = this.getFrequencyColor('high', intensity);
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
@@ -978,7 +1045,6 @@ const visualization = {
         let shadowBlur = intensity * 20;
         let lineWidth = 3;
         
-        // Apply kick glow effect
         if (window.kickGlow && (now - window.kickGlow.timestamp) < 400) {
             const kickFade = 1 - ((now - window.kickGlow.timestamp) / 400);
             const kickIntensity = window.kickGlow.intensity * kickFade;
@@ -989,12 +1055,11 @@ const visualization = {
             lineWidth = lineWidth + kickIntensity * 6;
         }
         
-        // Apply snare flash effect
         if (window.snareFlash && (now - window.snareFlash.timestamp) < 150) {
             const snareFade = 1 - ((now - window.snareFlash.timestamp) / 150);
             const snareIntensity = window.snareFlash.intensity * snareFade;
             
-            const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 800);
+            const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 450);
             const color = window.snareFlash.color;
             flashGradient.addColorStop(0, `rgba(${color.join(', ')}, ${snareIntensity * 0.1})`);
             flashGradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${snareIntensity * 0.05})`);
@@ -1002,7 +1067,7 @@ const visualization = {
             
             ctx.fillStyle = flashGradient;
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 800, 0, 2 * Math.PI);
+            ctx.arc(centerX, centerY, 450, 0, 2 * Math.PI);
             ctx.fill();
         }
         
@@ -1016,7 +1081,6 @@ const visualization = {
         ctx.stroke();
         ctx.shadowBlur = 0;
         
-        // Trigger beat pulse effect
         if (bassAverage > 100 && now - (window.lastBassKick || 0) > 300) {
             window.lastBassKick = now;
             elements.beatPulse.classList.add('active');
@@ -1025,24 +1089,20 @@ const visualization = {
     }
 };
 
-// Main playbook control with mobile icon support
+// Main play control function
 function togglePlay() {
-    // Show mobile icon animation
     showMobileIcon(elements.centerPlayArea);
     
     if (state.isPlaying) {
         elements.audio.pause();
         state.isPlaying = false;
-        state.isTransitioning = false; // Clear transition state when manually stopping
+        state.isTransitioning = false;
         
-        // Remove playing classes
         ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
             elements[el].classList.remove('playing');
         });
         
-        // Show static speaker when stopped
         elements.speakerStatic.classList.remove('hidden');
-        
         ui.hideLyrics();
     } else {
         if (!audioContext) visualization.init();
@@ -1053,28 +1113,24 @@ function togglePlay() {
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 state.isPlaying = true;
-                state.isTransitioning = false; // Clear transition state when successfully playing
+                state.isTransitioning = false;
                 
-                // Add playing classes
                 ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                     elements[el].classList.add('playing');
                 });
                 
-                // Hide static speaker when playing
                 elements.speakerStatic.classList.add('hidden');
                 
                 if (state.lyrics.loaded) ui.showLyrics();
             });
         } else {
             state.isPlaying = true;
-            state.isTransitioning = false; // Clear transition state
+            state.isTransitioning = false;
             
-            // Add playing classes
             ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                 elements[el].classList.add('playing');
             });
             
-            // Hide static speaker when playing
             elements.speakerStatic.classList.add('hidden');
             
             if (state.lyrics.loaded) ui.showLyrics();
@@ -1094,10 +1150,8 @@ elements.audio.addEventListener('ended', navigation.nextSong);
 
 // Initialize application
 async function initializeApp() {
-    // Detect mobile first
     detectMobile();
     
-    // Prevent zoom gestures on mobile
     if (state.isMobile) {
         preventZoom();
     }
@@ -1113,7 +1167,10 @@ async function initializeApp() {
     lyrics.init();
     events.setupGestureControls();
     
-    // Band title hover effects (desktop only)
+    scrollHandler.init();
+    gallery.init();
+    newsletter.init();
+    
     if (!state.isMobile) {
         elements.bandTitle.addEventListener('mouseenter', () => {
             if (!state.isPlaying) {
@@ -1131,10 +1188,59 @@ async function initializeApp() {
     }
 }
 
-// Global variable for lyrics display (referenced by UI functions)
+// Global variable for lyrics display
 let lyricsDisplay;
 
 // Start the application
 initializeApp().then(() => {
     lyricsDisplay = lyrics.display;
+});
+
+// Additional event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const ticketButtons = document.querySelectorAll('.ticket-btn');
+    ticketButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const originalText = btn.textContent;
+            btn.textContent = 'REDIRECTING...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.textContent = 'SOLD OUT';
+                btn.disabled = false;
+            }, 1000);
+        });
+    });
+});
+
+// Resize handler for gallery
+window.addEventListener('resize', () => {
+    state.currentGalleryIndex = 0;
+    if (elements.galleryTrack) {
+        elements.galleryTrack.style.transform = 'translateX(0px)';
+    }
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    
+    switch(e.key) {
+        case ' ':
+            e.preventDefault();
+            togglePlay();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            navigation.previousSong();
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            navigation.nextSong();
+            break;
+        case 'Escape':
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            break;
+    }
 });
