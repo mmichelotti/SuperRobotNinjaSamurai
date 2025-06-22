@@ -1,21 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
 
-/* CSS Custom Properties for hover effects */
+/* CSS Custom Properties */
 :root {
-    --hover-scale: 1;
-    --hover-opacity: 1;
-    --hover-glow-primary: 40px;
-    --hover-glow-secondary: 20px;
-    --hover-glow-opacity: 0.8;
-    --hover-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --bg-tint-r: 255;
     --bg-tint-g: 255;
     --bg-tint-b: 255;
-    --bg-animation-intensity: 0;
     --section-bg: rgba(0, 0, 0, 0.85);
-    --accent-color: rgba(255, 255, 255, 0.1);
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.7);
+    --hover-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --button-bg: rgba(255, 255, 255, 0.1);
+    --button-border: rgba(255, 255, 255, 0.2);
+    --button-hover-bg: rgba(255, 255, 255, 0.2);
+    --button-hover-border: rgba(255, 255, 255, 0.4);
 }
 
 * {
@@ -23,7 +20,6 @@
     padding: 0;
     box-sizing: border-box;
     user-select: none;
-    /* Prevent zooming and pinching on mobile */
     touch-action: manipulation;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -33,10 +29,8 @@
 }
 
 html {
-    /* Prevent zoom on iOS Safari */
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
-    /* Prevent double-tap zoom */
     touch-action: manipulation;
     scroll-behavior: smooth;
     overflow-x: hidden;
@@ -47,42 +41,15 @@ body {
     background: #000;
     color: #fff;
     overflow-x: hidden;
-    /* Additional mobile zoom prevention */
     touch-action: manipulation;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -webkit-text-size-adjust: none;
     -webkit-font-smoothing: antialiased;
-    /* Prevent overscroll bounce on iOS */
     overscroll-behavior: none;
 }
 
-/* Performance optimizations */
-.homepage {
-    will-change: auto;
-}
-
-.homepage.optimized {
-    will-change: transform, opacity;
-}
-
-.song-background {
-    will-change: auto;
-}
-
-.song-background.animating {
-    will-change: transform;
-}
-
-#visualizerCanvas {
-    will-change: auto;
-}
-
-#visualizerCanvas.active {
-    will-change: transform;
-}
-
-/* Navigation - subtle and elegant */
+/* Navigation */
 .nav-overlay {
     position: fixed;
     top: 0;
@@ -111,31 +78,26 @@ body {
     margin: 0 auto;
 }
 
-.nav-logo {
-    font-size: 1rem;
-    font-weight: 300;
-    letter-spacing: 0.2em;
+.nav-logo, .nav-links {
     opacity: 0;
     transform: translateY(-20px);
     transition: all 0.6s ease;
     pointer-events: auto;
-    cursor: pointer;
 }
 
-.nav-overlay.scrolled .nav-logo {
-    opacity: 1;
-    transform: translateY(0);
+.nav-logo {
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    cursor: pointer;
 }
 
 .nav-links {
     display: flex;
     gap: 2rem;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all 0.6s ease;
-    pointer-events: auto;
 }
 
+.nav-overlay.scrolled .nav-logo,
 .nav-overlay.scrolled .nav-links {
     opacity: 1;
     transform: translateY(0);
@@ -168,25 +130,6 @@ body {
     pointer-events: none;
 }
 
-.song-info {
-    position: fixed;
-    top: 4rem;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    z-index: 100;
-    opacity: 0.85;
-    transition: all 0.6s ease; /* Same timing as nav-overlay */
-    /* Prevent zoom on song info */
-    touch-action: manipulation;
-}
-
-.song-info.scrolled {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-20px);
-    pointer-events: none;
-}
-
 .scroll-indicator.hidden {
     opacity: 0;
 }
@@ -207,13 +150,8 @@ body {
     opacity: 0.6;
 }
 
-@keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; transform: translateY(0); }
-    50% { opacity: 1; transform: translateY(10px); }
-}
-
-/* Homepage - your original styles exactly as they were */
-.homepage {
+/* Homepage */
+.homepage, .container {
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -225,41 +163,38 @@ body {
     overflow: hidden;
 }
 
-.container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    /* Ensure container blocks all zoom gestures */
-    touch-action: manipulation;
-    overflow: hidden;
-}
-
-/* Song background - behind everything */
+/* Song background */
 .song-background {
-    --background-overlay-opacity: 0.85; /* Default value */
+    --background-overlay-opacity: 0.85;
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%; /* Back to normal size */
-    height: 100%; /* Back to normal size */
+    width: 100%;
+    height: 100%;
     z-index: -1;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0;
     transition: opacity 1.5s ease;
-    transform: translate(0%, 0%); /* Back to normal position */
+    transform: translate(0%, 0%);
     filter: sepia(1) saturate(2) hue-rotate(0deg) brightness(0.8);
-    /* Prevent zoom on background */
     touch-action: manipulation;
 }
 
 .song-background.loaded {
     opacity: 1;
+}
+
+.song-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, var(--background-overlay-opacity));
+    z-index: 1;
 }
 
 .song-background::after {
@@ -272,19 +207,7 @@ body {
     height: 900px;
     background: #000;
     border-radius: 50%;
-    z-index: 2; /* Above the background image but below other elements */
-}
-
-/* Dynamic brightness overlay using CSS custom property */
-.song-background::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, var(--background-overlay-opacity));
-    z-index: 1; /* Below the hole */
+    z-index: 2;
 }
 
 .band-title {
@@ -301,7 +224,6 @@ body {
     text-transform: uppercase;
     text-shadow: 0 0 40px rgba(255, 255, 255, 0.25);
     filter: blur(0px);
-    /* Prevent zoom on title */
     touch-action: manipulation;
 }
 
@@ -320,7 +242,6 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
-    /* Prevent zoom on navigation */
     touch-action: manipulation;
 }
 
@@ -336,7 +257,6 @@ body {
     padding-right: 2rem;
 }
 
-/* CSS-drawn previous/next buttons */
 .nav-area::before {
     content: '';
     width: 0;
@@ -347,86 +267,16 @@ body {
     transform: scale(0.8);
 }
 
-/* Left arrow (previous) - simple triangle pointing left */
 .nav-area.left::before {
     border-right: 20px solid rgba(255, 255, 255, 0.9);
     border-top: 12px solid transparent;
     border-bottom: 12px solid transparent;
 }
 
-/* Right arrow (next) - simple triangle pointing right */
 .nav-area.right::before {
     border-left: 20px solid rgba(255, 255, 255, 0.9);
     border-top: 12px solid transparent;
     border-bottom: 12px solid transparent;
-}
-
-/* Desktop hover behavior */
-@media (hover: hover) and (pointer: fine) {
-    .nav-area:hover::before {
-        opacity: 1;
-        transform: scale(1);
-        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
-    }
-    
-    .center-play-area:hover::before {
-        opacity: 1;
-        transform: scale(1) translateX(3px);
-        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
-    }
-    
-    .center-play-area.playing:hover::before {
-        transform: scale(1);
-        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
-    }
-    
-    .song-dot:hover {
-        background: rgba(255, 255, 255, 0.4);
-        transform: scale(1.2);
-    }
-    
-    .progress-container:hover {
-        height: 4px;
-        background: rgba(255, 255, 255, 0.12);
-    }
-}
-
-/* Mobile click animations */
-@media (hover: none) and (pointer: coarse) {
-    .nav-area.mobile-click::before {
-        opacity: 1;
-        transform: scale(1);
-        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
-        animation: mobileIconPop 0.3s ease-out;
-    }
-    
-    .center-play-area.mobile-click::before {
-        opacity: 1;
-        transform: scale(1) translateX(3px);
-        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
-        animation: mobileIconPop 0.3s ease-out;
-    }
-    
-    .center-play-area.playing.mobile-click::before {
-        transform: scale(1);
-        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
-        animation: mobileIconPop 0.3s ease-out;
-    }
-}
-
-@keyframes mobileIconPop {
-    0% {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
 }
 
 /* Center play area */
@@ -444,11 +294,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Prevent zoom on play area */
     touch-action: manipulation;
 }
 
-/* CSS-drawn play button */
 .center-play-area::before {
     content: '';
     width: 0;
@@ -459,15 +307,14 @@ body {
     opacity: 0;
     transition: var(--hover-transition);
     filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
-    transform: scale(0.8) translateX(3px); /* Slightly increased offset for better centering */
+    transform: scale(0.8) translateX(3px);
     position: absolute;
     left: 50%;
     top: 50%;
-    margin-left: -12px; /* Half of border-left width */
-    margin-top: -14px;  /* Half of total height (border-top + border-bottom) */
+    margin-left: -12px;
+    margin-top: -14px;
 }
 
-/* CSS-drawn pause button */
 .center-play-area.playing::before {
     content: '';
     width: 6px;
@@ -480,8 +327,46 @@ body {
     position: absolute;
     left: 50%;
     top: 50%;
-    margin-left: -9px; /* Half of total width (6px + 6px gap + 6px) */
-    margin-top: -14px; /* Half of height */
+    margin-left: -9px;
+    margin-top: -14px;
+}
+
+/* Hover and Mobile Interactions */
+@media (hover: hover) and (pointer: fine) {
+    .nav-area:hover::before,
+    .nav-area.mobile-click::before {
+        opacity: 1;
+        transform: scale(1);
+        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    }
+    
+    .center-play-area:hover::before,
+    .center-play-area.mobile-click::before {
+        opacity: 1;
+        transform: scale(1) translateX(3px);
+        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
+    }
+    
+    .center-play-area.playing:hover::before,
+    .center-play-area.playing.mobile-click::before {
+        transform: scale(1);
+    }
+    
+    .song-dot:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(1.2);
+    }
+    
+    .progress-container:hover {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.12);
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .mobile-click::before {
+        animation: mobileIconPop 0.3s ease-out;
+    }
 }
 
 /* Song info and controls */
@@ -493,8 +378,14 @@ body {
     text-align: center;
     z-index: 100;
     opacity: 0.85;
-    /* Prevent zoom on song info */
+    transition: all 0.6s ease;
     touch-action: manipulation;
+}
+
+.song-info.scrolled {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+    pointer-events: none;
 }
 
 .song-title {
@@ -521,7 +412,6 @@ body {
     position: relative;
     transition: all 0.2s ease;
     margin-bottom: 1.5rem;
-    /* Prevent zoom on progress bar */
     touch-action: manipulation;
 }
 
@@ -553,7 +443,6 @@ body {
     justify-content: center;
     gap: 0.8rem;
     margin-top: 0.5rem;
-    /* Prevent zoom on indicators */
     touch-action: manipulation;
 }
 
@@ -565,7 +454,6 @@ body {
     transition: var(--hover-transition);
     border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
-    /* Prevent zoom on dots */
     touch-action: manipulation;
 }
 
@@ -596,7 +484,7 @@ body {
     animation: pulseRing 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Static speaker representation when not playing */
+/* Static speaker representation */
 .speaker-static {
     position: absolute;
     top: 50%;
@@ -612,7 +500,6 @@ body {
     opacity: 0;
 }
 
-/*inner static circle*/
 .speaker-static::before {
     content: '';
     position: absolute;
@@ -650,8 +537,7 @@ body {
     height: 100%;
     z-index: 0;
     pointer-events: none;
-    mix-blend-mode: screen; /* This will make the visualizer blend with the background */
-    /* Prevent zoom on canvas */
+    mix-blend-mode: screen;
     touch-action: manipulation;
 }
 
@@ -836,9 +722,10 @@ audio {
     letter-spacing: 0.1em;
 }
 
-.ticket-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+/* Shared button styles */
+.ticket-btn, .newsletter-btn {
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
     color: var(--text-primary);
     padding: 0.8rem 1.5rem;
     border-radius: 5px;
@@ -849,10 +736,15 @@ audio {
     transition: all 0.3s ease;
 }
 
-.ticket-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
+.ticket-btn:hover, .newsletter-btn:hover {
+    background: var(--button-hover-bg);
+    border-color: var(--button-hover-border);
     transform: translateY(-2px);
+}
+
+.newsletter-btn {
+    font-weight: 400;
+    padding: 1rem 1.5rem;
 }
 
 /* Gallery section */
@@ -957,26 +849,26 @@ audio {
     gap: 2rem;
 }
 
-.contact-item h3 {
+.contact-item h3, .social-links h3 {
     font-size: 1.2rem;
     font-weight: 400;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     letter-spacing: 0.05em;
     color: var(--text-primary);
+}
+
+.contact-item h3 {
+    margin-bottom: 0.5rem;
+}
+
+.social-links h3 {
+    margin-bottom: 1.5rem;
 }
 
 .contact-item p {
     color: var(--text-secondary);
     font-size: 1rem;
     letter-spacing: 0.05em;
-}
-
-.social-links h3 {
-    font-size: 1.2rem;
-    font-weight: 400;
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.05em;
-    color: var(--text-primary);
 }
 
 .social-grid {
@@ -1063,30 +955,9 @@ audio {
     background: rgba(255, 255, 255, 0.15);
 }
 
-.newsletter-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.newsletter-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
 /* Animations */
 @keyframes glitchEffect {
-    0%, 90%, 100% {
-        transform: translate(0);
-        filter: hue-rotate(0deg);
-    }
+    0%, 90%, 100% { transform: translate(0); filter: hue-rotate(0deg); }
     10% { transform: translate(-1px, 1px); filter: hue-rotate(90deg); }
     20% { transform: translate(1px, -1px); filter: hue-rotate(180deg); }
     30% { transform: translate(-1px, -1px); filter: hue-rotate(270deg); }
@@ -1096,67 +967,17 @@ audio {
 }
 
 @keyframes pulseRing {
-    0% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 0.6;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1.15);
-        opacity: 0;
-    }
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0; }
 }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-    .nav-container {
-        padding: 1rem;
-    }
-    
-    .nav-links {
-        gap: 1rem;
-    }
-    
-    .nav-link {
-        font-size: 0.8rem;
-    }
-    
-    .section {
-        padding: 4rem 1rem;
-    }
-    
-    .about-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-    
-    .band-members {
-        grid-template-columns: 1fr;
-    }
-    
-    .date-item {
-        grid-template-columns: 80px 1fr;
-        gap: 1rem;
-    }
-    
-    .date-item .date-action {
-        grid-column: span 2;
-        margin-top: 1rem;
-    }
-    
-    .contact-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-    
-    .social-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .newsletter-form {
-        flex-direction: column;
-    }
-    
-    .gallery-item {
-        min-width: 250px;
-    }
+@keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(10px); }
+}
+
+@keyframes mobileIconPop {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
 }
