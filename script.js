@@ -818,8 +818,6 @@ const backgroundAnimation = {
         const yOffset = -5 + fastWave + slowWave * 0.3;
         const scale = 1 + (slowWave * 0.01) + (mediumWave * 0.005);
         const rotation = (slowWave + fastWave) * 0.3;
-        
-        elements.songBackground.style.transform = `translate(${xOffset}%, ${yOffset}%) scale(${scale}) rotate(${rotation}deg)`;
     }
 };
 
