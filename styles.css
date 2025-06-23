@@ -510,23 +510,11 @@ body {
     height: 490px;
     border: 1px solid rgba(255, 255, 255, 1.0);
     border-radius: 50%;
-}
-
-.speaker-static::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 1200px;
-    height: 1200px;
-    background: rgba(5, 5, 5, 0.6);
-    border-radius: 50%;
     background-image: url('./Images/Icon.png');
-    background-size: 20%;
+    background-size: 70%;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.3;
+    opacity: 10%;
 }
 
 #visualizerCanvas {
