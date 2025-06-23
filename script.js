@@ -13,7 +13,8 @@ const state = {
     isMobile: false,
     currentGalleryIndex: 0,
     isHomepageVisible: true,
-    isScrolled: false
+    isScrolled: false,
+    volume: 1.0
 };
 
 // Beat detection state
@@ -47,7 +48,10 @@ const elements = {
     scrollIndicator: document.getElementById('scrollIndicator'),
     galleryTrack: document.getElementById('galleryTrack'),
     galleryPrev: document.getElementById('galleryPrev'),
-    galleryNext: document.getElementById('galleryNext')
+    galleryNext: document.getElementById('galleryNext'),
+    volumeControl: document.getElementById('volumeControl'),
+    volumeSlider: document.getElementById('volumeSlider'),
+    volumeFill: document.getElementById('volumeFill')
 };
 
 // Utility functions
@@ -170,6 +174,30 @@ const utils = {
     }
 };
 
+// Volume control
+const volumeControl = {
+    init() {
+        elements.volumeSlider.addEventListener('input', this.handleVolumeChange);
+        elements.volumeSlider.addEventListener('change', this.handleVolumeChange);
+        
+        // Initialize volume
+        state.volume = elements.volumeSlider.value / 100;
+        elements.audio.volume = state.volume;
+        this.updateVolumeDisplay();
+    },
+
+    handleVolumeChange(e) {
+        state.volume = e.target.value / 100;
+        elements.audio.volume = state.volume;
+        volumeControl.updateVolumeDisplay();
+    },
+
+    updateVolumeDisplay() {
+        const percentage = Math.round(state.volume * 100);
+        elements.volumeFill.style.width = percentage + '%';
+    }
+};
+
 // Song management
 const songManager = {
     async loadSongsList() {
@@ -190,9 +218,9 @@ const songManager = {
         document.documentElement.style.setProperty('--bg-tint-g', tintColor[1]);
         document.documentElement.style.setProperty('--bg-tint-b', tintColor[2]);
         
-        const shadowColor = `rgba(${tintColor[0]}, ${tintColor[1]}, ${tintColor[2]}, 1.0)`;
+        const shadowColor = `rgba(${tintColor[0]}, ${tintColor[1]}, ${tintColor[2]}, 0.6)`;
         document.querySelectorAll('.section-title').forEach(header => {
-            header.style.textShadow = `0 0 20px ${shadowColor}`;
+            header.style.textShadow = `0 0 40px ${shadowColor}, 0 0 20px ${shadowColor}`;
         });
     },
 
@@ -281,6 +309,7 @@ const songManager = {
         
         await this.loadMetadata(folderName);
         elements.audio.src = `./Songs/${folderName}/Song.mp3`;
+        elements.audio.volume = state.volume;
         elements.songTitle.textContent = state.currentSongData.title;
         elements.progressBar.style.width = '0%';
         
@@ -294,15 +323,24 @@ const songManager = {
         const backgroundPath = `./Songs/${folderName}/background.png`;
         const testImage = new Image();
         
+        // Start fade out with subtle zoom
+        elements.songBackground.classList.add('changing');
+        
         testImage.onload = () => {
-            elements.songBackground.style.backgroundImage = `url('${backgroundPath}')`;
-            elements.songBackground.classList.add('loaded');
-            this.applyBackgroundEffects();
+            setTimeout(() => {
+                // Change background image
+                elements.songBackground.style.backgroundImage = `url('${backgroundPath}')`;
+                elements.songBackground.classList.remove('changing');
+                elements.songBackground.classList.add('loaded');
+                this.applyBackgroundEffects();
+            }, 400); // Wait for fade out
         };
         
         testImage.onerror = () => {
-            elements.songBackground.style.backgroundImage = 'none';
-            elements.songBackground.classList.remove('loaded');
+            setTimeout(() => {
+                elements.songBackground.style.backgroundImage = 'none';
+                elements.songBackground.classList.remove('changing', 'loaded');
+            }, 400);
         };
         
         testImage.src = backgroundPath;
@@ -477,6 +515,7 @@ const scrollHandler = {
                 elements.navOverlay.classList.toggle('scrolled', scrolled);
                 elements.scrollIndicator.classList.toggle('hidden', scrolled);
                 elements.songInfo.classList.toggle('scrolled', scrolled);
+                elements.volumeControl.classList.toggle('scrolled', scrolled);
             }
         }, 16), { passive: true });
         
@@ -1322,6 +1361,7 @@ async function initializeApp() {
     
     await songManager.loadCurrentSong();
     lyrics.init();
+    volumeControl.init();
     events.setupGestureControls();
     
     const currentScrollY = window.scrollY;
@@ -1331,6 +1371,7 @@ async function initializeApp() {
     elements.navOverlay.classList.toggle('scrolled', state.isScrolled);
     elements.scrollIndicator.classList.toggle('hidden', state.isScrolled);
     elements.songInfo.classList.toggle('scrolled', state.isScrolled);
+    elements.volumeControl.classList.toggle('scrolled', state.isScrolled);
     
     scrollHandler.init();
     gallery.init();
@@ -1387,6 +1428,20 @@ document.addEventListener('keydown', throttle((e) => {
             break;
         case 'Escape':
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            state.volume = Math.min(1, state.volume + 0.1);
+            elements.audio.volume = state.volume;
+            elements.volumeSlider.value = state.volume * 100;
+            volumeControl.updateVolumeDisplay();
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            state.volume = Math.max(0, state.volume - 0.1);
+            elements.audio.volume = state.volume;
+            elements.volumeSlider.value = state.volume * 100;
+            volumeControl.updateVolumeDisplay();
             break;
     }
 }, 100));

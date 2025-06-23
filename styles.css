@@ -118,10 +118,85 @@ body {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
+/* Volume control */
+.volume-control {
+    position: fixed;
+    bottom: 5.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 150;
+    opacity: 1;
+    transition: all 0.6s ease;
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+
+.volume-control.scrolled {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
+}
+
+.volume-slider-container {
+    position: relative;
+    width: 120px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.volume-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    touch-action: manipulation;
+}
+
+.volume-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.volume-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.9) 0%, 
+        rgba(255,255,255,0.7) 50%,
+        rgba(255,255,255,0.5) 100%);
+    border-radius: 2px;
+    transition: width 0.1s ease;
+}
+
+.volume-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
 /* Scroll indicator */
 .scroll-indicator {
     position: fixed;
-    bottom: 3rem;
+    bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 150;
@@ -176,14 +251,19 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0;
-    transition: opacity 1.5s ease;
-    transform: translate(0%, 0%);
+    transition: opacity 0.8s ease, transform 0.6s ease;
+    transform: translate(0%, 0%) scale(1);
     filter: sepia(1) saturate(2) hue-rotate(0deg) brightness(0.8);
     touch-action: manipulation;
 }
 
 .song-background.loaded {
     opacity: 1;
+}
+
+.song-background.changing {
+    opacity: 0;
+    transform: scale(1.05);
 }
 
 .song-background::before {
@@ -361,6 +441,10 @@ body {
         height: 4px;
         background: rgba(255, 255, 255, 0.12);
     }
+
+    .volume-control:hover .volume-slider-container {
+        background: rgba(255, 255, 255, 0.2);
+    }
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -372,7 +456,7 @@ body {
 /* Song info and controls */
 .song-info {
     position: fixed;
-    top: 4rem;
+    top: 3.5rem;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
@@ -391,7 +475,7 @@ body {
 .song-title {
     font-size: 0.9rem;
     font-weight: 300;
-    margin-bottom: 1.8rem;
+    margin-bottom: 1.5rem;
     letter-spacing: 0.35em;
     text-transform: uppercase;
     transition: all 0.3s ease;
@@ -411,7 +495,7 @@ body {
     pointer-events: auto;
     position: relative;
     transition: all 0.2s ease;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     touch-action: manipulation;
 }
 
@@ -442,7 +526,7 @@ body {
     display: flex;
     justify-content: center;
     gap: 0.8rem;
-    margin-top: 0.5rem;
+    margin-top: 0.3rem;
     touch-action: manipulation;
 }
 
@@ -514,7 +598,7 @@ body {
     background-size: 70%;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 10%;
+    opacity: 0.1;
 }
 
 #visualizerCanvas {
