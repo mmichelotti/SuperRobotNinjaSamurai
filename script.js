@@ -3,13 +3,11 @@ const state = {
     songs: [],
     currentSongIndex: 0,
     isPlaying: false,
-    isTransitioning: false,
     currentSongData: { title: "", palette: { mid: [255, 255, 255], high: [255, 255, 255] } },
     lyrics: { current: [], index: 0, loaded: false },
     touch: { startX: 0, startY: 0, startTime: 0 },
     isHoveringCenter: false,
     isDragging: false,
-    colorPhase: 0,
     isMobile: false,
     currentGalleryIndex: 0,
     isHomepageVisible: true,
@@ -97,27 +95,11 @@ function preventZoom() {
         lastTouchEnd = now;
     }, false);
 
-    ['gesturestart', 'gesturechange', 'gestureend'].forEach(eventType => {
-        document.addEventListener(eventType, e => e.preventDefault());
-    });
-
-    document.addEventListener('touchstart', function(event) {
-        if (event.touches.length > 1) {
-            event.preventDefault();
-        }
-    });
-
     document.addEventListener('touchmove', function(event) {
         if (event.scale !== 1) {
             event.preventDefault();
         }
     }, { passive: false });
-
-    document.addEventListener('keydown', function(event) {
-        if ((event.ctrlKey || event.metaKey) && (event.key === '+' || event.key === '-' || event.key === '=' || event.key === '0')) {
-            event.preventDefault();
-        }
-    });
 
     document.addEventListener('wheel', function(event) {
         if (event.ctrlKey) {
@@ -314,7 +296,6 @@ const songManager = {
         elements.progressBar.style.width = '0%';
         
         this.loadSongBackground(folderName);
-        state.colorPhase = 0;
         this.initializeBeatDetection();
         await this.loadLyrics();
     },
@@ -444,7 +425,6 @@ const ui = {
         }
         
         const wasPlaying = state.isPlaying;
-        state.isTransitioning = true;
         
         state.currentSongIndex = index;
         songManager.loadCurrentSong().then(() => {
@@ -452,16 +432,12 @@ const ui = {
             
             if (wasPlaying) {
                 elements.audio.play().then(() => {
-                    state.isTransitioning = false;
                     elements.speakerStatic.classList.add('hidden');
                     if (state.lyrics.loaded) {
                         setTimeout(() => this.showLyrics(), 500);
                     }
-                }).catch(() => {
-                    state.isTransitioning = false;
                 });
             } else {
-                state.isTransitioning = false;
                 elements.speakerStatic.classList.remove('hidden');
             }
         });
@@ -478,7 +454,7 @@ const ui = {
     hideLyrics() {
         lyricsDisplay.container.style.opacity = '0';
         
-        if (!state.isTransitioning && !state.isPlaying) {
+        if (!state.isPlaying) {
             setTimeout(() => {
                 elements.bandTitle.style.opacity = '0.95';
                 elements.bandTitle.style.transform = 'scale(1)';
@@ -507,7 +483,6 @@ const scrollHandler = {
             
             if (state.isHomepageVisible !== isHomepageVisible) {
                 state.isHomepageVisible = isHomepageVisible;
-                if (canvas) canvas.classList.toggle('active', isHomepageVisible);
             }
             
             if (scrolled !== state.isScrolled) {
@@ -739,7 +714,7 @@ const beatEffects = {
             color: palette.mid.map((c, i) => Math.floor((c + palette.high[i]) / 2))
         };
         
-        if (!state.isTransitioning && (!state.lyrics.loaded || !state.isPlaying)) {
+        if (!state.lyrics.loaded || !state.isPlaying) {
             const titleIntensity = Math.min(intensity * 1.2, 1);
             elements.bandTitle.style.transform = `scale(${1 + titleIntensity * 0.02})`;
             elements.bandTitle.style.textShadow = `
@@ -843,23 +818,6 @@ const lyrics = {
     }
 };
 
-// Background animation
-const backgroundAnimation = {
-    updateAnimation() {
-        if (!state.isPlaying) return;
-        
-        const time = Date.now() * 0.001;
-        const slowWave = Math.sin(time * 0.1) * 0.5;
-        const mediumWave = Math.sin(time * 0.15) * 0.3;
-        const fastWave = Math.sin(time * 0.2) * 0.2;
-        
-        const xOffset = -5 + slowWave + mediumWave * 0.5;
-        const yOffset = -5 + fastWave + slowWave * 0.3;
-        const scale = 1 + (slowWave * 0.01) + (mediumWave * 0.005);
-        const rotation = (slowWave + fastWave) * 0.3;
-    }
-};
-
 // Visualization
 const visualization = {
     init() {
@@ -890,13 +848,6 @@ const visualization = {
         this.visualize();
     },
 
-    getFrequencyColor(type, intensity) {
-        const palette = state.currentSongData.palette;
-        const baseColor = type === 'mid' ? palette.mid : palette.high;
-        const phaseShift = Math.sin(state.colorPhase + intensity * 2) * 0.1;
-        return baseColor.map(c => Math.max(0, Math.min(255, c + phaseShift * 20)));
-    },
-
     visualize() {
         if (!state.isHomepageVisible) {
             animationId = requestAnimationFrame(() => this.visualize());
@@ -909,7 +860,6 @@ const visualization = {
         
         if (state.isPlaying) {
             lyrics.update();
-            backgroundAnimation.updateAnimation();
         }
         
         ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
@@ -923,8 +873,6 @@ const visualization = {
         const bassAverage = dataArray.slice(0, bufferLength / 8).reduce((a, b) => a + b) / (bufferLength / 8);
         const midAverage = dataArray.slice(bufferLength / 8, bufferLength / 2).reduce((a, b) => a + b) / (bufferLength * 3 / 8);
         const trebleAverage = dataArray.slice(bufferLength / 2).reduce((a, b) => a + b) / (bufferLength / 2);
-        
-        state.colorPhase += 0.003;
         
         if (state.isPlaying) {
             beatEffects.updateBeatDetection(bassAverage, midAverage, trebleAverage, average);
@@ -969,7 +917,7 @@ const visualization = {
                 ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.8})`;
                 ctx.lineWidth = 0.5;
             } else if (i < bufferLength / 2) {
-                const color = this.getFrequencyColor('mid', intensity);
+                const color = state.currentSongData.palette.mid;
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
                 gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
@@ -979,7 +927,7 @@ const visualization = {
                 ctx.strokeStyle = gradient;
                 ctx.lineWidth = 2 + intensity * 4;
             } else {
-                const color = this.getFrequencyColor('high', intensity);
+                const color = state.currentSongData.palette.high;
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
                 gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
@@ -1294,7 +1242,6 @@ function togglePlay() {
     if (state.isPlaying) {
         elements.audio.pause();
         state.isPlaying = false;
-        state.isTransitioning = false;
         
         ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
             elements[el].classList.remove('playing');
@@ -1311,7 +1258,6 @@ function togglePlay() {
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 state.isPlaying = true;
-                state.isTransitioning = false;
                 
                 ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                     elements[el].classList.add('playing');
@@ -1322,7 +1268,6 @@ function togglePlay() {
             });
         } else {
             state.isPlaying = true;
-            state.isTransitioning = false;
             
             ['bandTitle', 'songInfo', 'songTitle', 'centerPlayArea'].forEach(el => {
                 elements[el].classList.add('playing');
@@ -1445,14 +1390,6 @@ document.addEventListener('keydown', throttle((e) => {
             break;
     }
 }, 100));
-
-// Gallery resize handler
-window.addEventListener('resize', debounce(() => {
-    state.currentGalleryIndex = 0;
-    if (elements.galleryTrack) {
-        elements.galleryTrack.style.transform = 'translateX(0px)';
-    }
-}, 250));
 
 // Memory cleanup
 window.addEventListener('beforeunload', () => {
