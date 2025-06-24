@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
 
-/* CSS Custom Properties */
 :root {
     --bg-tint-r: 255;
     --bg-tint-g: 255;
@@ -31,7 +30,6 @@
 html {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
-    touch-action: manipulation;
     scroll-behavior: smooth;
     overflow-x: hidden;
 }
@@ -41,15 +39,10 @@ body {
     background: #000;
     color: #fff;
     overflow-x: hidden;
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -webkit-text-size-adjust: none;
     -webkit-font-smoothing: antialiased;
     overscroll-behavior: none;
 }
 
-/* Navigation */
 .nav-overlay {
     position: fixed;
     top: 0;
@@ -118,7 +111,6 @@ body {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
-/* Volume control */
 .volume-control {
     position: fixed;
     bottom: 5.5rem;
@@ -127,8 +119,6 @@ body {
     z-index: 150;
     opacity: 1;
     transition: all 0.6s ease;
-    pointer-events: auto;
-    touch-action: manipulation;
 }
 
 .volume-control.scrolled {
@@ -155,7 +145,6 @@ body {
     opacity: 0;
     cursor: pointer;
     z-index: 2;
-    touch-action: manipulation;
 }
 
 .volume-track {
@@ -168,7 +157,8 @@ body {
     border-radius: 2px;
 }
 
-.volume-fill {
+.volume-fill,
+.progress-bar {
     position: absolute;
     top: 0;
     left: 0;
@@ -182,7 +172,8 @@ body {
     transition: width 0.1s ease;
 }
 
-.volume-fill::after {
+.volume-fill::after,
+.progress-bar::after {
     content: '';
     position: absolute;
     top: 0;
@@ -193,7 +184,10 @@ body {
     box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
 }
 
-/* Scroll indicator */
+.progress-bar::after {
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
 .scroll-indicator {
     position: fixed;
     bottom: 1.5rem;
@@ -225,7 +219,6 @@ body {
     opacity: 0.6;
 }
 
-/* Homepage */
 .homepage, .container {
     position: relative;
     width: 100vw;
@@ -234,11 +227,9 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    touch-action: manipulation;
     overflow: hidden;
 }
 
-/* Song background */
 .song-background {
     --background-overlay-opacity: 0.85;
     position: absolute;
@@ -253,8 +244,7 @@ body {
     opacity: 0;
     transition: opacity 0.8s ease, transform 0.6s ease;
     transform: translate(0%, 0%) scale(1);
-    filter: sepia(1) saturate(2) hue-rotate(0deg) brightness(0.8);
-    touch-action: manipulation;
+    filter: brightness(0.8);
 }
 
 .song-background.loaded {
@@ -304,14 +294,12 @@ body {
     text-transform: uppercase;
     text-shadow: 0 0 40px rgba(255, 255, 255, 0.25);
     filter: blur(0px);
-    touch-action: manipulation;
 }
 
 .band-title.playing {
     text-shadow: 0 0 60px rgba(255, 255, 255, 0.4);
 }
 
-/* Navigation areas */
 .nav-area {
     position: absolute;
     top: 50%;
@@ -322,7 +310,6 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
-    touch-action: manipulation;
 }
 
 .nav-area.left {
@@ -359,7 +346,6 @@ body {
     border-bottom: 12px solid transparent;
 }
 
-/* Center play area */
 .center-play-area {
     position: absolute;
     top: 50%;
@@ -374,7 +360,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    touch-action: manipulation;
 }
 
 .center-play-area::before {
@@ -411,7 +396,6 @@ body {
     margin-top: -14px;
 }
 
-/* Hover and Mobile Interactions */
 @media (hover: hover) and (pointer: fine) {
     .nav-area:hover::before,
     .nav-area.mobile-click::before {
@@ -453,7 +437,6 @@ body {
     }
 }
 
-/* Song info and controls */
 .song-info {
     position: fixed;
     top: 3.5rem;
@@ -463,7 +446,6 @@ body {
     z-index: 100;
     opacity: 0.85;
     transition: all 0.6s ease;
-    touch-action: manipulation;
 }
 
 .song-info.scrolled {
@@ -492,42 +474,22 @@ body {
     background: rgba(255, 255, 255, 0.08);
     border-radius: 2px;
     overflow: hidden;
-    pointer-events: auto;
     position: relative;
     transition: all 0.2s ease;
     margin-bottom: 1rem;
-    touch-action: manipulation;
+    cursor: pointer;
 }
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, 
-        rgba(255,255,255,0.9) 0%, 
-        rgba(255,255,255,0.7) 50%,
-        rgba(255,255,255,0.5) 100%);
-    width: 0%;
-    transition: width 0.1s ease;
     position: relative;
 }
 
-.progress-bar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 2px;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
-}
-
-/* Song indicators */
 .song-indicators {
     display: flex;
     justify-content: center;
     gap: 0.8rem;
     margin-top: 0.3rem;
-    touch-action: manipulation;
 }
 
 .song-dot {
@@ -538,7 +500,6 @@ body {
     transition: var(--hover-transition);
     border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
-    touch-action: manipulation;
 }
 
 .song-dot.active {
@@ -547,7 +508,6 @@ body {
     border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Visual effects */
 .beat-pulse {
     position: absolute;
     top: 50%;
@@ -568,7 +528,6 @@ body {
     animation: pulseRing 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Static speaker representation */
 .speaker-static {
     position: absolute;
     top: 50%;
@@ -610,14 +569,8 @@ body {
     z-index: 0;
     pointer-events: none;
     mix-blend-mode: screen;
-    touch-action: manipulation;
 }
 
-audio {
-    display: none;
-}
-
-/* Content sections */
 .content-sections {
     position: relative;
     z-index: 10;
@@ -668,7 +621,6 @@ audio {
     transform: translateY(0);
 }
 
-/* About section */
 .about-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -739,7 +691,6 @@ audio {
     letter-spacing: 0.1em;
 }
 
-/* Tour Dates section */
 .dates-container {
     margin-bottom: 4rem;
 }
@@ -794,7 +745,6 @@ audio {
     letter-spacing: 0.1em;
 }
 
-/* Shared button styles */
 .ticket-btn, .newsletter-btn {
     background: var(--button-bg);
     border: 1px solid var(--button-border);
@@ -819,7 +769,6 @@ audio {
     padding: 1rem 1.5rem;
 }
 
-/* Gallery section */
 .gallery-section {
     margin-top: 3rem;
 }
@@ -906,7 +855,6 @@ audio {
     right: 1rem;
 }
 
-/* Contact section */
 .contact-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -978,7 +926,6 @@ audio {
     letter-spacing: 0.05em;
 }
 
-/* Newsletter */
 .newsletter {
     text-align: center;
     padding: 3rem;
@@ -1025,17 +972,6 @@ audio {
 .newsletter-input:focus {
     border-color: rgba(255, 255, 255, 0.4);
     background: rgba(255, 255, 255, 0.15);
-}
-
-/* Animations */
-@keyframes glitchEffect {
-    0%, 90%, 100% { transform: translate(0); filter: hue-rotate(0deg); }
-    10% { transform: translate(-1px, 1px); filter: hue-rotate(90deg); }
-    20% { transform: translate(1px, -1px); filter: hue-rotate(180deg); }
-    30% { transform: translate(-1px, -1px); filter: hue-rotate(270deg); }
-    40% { transform: translate(1px, 1px); filter: hue-rotate(360deg); }
-    50% { transform: translate(-1px, 1px); filter: hue-rotate(45deg); }
-    60% { transform: translate(1px, -1px); filter: hue-rotate(135deg); }
 }
 
 @keyframes pulseRing {
