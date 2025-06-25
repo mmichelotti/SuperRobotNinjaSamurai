@@ -12,6 +12,13 @@
       { "text": "Contact", "target": "contact" }
     ]
   },
+  "footer": {
+    "leftText": [
+      "© 2025 All songs and content are original works",
+      "Created with passion for music"
+    ],
+    "rightText": "Made with ❤️"
+  },
   "about": {
     "title": "ABOUT",
     "content": {

@@ -670,22 +670,30 @@ const navigation = {
 // Scroll handling
 const scrollHandler = {
     init() {
+        
         window.addEventListener('scroll', throttle(() => {
-            const scrolled = window.scrollY > 50;
-            const isHomepageVisible = window.scrollY < window.innerHeight * 0.7;
-            
-            if (state.isHomepageVisible !== isHomepageVisible) {
-                state.isHomepageVisible = isHomepageVisible;
-            }
-            
-            if (scrolled !== state.isScrolled) {
-                state.isScrolled = scrolled;
-                elements.navOverlay.classList.toggle('scrolled', scrolled);
-                elements.scrollIndicator.classList.toggle('hidden', scrolled);
-                elements.songInfo.classList.toggle('scrolled', scrolled);
-                elements.volumeControl.classList.toggle('scrolled', scrolled);
-            }
-        }, 16), { passive: true });
+        const scrolled = window.scrollY > 50;
+        const isHomepageVisible = window.scrollY < window.innerHeight * 0.7;
+        
+        if (state.isHomepageVisible !== isHomepageVisible) {
+            state.isHomepageVisible = isHomepageVisible;
+        }
+        
+        if (scrolled !== state.isScrolled) {
+            state.isScrolled = scrolled;
+            elements.navOverlay.classList.toggle('scrolled', scrolled);
+            elements.scrollIndicator.classList.toggle('hidden', scrolled);
+            elements.songInfo.classList.toggle('scrolled', scrolled);
+            elements.volumeControl.classList.toggle('scrolled', scrolled);
+        }
+        
+        const isAtBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 100;
+        const footerOverlay = document.getElementById('footerOverlay');
+        
+        if (footerOverlay) {
+            footerOverlay.classList.toggle('visible', isAtBottom);
+        }
+    }, 16), { passive: true });
         
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -1315,6 +1323,26 @@ const infoManager = {
         }
     },
     
+    populateFooter() {
+    if (!this.data || !this.data.footer) return;
+    
+    const footerInfo = document.querySelector('.footer-info');
+    const footerLinks = document.querySelector('.footer-links');
+    
+    if (footerInfo) {
+        footerInfo.innerHTML = '';
+        this.data.footer.leftText.forEach(text => {
+            const p = document.createElement('p');
+            p.textContent = text;
+            footerInfo.appendChild(p);
+        });
+    }
+    
+    if (footerLinks) {
+        footerLinks.textContent = this.data.footer.rightText;
+    }
+},
+    
     attachEventListeners() {
         // Ticket buttons
         document.querySelectorAll('.ticket-btn').forEach(btn => {
@@ -1338,6 +1366,7 @@ const infoManager = {
         
         this.populateNavigation();
         this.populateContent();
+        this.populateFooter();
         
         setTimeout(() => this.attachEventListeners(), 100);
         return true;
@@ -1393,10 +1422,6 @@ function scrollToSection(sectionId) {
     const section = document.getElementById(sectionId);
     if (!section) return;
     
-    // Get the CSS custom property values for dynamic offset calculation
-    const rootStyles = getComputedStyle(document.documentElement);
-    
-    let offset = sectionId === 'homepapge' ? 0 : -65;
     // Get the section's position
     const elementPosition = section.getBoundingClientRect().top + window.pageYOffset;
     
