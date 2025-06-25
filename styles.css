@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
 
+/* CSS Custom Properties for consistent section spacing */
 :root {
     --bg-tint-r: 255;
     --bg-tint-g: 255;
@@ -13,6 +14,13 @@
     --button-hover-bg: rgba(255, 255, 255, 0.2);
     --button-hover-border: rgba(255, 255, 255, 0.4);
     --gucci-transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    
+    /* GENERALIZED SECTION SPACING VARIABLES */
+    --section-padding-top: 6rem;
+    --section-padding-bottom: 6rem;
+    --section-padding-horizontal: 2rem;
+    --section-title-margin-bottom: 4rem;
+    --nav-bar-height: 80px; /* Approximate navbar height for offset calculation */
 }
 
 * {
@@ -577,57 +585,72 @@ body {
     z-index: 10;
 }
 
+/* GENERALIZED SECTION STYLES - Using CSS custom properties */
 .section {
     min-height: 100vh;
-    padding: 6rem 2rem;
+    padding: var(--section-padding-top) var(--section-padding-horizontal) var(--section-padding-bottom) var(--section-padding-horizontal);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     background: var(--section-bg);
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    scroll-margin-top: var(--nav-bar-height); /* This ensures proper scroll positioning */
 }
 
+/* Special handling for gallery section */
 .gallery-section {
     padding: 0;
     background: #000;
     min-height: 100vh;
     height: 100vh;
     overflow: hidden;
+    justify-content: center;
+    scroll-margin-top: 0; /* Gallery doesn't need nav offset since it's full screen */
 }
 
 .section-container {
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
+/* Gallery section container is different */
 .gallery-section .section-container {
     max-width: 100%;
     height: 100vh;
     position: relative;
     padding: 0;
     margin: 0;
+    display: block; /* Reset flex for gallery */
 }
 
+/* CONSISTENT SECTION TITLE STYLING - Using CSS custom properties */
 .section-title {
     font-size: clamp(3rem, 8vw, 6rem);
     font-weight: 100;
     text-align: center;
-    margin-bottom: 3rem;
+    margin: 0 0 var(--section-title-margin-bottom) 0;
     letter-spacing: 0.1em;
     opacity: 0;
     transform: translateY(50px);
     transition: all 0.8s ease;
+    width: 100%;
+    position: relative;
 }
 
+/* Gallery section title gets special treatment */
 .gallery-section .section-title {
     position: absolute;
     top: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    margin-bottom: 0;
+    margin: 0; /* Reset margin for absolute positioned element */
     z-index: 200;
     font-size: clamp(2rem, 5vw, 4rem);
     color: rgba(255, 255, 255, 0.9);
@@ -635,21 +658,30 @@ body {
     pointer-events: none;
 }
 
+/* Title visibility states */
 .section.visible .section-title {
     opacity: 1;
     transform: translateY(0);
 }
 
 .gallery-section.visible .section-title {
-    transform: translateX(-50%);
+    opacity: 1;
+    transform: translateX(-50%); /* Maintain the centering transform */
 }
 
+/* CONSISTENT SECTION CONTENT STYLING */
 .section-content {
     opacity: 0;
     transform: translateY(30px);
     transition: all 0.8s ease 0.2s;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Content starts after title */
 }
 
+/* Gallery section content is different */
 .gallery-section .section-content {
     position: absolute;
     top: 0;
@@ -659,6 +691,8 @@ body {
     transform: none;
     padding: 0;
     margin: 0;
+    opacity: 1; /* Gallery content is always visible */
+    display: block; /* Reset flex for gallery */
 }
 
 .section.visible .section-content {
@@ -1190,8 +1224,25 @@ body {
     100% { opacity: 0; transform: translateX(-100%) scale(0.9); }
 }
 
-/* Mobile responsiveness */
+/* Mobile responsiveness - Using CSS custom properties */
 @media (max-width: 768px) {
+    :root {
+        --section-padding-top: 6rem;
+        --section-padding-bottom: 4rem;
+        --section-padding-horizontal: 1.5rem;
+        --section-title-margin-bottom: 3rem;
+        --nav-bar-height: 70px; /* Smaller navbar on mobile */
+    }
+    
+    .section-title {
+        font-size: clamp(2.5rem, 10vw, 4rem);
+    }
+    
+    .gallery-section .section-title {
+        top: 1.5rem;
+        font-size: clamp(1.8rem, 8vw, 3rem);
+    }
+    
     .about-content,
     .contact-content {
         grid-template-columns: 1fr;

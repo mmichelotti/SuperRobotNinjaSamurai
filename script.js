@@ -1422,19 +1422,24 @@ function togglePlay() {
     }
 }
 
-// Global navigation
+// Global navigation - GENERALIZED with automatic offset calculation
 function scrollToSection(sectionId) {
     const section = document.getElementById(sectionId);
-    if (section) {
-        // Add offset for gallery section to account for the title positioning
-        const offset = sectionId === 'gallery' ? -100 : 0;
-        const elementPosition = section.getBoundingClientRect().top + window.pageYOffset + offset;
-        
-        window.scrollTo({
-            top: elementPosition,
-            behavior: 'smooth'
-        });
-    }
+    if (!section) return;
+    
+    // Get the CSS custom property values for dynamic offset calculation
+    const rootStyles = getComputedStyle(document.documentElement);
+    const navBarHeight = parseInt(rootStyles.getPropertyValue('--nav-bar-height')) || 80;
+    
+    let offset = sectionId === 'homepapge' ? 0 : -65;
+    // Get the section's position
+    const elementPosition = section.getBoundingClientRect().top + window.pageYOffset + offset;
+    
+    // Smooth scroll to the calculated position
+    window.scrollTo({
+        top: elementPosition,
+        behavior: 'smooth'
+    });
 }
 
 // Initialize application
