@@ -56,7 +56,6 @@ const elements = {
     galleryMainImage: document.getElementById('galleryMainImage'),
     galleryMainPrev: document.getElementById('galleryMainPrev'),
     galleryMainNext: document.getElementById('galleryMainNext'),
-    galleryDots: document.getElementById('galleryDots'),
     videoCarouselTrack: document.getElementById('videoCarouselTrack'),
     videoCarouselPrev: document.getElementById('videoCarouselPrev'),
     videoCarouselNext: document.getElementById('videoCarouselNext')
@@ -202,7 +201,6 @@ const galleryManager = {
         await this.discoverGalleryImages();
         
         this.createVideoCarousel();
-        this.createGalleryDots();
         this.attachGalleryNavigation();
         this.loadCurrentImage();
         this.startAutoAdvance();
@@ -240,36 +238,6 @@ const galleryManager = {
             img.onload = () => resolve(true);
             img.onerror = () => resolve(false);
             img.src = imagePath;
-        });
-    },
-    
-    createGalleryDots() {
-        if (!elements.galleryDots || this.images.length <= 1) return;
-        
-        elements.galleryDots.innerHTML = '';
-        
-        this.images.forEach((_, index) => {
-            const dot = document.createElement('div');
-            dot.className = 'gallery-dot';
-            if (index === state.currentGalleryIndex) dot.classList.add('active');
-            
-            dot.addEventListener('click', () => {
-                if (index !== state.currentGalleryIndex) {
-                    state.currentGalleryIndex = index;
-                    this.loadCurrentImage();
-                    this.updateGalleryDots();
-                    this.startAutoAdvance();
-                }
-            });
-            
-            elements.galleryDots.appendChild(dot);
-        });
-    },
-    
-    updateGalleryDots() {
-        const dots = elements.galleryDots.querySelectorAll('.gallery-dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === state.currentGalleryIndex);
         });
     },
     
@@ -381,7 +349,6 @@ const galleryManager = {
         const nextIndex = (state.currentGalleryIndex + 1) % this.images.length;
         state.currentGalleryIndex = nextIndex;
         this.loadCurrentImage();
-        this.updateGalleryDots();
         this.startAutoAdvance();
     },
     
@@ -391,7 +358,6 @@ const galleryManager = {
         const prevIndex = (state.currentGalleryIndex - 1 + this.images.length) % this.images.length;
         state.currentGalleryIndex = prevIndex;
         this.loadCurrentImage();
-        this.updateGalleryDots();
         this.startAutoAdvance();
     },
     
@@ -1432,7 +1398,7 @@ function scrollToSection(sectionId) {
     
     let offset = sectionId === 'homepapge' ? 0 : -65;
     // Get the section's position
-    const elementPosition = section.getBoundingClientRect().top + window.pageYOffset + offset;
+    const elementPosition = section.getBoundingClientRect().top + window.pageYOffset;
     
     // Smooth scroll to the calculated position
     window.scrollTo({
