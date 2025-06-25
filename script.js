@@ -1119,10 +1119,27 @@ const infoManager = {
                 this.data.dates.gallery.items.forEach(item => {
                     const galleryItem = document.createElement('div');
                     galleryItem.className = 'gallery-item';
-                    galleryItem.innerHTML = `
-                        <div class="gallery-image" style="background: ${item.gradient};"></div>
-                        <div class="gallery-caption">${item.caption}</div>
-                    `;
+                    
+                    // Check if we should show video or gradient
+                    if (item.link && item.link !== '#') {
+                        galleryItem.innerHTML = `
+                            <div class="gallery-video">
+                                <iframe 
+                                    src="${item.link}" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                            <div class="gallery-caption">${item.caption}</div>
+                        `;
+                    } else {
+                        galleryItem.innerHTML = `
+                            <div class="gallery-image" style="background: ${item.gradient};"></div>
+                            <div class="gallery-caption">${item.caption}</div>
+                        `;
+                    }
+                    
                     galleryTrack.appendChild(galleryItem);
                 });
             }
@@ -1166,19 +1183,6 @@ const infoManager = {
                     socialGrid.appendChild(socialLink);
                 });
             }
-            
-            const newsletter = contactSection.querySelector('.newsletter');
-            if (newsletter) {
-                const newsletterData = this.data.contact.newsletter;
-                newsletter.innerHTML = `
-                    <h3>${newsletterData.title}</h3>
-                    <p>${newsletterData.description}</p>
-                    <form class="newsletter-form" id="newsletterForm">
-                        <input type="email" placeholder="${newsletterData.placeholder}" class="newsletter-input" required>
-                        <button type="submit" class="newsletter-btn">${newsletterData.buttonText}</button>
-                    </form>
-                `;
-            }
         }
     },
     
@@ -1197,30 +1201,6 @@ const infoManager = {
                 }, 1000);
             });
         });
-        
-        // Newsletter form
-        const newsletterForm = document.getElementById('newsletterForm');
-        if (newsletterForm && this.data?.contact?.newsletter) {
-            const newsletterData = this.data.contact.newsletter;
-            newsletterForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const btn = e.target.querySelector('.newsletter-btn');
-                const originalText = btn.textContent;
-                
-                btn.textContent = newsletterData.subscribingText;
-                btn.disabled = true;
-                
-                setTimeout(() => {
-                    btn.textContent = newsletterData.subscribedText;
-                    e.target.querySelector('.newsletter-input').value = '';
-                    
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.disabled = false;
-                    }, 2000);
-                }, 1000);
-            });
-        }
     },
     
     async populateAll() {

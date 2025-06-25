@@ -38,6 +38,16 @@
         "name": "Kai Nakamura",
         "role": "Beats & Production",
         "avatar": "⚔️"
+      },
+      {
+        "name": "Dio Best",
+        "role": "Vocals & Design",
+        "avatar": "🥷"
+      },
+      {
+        "name": "Culatt One",
+        "role": "Vocals & Design",
+        "avatar": "🥷"
       }
     ]
   },
@@ -47,8 +57,8 @@
       {
         "date": "JUL 15",
         "year": "2025",
-        "venue": "DIGITAL FORTRESS",
-        "location": "Los Angeles, CA",
+        "venue": "Venue",
+        "location": "City",
         "ticketText": "TICKETS",
         "ticketUrl": "#",
         "status": "available"
@@ -56,8 +66,8 @@
       {
         "date": "JUL 22",
         "year": "2025",
-        "venue": "NEON UNDERGROUND",
-        "location": "Brooklyn, NY",
+        "venue": "Venue",
+        "location": "City",
         "ticketText": "TICKETS",
         "ticketUrl": "#",
         "status": "available"
@@ -65,8 +75,8 @@
       {
         "date": "AUG 05",
         "year": "2025",
-        "venue": "CYBER DOME",
-        "location": "Tokyo, Japan",
+        "venue": "Venue",
+        "location": "City",
         "ticketText": "TICKETS",
         "ticketUrl": "#",
         "status": "available"
@@ -74,8 +84,8 @@
       {
         "date": "AUG 18",
         "year": "2025",
-        "venue": "ELECTRIC CATHEDRAL",
-        "location": "Berlin, Germany",
+        "venue": "Venue",
+        "location": "City",
         "ticketText": "TICKETS",
         "ticketUrl": "#",
         "status": "available"
@@ -86,23 +96,28 @@
       "items": [
         {
           "caption": "Digital Fortress, LA",
-          "gradient": "linear-gradient(45deg, #ff006e, #8338ec)"
+          "gradient": "linear-gradient(45deg, #ff006e, #8338ec)",
+          "link": "#"
         },
         {
           "caption": "Studio Sessions",
-          "gradient": "linear-gradient(45deg, #3a86ff, #06ffa5)"
+          "gradient": "linear-gradient(45deg, #3a86ff, #06ffa5)",
+          "link": "https://www.youtube.com/embed/dQw4w9WgXcQ"
         },
         {
           "caption": "Behind the Scenes",
-          "gradient": "linear-gradient(45deg, #ffbe0b, #fb5607)"
+          "gradient": "linear-gradient(45deg, #ffbe0b, #fb5607)",
+          "link": "#"
         },
         {
           "caption": "Live Performance",
-          "gradient": "linear-gradient(45deg, #8338ec, #3a86ff)"
+          "gradient": "linear-gradient(45deg, #8338ec, #3a86ff)",
+          "link": "https://player.vimeo.com/video/123456789"
         },
         {
           "caption": "Sound Check",
-          "gradient": "linear-gradient(45deg, #06ffa5, #ffbe0b)"
+          "gradient": "linear-gradient(45deg, #06ffa5, #ffbe0b)",
+          "link": "#"
         }
       ]
     }
@@ -112,15 +127,11 @@
     "info": [
       {
         "title": "Booking",
-        "email": "booking@superrobotninja.com"
+        "email": "wip@superrobotninja.com"
       },
       {
         "title": "Management",
-        "email": "mgmt@superrobotninja.com"
-      },
-      {
-        "title": "Press",
-        "email": "press@superrobotninja.com"
+        "email": "wip@superrobotninja.com"
       }
     ],
     "social": {
@@ -157,14 +168,6 @@
           "url": "#"
         }
       ]
-    },
-    "newsletter": {
-      "title": "Join the Resistance",
-      "description": "Get notified about new releases, shows, and exclusive content.",
-      "placeholder": "Enter your email",
-      "buttonText": "SUBSCRIBE",
-      "subscribingText": "SUBSCRIBING...",
-      "subscribedText": "SUBSCRIBED!"
     }
   },
   "meta": {

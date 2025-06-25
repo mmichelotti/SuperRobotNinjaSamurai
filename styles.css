@@ -745,7 +745,7 @@ body {
     letter-spacing: 0.1em;
 }
 
-.ticket-btn, .newsletter-btn {
+.ticket-btn{
     background: var(--button-bg);
     border: 1px solid var(--button-border);
     color: var(--text-primary);
@@ -758,15 +758,10 @@ body {
     transition: all 0.3s ease;
 }
 
-.ticket-btn:hover, .newsletter-btn:hover {
+.ticket-btn:hover{
     background: var(--button-hover-bg);
     border-color: var(--button-hover-border);
     transform: translateY(-2px);
-}
-
-.newsletter-btn {
-    font-weight: 400;
-    padding: 1rem 1.5rem;
 }
 
 .gallery-section {
@@ -855,6 +850,27 @@ body {
     right: 1rem;
 }
 
+.gallery-video {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.gallery-video:hover {
+    transform: scale(1.05);
+}
+
+.gallery-video iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+
 .contact-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -924,54 +940,6 @@ body {
 .social-name {
     font-size: 0.9rem;
     letter-spacing: 0.05em;
-}
-
-.newsletter {
-    text-align: center;
-    padding: 3rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.newsletter h3 {
-    font-size: 1.8rem;
-    font-weight: 300;
-    margin-bottom: 1rem;
-    letter-spacing: 0.1em;
-}
-
-.newsletter p {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-    font-size: 1rem;
-}
-
-.newsletter-form {
-    display: flex;
-    gap: 1rem;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.newsletter-input {
-    flex: 1;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 5px;
-    color: white;
-    font-size: 0.9rem;
-    outline: none;
-}
-
-.newsletter-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.newsletter-input:focus {
-    border-color: rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.15);
 }
 
 @keyframes pulseRing {
