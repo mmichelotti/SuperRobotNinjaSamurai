@@ -211,7 +211,7 @@ const galleryManager = {
         let imageNumber = 1;
         
         while (true) {
-            const imagePath = `Gallery/Gallery${imageNumber.toString().padStart(2, '0')}.png`;
+            const imagePath = `./assets/gallery/Gallery${imageNumber.toString().padStart(2, '0')}.png`;
             
             try {
                 const imageExists = await this.checkImageExists(imagePath);
@@ -376,7 +376,7 @@ const galleryManager = {
 // Song management
 const songManager = {
     async loadSongsList() {
-        return await utils.fetchJson('./Songs/SongData.json') || [];
+        return await utils.fetchJson('./assets/songs/SongData.json') || [];
     },
 
     applyBackgroundEffects() {
@@ -404,7 +404,7 @@ const songManager = {
         const discoveredSongs = [];
         
         for (const folderName of folderNames) {
-            const data = await utils.fetchJson(`./Songs/${folderName}/Data.json`);
+            const data = await utils.fetchJson(`./assets/songs/${folderName}/Data.json`);
             if (data) {
                 discoveredSongs.push({ folder: folderName, title: folderName, ...data });
             }
@@ -413,7 +413,7 @@ const songManager = {
     },
 
     async loadMetadata(folderName) {
-        const metadata = await utils.fetchJson(`./Songs/${folderName}/Data.json`);
+        const metadata = await utils.fetchJson(`./assets/songs/${folderName}/Data.json`);
         state.currentSongData = {
             title: folderName,
             palette: { mid: [255, 255, 255], high: [255, 255, 255] },
@@ -426,7 +426,7 @@ const songManager = {
         if (!state.isHomepageVisible) return;
         
         const folderName = state.songs[state.currentSongIndex].folder;
-        const lrcContent = await utils.fetchText(`./Songs/${folderName}/Lyrics.lrc`);
+        const lrcContent = await utils.fetchText(`./assets/songs/${folderName}/Lyrics.lrc`);
         
         if (lrcContent) {
             state.lyrics.current = this.parseLyrics(lrcContent);
@@ -483,7 +483,7 @@ const songManager = {
         const folderName = state.songs[state.currentSongIndex].folder;
         
         await this.loadMetadata(folderName);
-        elements.audio.src = `./Songs/${folderName}/Song.mp3`;
+        elements.audio.src = `./assets/songs/${folderName}/Song.mp3`;
         elements.audio.volume = state.volume;
         elements.songTitle.textContent = state.currentSongData.title;
         elements.progressBar.style.width = '0%';
@@ -494,7 +494,7 @@ const songManager = {
     },
 
     loadSongBackground(folderName) {
-        const backgroundPath = `./Songs/${folderName}/background.png`;
+        const backgroundPath = `./assets/songs/${folderName}/background.png`;
         const testImage = new Image();
         
         // Start fade out with subtle zoom
