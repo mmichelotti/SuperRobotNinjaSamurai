@@ -8,6 +8,7 @@
     "links": [
       { "text": "About", "target": "about" },
       { "text": "Dates", "target": "dates" },
+      { "text": "Gallery", "target": "gallery" },
       { "text": "Contact", "target": "contact" }
     ]
   },
@@ -90,37 +91,37 @@
         "ticketUrl": "#",
         "status": "available"
       }
-    ],
-    "gallery": {
-      "title": "Live Moments",
-      "items": [
-        {
-          "caption": "Digital Fortress, LA",
-          "gradient": "linear-gradient(45deg, #ff006e, #8338ec)",
-          "link": "#"
-        },
-        {
-          "caption": "Studio Sessions",
-          "gradient": "linear-gradient(45deg, #3a86ff, #06ffa5)",
-          "link": "https://www.youtube.com/embed/dQw4w9WgXcQ"
-        },
-        {
-          "caption": "Behind the Scenes",
-          "gradient": "linear-gradient(45deg, #ffbe0b, #fb5607)",
-          "link": "#"
-        },
-        {
-          "caption": "Live Performance",
-          "gradient": "linear-gradient(45deg, #8338ec, #3a86ff)",
-          "link": "https://player.vimeo.com/video/123456789"
-        },
-        {
-          "caption": "Sound Check",
-          "gradient": "linear-gradient(45deg, #06ffa5, #ffbe0b)",
-          "link": "#"
-        }
-      ]
-    }
+    ]
+  },
+  "gallery": {
+    "title": "",
+    "videos": [
+      {
+        "caption": "Digital Fortress, LA",
+        "gradient": "linear-gradient(45deg, #ff006e, #8338ec)",
+        "link": "#"
+      },
+      {
+        "caption": "Studio Sessions",
+        "gradient": "linear-gradient(45deg, #3a86ff, #06ffa5)",
+        "link": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      },
+      {
+        "caption": "Behind the Scenes",
+        "gradient": "linear-gradient(45deg, #ffbe0b, #fb5607)",
+        "link": "#"
+      },
+      {
+        "caption": "Live Performance",
+        "gradient": "linear-gradient(45deg, #8338ec, #3a86ff)",
+        "link": "https://player.vimeo.com/video/123456789"
+      },
+      {
+        "caption": "Sound Check",
+        "gradient": "linear-gradient(45deg, #06ffa5, #ffbe0b)",
+        "link": "#"
+      }
+    ]
   },
   "contact": {
     "title": "CONTACT",
