@@ -7,7 +7,7 @@ export const infoManager = {
     
     async loadInfo() {
         try {
-            this.data = await utils.fetchJson('./Info.json');
+            this.data = await utils.fetchJson('./assets/content.json');
             return !!this.data;
         } catch (error) {
             console.error('Error loading website info:', error);

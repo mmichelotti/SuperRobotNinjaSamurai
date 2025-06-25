@@ -3,10 +3,10 @@
 ```
 SuperRobotNinjaSamurai/
 ├── README.md                      # Project documentation
-├── index.html                     # Main HTML file
-├── Info.json                      # Website content configuration
+├── index.html                     # Main HTML file               
 │
 ├── assets/                        # Static assets directory
+│   ├── content.json               # Website content configuration
 │   ├── gallery/                   # Gallery images
 │   │   ├── Gallery01.png          # Auto-discovered gallery images
 │   │   ├── Gallery02.png          # (numbered sequentially)
