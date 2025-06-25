@@ -1429,7 +1429,6 @@ function scrollToSection(sectionId) {
     
     // Get the CSS custom property values for dynamic offset calculation
     const rootStyles = getComputedStyle(document.documentElement);
-    const navBarHeight = parseInt(rootStyles.getPropertyValue('--nav-bar-height')) || 80;
     
     let offset = sectionId === 'homepapge' ? 0 : -65;
     // Get the section's position
