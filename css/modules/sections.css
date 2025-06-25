@@ -1,0 +1,276 @@
+/* Content Sections (About, Dates, Contact) */
+
+/* Section Base Styles */
+.section {
+    min-height: 100vh;
+    padding: var(--section-padding-top) var(--section-padding-horizontal) var(--section-padding-bottom) var(--section-padding-horizontal);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background: var(--section-bg);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    scroll-margin-top: var(--nav-bar-height);
+}
+
+.section-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section-title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 100;
+    text-align: center;
+    margin: 0 0 var(--section-title-margin-bottom) 0;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s ease;
+    width: 100%;
+    position: relative;
+}
+
+.section.visible .section-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.section-content {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease 0.2s;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.section.visible .section-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* About Section */
+.about-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.about-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+.about-text h3 {
+    color: var(--text-primary);
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.about-text p {
+    margin-bottom: 1.5rem;
+}
+
+.band-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.member {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.member:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-5px);
+}
+
+.member-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.member-name {
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+.member-role {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+}
+
+/* Dates Section */
+.dates-container {
+    margin-bottom: 4rem;
+}
+
+.date-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 2rem;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.date-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 10px;
+}
+
+.date-info {
+    text-align: center;
+}
+
+.date {
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+}
+
+.year {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+}
+
+.venue-info {
+    flex: 1;
+}
+
+.venue {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.05em;
+}
+
+.location {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+}
+
+.ticket-btn {
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
+    color: var(--text-primary);
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ticket-btn:hover {
+    background: var(--button-hover-bg);
+    border-color: var(--button-hover-border);
+    transform: translateY(-2px);
+}
+
+/* Contact Section */
+.contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+    align-items: start;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.contact-item h3, .social-links h3 {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+    color: var(--text-primary);
+}
+
+.contact-item h3 {
+    margin-bottom: 0.5rem;
+}
+
+.social-links h3 {
+    margin-bottom: 1.5rem;
+}
+
+.contact-item p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.social-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    transform: translateY(-3px);
+}
+
+.social-icon {
+    font-size: 1.2rem;
+}
+
+.social-name {
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+}

@@ -1,0 +1,34 @@
+/* CSS Custom Properties for consistent theming and spacing */
+:root {
+    /* Color Variables */
+    --bg-tint-r: 255;
+    --bg-tint-g: 255;
+    --bg-tint-b: 255;
+    --section-bg: rgba(0, 0, 0, 0.85);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    
+    /* Button Styles */
+    --button-bg: rgba(255, 255, 255, 0.1);
+    --button-border: rgba(255, 255, 255, 0.2);
+    --button-hover-bg: rgba(255, 255, 255, 0.2);
+    --button-hover-border: rgba(255, 255, 255, 0.4);
+    
+    /* Transitions */
+    --hover-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --gucci-transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    
+    /* Section Spacing */
+    --section-padding-top: 6rem;
+    --section-padding-bottom: 6rem;
+    --section-padding-horizontal: 2rem;
+    --section-title-margin-bottom: 4rem;
+    --nav-bar-height: 80px;
+    
+    /* Mobile Overrides */
+    --mobile-section-padding-top: 6rem;
+    --mobile-section-padding-bottom: 4rem;
+    --mobile-section-padding-horizontal: 1.5rem;
+    --mobile-section-title-margin-bottom: 3rem;
+    --mobile-nav-bar-height: 70px;
+}

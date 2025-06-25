@@ -1,0 +1,47 @@
+/* Footer Overlay */
+.footer-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    transition: all 0.6s ease;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(100%);
+}
+
+.footer-overlay.visible {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.footer-container {
+    padding: 1rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.footer-info p {
+    margin: 0.2rem 0;
+    letter-spacing: 0.05em;
+}
+
+.footer-links {
+    font-weight: 300;
+    letter-spacing: 0.1em;
+}

@@ -1,0 +1,153 @@
+/* Audio Controls and Player Interface */
+
+/* Volume Control */
+.volume-control {
+    position: fixed;
+    bottom: 5.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 150;
+    opacity: 1;
+    transition: all 0.6s ease;
+}
+
+.volume-control.scrolled {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
+}
+
+.volume-slider-container {
+    position: relative;
+    width: 120px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.volume-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.volume-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.volume-fill,
+.progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.9) 0%, 
+        rgba(255,255,255,0.7) 50%,
+        rgba(255,255,255,0.5) 100%);
+    border-radius: 2px;
+    transition: width 0.1s ease;
+}
+
+.volume-fill::after,
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+.progress-bar::after {
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+/* Song Info Display */
+.song-info {
+    position: fixed;
+    top: 3.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 100;
+    opacity: 0.85;
+    transition: all 0.6s ease;
+}
+
+.song-info.scrolled {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+    pointer-events: none;
+}
+
+.song-title {
+    font-size: 0.9rem;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.song-title.playing {
+    opacity: 1;
+    letter-spacing: 0.4em;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 450px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.progress-bar {
+    height: 100%;
+    position: relative;
+}
+
+/* Song Indicators */
+.song-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 0.3rem;
+}
+
+.song-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: var(--hover-transition);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+.song-dot.active {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.6);
+}
