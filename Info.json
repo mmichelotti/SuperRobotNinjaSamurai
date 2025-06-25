@@ -24,36 +24,36 @@
     "content": {
       "sound": {
         "title": "The Sound",
-        "description": "Super Robot Ninja Samurai emerges from the intersection of electronic precision and organic chaos. Our sound is a relentless fusion of synthesized fury and human emotion, crafted for those who seek intensity in their sonic experience."
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat"
       },
       "vision": {
         "title": "The Vision",
-        "description": "We are architects of digital rebellion, building soundscapes that challenge the boundaries between technology and soul. Every track is a battle cry against the mundane."
+        "description": "uis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
       }
     },
     "members": [
       {
-        "name": "Alex Chen",
+        "name": "Random Name",
         "role": "Synths & Programming",
         "avatar": "🤖"
       },
       {
-        "name": "Maya Rodriguez",
+        "name": "Random Name",
         "role": "Vocals & Design",
         "avatar": "🥷"
       },
       {
-        "name": "Kai Nakamura",
+        "name": "Random Name",
         "role": "Beats & Production",
         "avatar": "⚔️"
       },
       {
-        "name": "Dio Best",
+        "name": "Random Name",
         "role": "Vocals & Design",
         "avatar": "🥷"
       },
       {
-        "name": "Culatt One",
+        "name": "Random Name",
         "role": "Vocals & Design",
         "avatar": "🥷"
       }
