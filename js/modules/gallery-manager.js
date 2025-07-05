@@ -4,7 +4,9 @@ import { state, elements, setGalleryAutoAdvanceTimeout, galleryAutoAdvanceTimeou
 export const galleryManager = {
     images: [],
     videos: [],
-    currentDirection: 'next', // Track direction for animations
+    currentDirection: 'next',
+    preloadedImages: new Map(), // Cache for preloaded images
+    isTransitioning: false, // Prevent multiple transitions
     
     async init(galleryData) {
         this.videos = galleryData.videos || [];
@@ -12,9 +14,15 @@ export const galleryManager = {
         // Dynamically discover gallery images
         await this.discoverGalleryImages();
         
+        // Preload first few images
+        this.preloadImages();
+        
         this.createVideoCarousel();
         this.loadCurrentImage();
         this.startAutoAdvance();
+        
+        // Add intersection observer for performance
+        this.setupIntersectionObserver();
     },
     
     async discoverGalleryImages() {
@@ -33,10 +41,10 @@ export const galleryManager = {
                     });
                     imageNumber++;
                 } else {
-                    break; // No more images found
+                    break;
                 }
             } catch (error) {
-                break; // Stop on any error
+                break;
             }
         }
         
@@ -52,27 +60,91 @@ export const galleryManager = {
         });
     },
     
+    preloadImages() {
+        // Preload current, next, and previous images
+        const indicesToPreload = [
+            state.currentGalleryIndex,
+            (state.currentGalleryIndex + 1) % this.images.length,
+            (state.currentGalleryIndex - 1 + this.images.length) % this.images.length
+        ];
+        
+        indicesToPreload.forEach(index => {
+            if (this.images[index] && !this.preloadedImages.has(index)) {
+                const img = new Image();
+                img.src = this.images[index].src;
+                this.preloadedImages.set(index, img);
+            }
+        });
+    },
+    
+    setupIntersectionObserver() {
+        const gallerySection = document.querySelector('.gallery-section');
+        if (!gallerySection) return;
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Gallery is visible - ensure smooth performance
+                    this.optimizeForVisibility(true);
+                } else {
+                    // Gallery is not visible - reduce resource usage
+                    this.optimizeForVisibility(false);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        observer.observe(gallerySection);
+    },
+    
+    optimizeForVisibility(isVisible) {
+        if (isVisible) {
+            // Resume auto-advance if it was running
+            if (this.images.length > 1 && !galleryAutoAdvanceTimeout) {
+                this.startAutoAdvance();
+            }
+        } else {
+            // Pause auto-advance when not visible
+            clearTimeout(galleryAutoAdvanceTimeout);
+            setGalleryAutoAdvanceTimeout(null);
+        }
+    },
+    
     createVideoCarousel() {
         if (!elements.videoCarouselTrack) return;
         
         elements.videoCarouselTrack.innerHTML = '';
         
-        this.videos.forEach(video => {
+        this.videos.forEach((video, index) => {
             const item = document.createElement('div');
             item.className = 'video-carousel-item';
             
+            // Lazy load iframes
             if (video.link && video.link !== '#') {
                 item.innerHTML = `
-                    <div class="video-carousel-video">
+                    <div class="video-carousel-video" data-video-index="${index}">
+                        <div class="video-placeholder" style="background: ${video.gradient || 'linear-gradient(45deg, #333, #666)'};">
+                            <button class="video-play-button">▶</button>
+                        </div>
+                    </div>
+                    <div class="video-carousel-caption">${video.caption}</div>
+                `;
+                
+                // Load iframe on click
+                const placeholder = item.querySelector('.video-placeholder');
+                placeholder.addEventListener('click', () => {
+                    const videoContainer = item.querySelector('.video-carousel-video');
+                    videoContainer.innerHTML = `
                         <iframe 
                             src="${video.link}" 
                             frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
+                            allowfullscreen
+                            loading="lazy">
                         </iframe>
-                    </div>
-                    <div class="video-carousel-caption">${video.caption}</div>
-                `;
+                    `;
+                });
             } else {
                 item.innerHTML = `
                     <div class="video-carousel-image" style="background: ${video.gradient};"></div>
@@ -100,142 +172,109 @@ export const galleryManager = {
     scrollVideoCarousel(direction) {
         const track = elements.videoCarouselTrack;
         const itemWidth = 320; // 300px + 20px gap
-        const maxScroll = (this.videos.length - 3) * itemWidth;
+        const maxScroll = Math.max(0, this.videos.length - 3);
         
         state.currentVideoCarouselIndex = Math.max(0, Math.min(
-            this.videos.length - 3,
+            maxScroll,
             state.currentVideoCarouselIndex + direction
         ));
         
         track.style.transform = `translateX(-${state.currentVideoCarouselIndex * itemWidth}px)`;
     },
     
-loadCurrentImage(direction = 'next') {
-    if (!elements.galleryMainImage || !this.images[state.currentGalleryIndex]) return;
-    
-    const currentImage = this.images[state.currentGalleryIndex];
-    
-    // Create or get the second image element for transitions
-    let nextImageElement = elements.galleryMainImage.parentNode.querySelector('.gallery-main-image.next');
-    if (!nextImageElement) {
-        nextImageElement = elements.galleryMainImage.cloneNode(true);
-        nextImageElement.classList.add('next');
+    loadCurrentImage(direction = 'next') {
+        if (!elements.galleryMainImage || !this.images[state.currentGalleryIndex] || this.isTransitioning) return;
+        
+        this.isTransitioning = true;
+        const currentImage = this.images[state.currentGalleryIndex];
+        
+        // Get or create the next image element
+        let nextImageElement = elements.galleryMainImage.parentNode.querySelector('.gallery-main-image.next');
+        if (!nextImageElement) {
+            nextImageElement = elements.galleryMainImage.cloneNode(true);
+            nextImageElement.classList.add('next');
+            nextImageElement.classList.remove('current');
+            elements.galleryMainImage.parentNode.appendChild(nextImageElement);
+        }
+        
+        // Set classes
+        elements.galleryMainImage.classList.add('current');
         nextImageElement.classList.remove('current');
-        elements.galleryMainImage.parentNode.appendChild(nextImageElement);
-    }
-    
-    // Set current image as current and prepare next image
-    elements.galleryMainImage.classList.add('current');
-    nextImageElement.classList.remove('current');
-    nextImageElement.classList.add('next');
-    
-    // Clear any existing animation classes
-    elements.galleryMainImage.classList.remove('slideInFromRight', 'slideOutToLeft', 'slideInFromLeft', 'slideOutToRight');
-    nextImageElement.classList.remove('slideInFromRight', 'slideOutToLeft', 'slideInFromLeft', 'slideOutToRight');
-    
-    // Load the new image into the next element
-    const testImage = new Image();
-    
-    testImage.onload = () => {
-        // Set the new image
-        nextImageElement.style.backgroundImage = `url('${currentImage.src}')`;
+        nextImageElement.classList.add('next');
         
-        // Determine animation class based on direction (only for the incoming image)
-        let nextSlideIn;
-        if (direction === 'next') {
-            nextSlideIn = 'slideInFromRight';
-        } else {
-            nextSlideIn = 'slideInFromLeft';
-        }
+        // Remove any existing animation classes
+        elements.galleryMainImage.classList.remove('slideInFromRight', 'slideOutToLeft', 'slideInFromLeft', 'slideOutToRight');
+        nextImageElement.classList.remove('slideInFromRight', 'slideOutToLeft', 'slideInFromLeft', 'slideOutToRight');
         
-        // Position the next image off-screen initially
-        if (direction === 'next') {
-            nextImageElement.style.transform = 'translateX(100%)';
-        } else {
-            nextImageElement.style.transform = 'translateX(-100%)';
-        }
+        // Use preloaded image if available
+        const preloadedImg = this.preloadedImages.get(state.currentGalleryIndex);
         
-        // Make sure the current image stays still
-        elements.galleryMainImage.style.transform = 'translateX(0)';
-        
-        // Start the transition - only animate the incoming image
-        requestAnimationFrame(() => {
-            // Don't animate the current image - it stays still
-            nextImageElement.classList.add(nextSlideIn);
+        const loadImage = () => {
+            // Set the new image
+            nextImageElement.style.backgroundImage = `url('${currentImage.src}')`;
             
-            // After animation completes, swap the elements
-            setTimeout(() => {
-                // Clean up classes
-                elements.galleryMainImage.classList.remove('current');
-                nextImageElement.classList.remove(nextSlideIn, 'next');
-                
-                // Swap the elements
-                const tempImage = elements.galleryMainImage.style.backgroundImage;
-                elements.galleryMainImage.style.backgroundImage = nextImageElement.style.backgroundImage;
-                nextImageElement.style.backgroundImage = tempImage;
-                
-                // Reset positions
-                elements.galleryMainImage.style.transform = 'translateX(0)';
-                nextImageElement.style.transform = 'translateX(0)';
-                
-                // Reset z-index
-                elements.galleryMainImage.style.zIndex = '2';
-                nextImageElement.style.zIndex = '1';
-                
-                elements.galleryMainImage.classList.add('loaded');
-            }, 800); // Match animation duration
-        });
-    };
-    
-    testImage.onerror = () => {
-        // Handle error case
-        nextImageElement.style.backgroundImage = 'linear-gradient(45deg, #333, #666)';
-        
-        // Continue with animation even on error
-        let nextSlideIn;
-        if (direction === 'next') {
-            nextSlideIn = 'slideInFromRight';
-        } else {
-            nextSlideIn = 'slideInFromLeft';
-        }
-        
-        if (direction === 'next') {
-            nextImageElement.style.transform = 'translateX(100%)';
-        } else {
-            nextImageElement.style.transform = 'translateX(-100%)';
-        }
-        
-        // Make sure the current image stays still
-        elements.galleryMainImage.style.transform = 'translateX(0)';
-        
-        requestAnimationFrame(() => {
-            // Don't animate the current image - it stays still
-            nextImageElement.classList.add(nextSlideIn);
+            // Position the next image off-screen
+            if (direction === 'next') {
+                nextImageElement.style.transform = 'translateX(100%)';
+            } else {
+                nextImageElement.style.transform = 'translateX(-100%)';
+            }
             
-            setTimeout(() => {
-                elements.galleryMainImage.classList.remove('current');
-                nextImageElement.classList.remove(nextSlideIn, 'next');
+            // Ensure current image is in position
+            elements.galleryMainImage.style.transform = 'translateX(0)';
+            
+            // Force layout recalculation
+            void nextImageElement.offsetHeight;
+            
+            // Start the transition
+            requestAnimationFrame(() => {
+                const slideClass = direction === 'next' ? 'slideInFromRight' : 'slideInFromLeft';
+                nextImageElement.classList.add(slideClass);
                 
-                const tempImage = elements.galleryMainImage.style.backgroundImage;
-                elements.galleryMainImage.style.backgroundImage = nextImageElement.style.backgroundImage;
-                nextImageElement.style.backgroundImage = tempImage;
-                
-                elements.galleryMainImage.style.transform = 'translateX(0)';
-                nextImageElement.style.transform = 'translateX(0)';
-                
-                elements.galleryMainImage.style.zIndex = '2';
-                nextImageElement.style.zIndex = '1';
-                
-                elements.galleryMainImage.classList.add('loaded');
-            }, 800);
-        });
-    };
-    
-    testImage.src = currentImage.src;
-},
+                // After animation completes
+                setTimeout(() => {
+                    // Clean up classes
+                    elements.galleryMainImage.classList.remove('current');
+                    nextImageElement.classList.remove(slideClass, 'next');
+                    
+                    // Swap the elements
+                    const tempImage = elements.galleryMainImage.style.backgroundImage;
+                    elements.galleryMainImage.style.backgroundImage = nextImageElement.style.backgroundImage;
+                    nextImageElement.style.backgroundImage = tempImage;
+                    
+                    // Reset positions
+                    elements.galleryMainImage.style.transform = 'translateX(0)';
+                    nextImageElement.style.transform = 'translateX(100%)';
+                    
+                    // Reset z-index
+                    elements.galleryMainImage.style.zIndex = '2';
+                    nextImageElement.style.zIndex = '1';
+                    
+                    elements.galleryMainImage.classList.add('loaded');
+                    
+                    this.isTransitioning = false;
+                    
+                    // Preload next images
+                    this.preloadImages();
+                }, 800);
+            });
+        };
+        
+        if (preloadedImg && preloadedImg.complete) {
+            loadImage();
+        } else {
+            const testImage = new Image();
+            testImage.onload = loadImage;
+            testImage.onerror = () => {
+                nextImageElement.style.backgroundImage = 'linear-gradient(45deg, #333, #666)';
+                this.isTransitioning = false;
+            };
+            testImage.src = currentImage.src;
+        }
+    },
     
     nextImage() {
-        if (this.images.length <= 1) return;
+        if (this.images.length <= 1 || this.isTransitioning) return;
         
         const nextIndex = (state.currentGalleryIndex + 1) % this.images.length;
         state.currentGalleryIndex = nextIndex;
@@ -244,7 +283,7 @@ loadCurrentImage(direction = 'next') {
     },
     
     previousImage() {
-        if (this.images.length <= 1) return;
+        if (this.images.length <= 1 || this.isTransitioning) return;
         
         const prevIndex = (state.currentGalleryIndex - 1 + this.images.length) % this.images.length;
         state.currentGalleryIndex = prevIndex;
@@ -255,7 +294,7 @@ loadCurrentImage(direction = 'next') {
     startAutoAdvance() {
         clearTimeout(galleryAutoAdvanceTimeout);
         if (this.images.length > 1) {
-            setGalleryAutoAdvanceTimeout(setTimeout(() => this.autoAdvance(), 4000)); // Increased to 8 seconds for better viewing
+            setGalleryAutoAdvanceTimeout(setTimeout(() => this.autoAdvance(), 4000));
         }
     },
     
