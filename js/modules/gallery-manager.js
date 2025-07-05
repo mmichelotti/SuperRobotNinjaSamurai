@@ -13,7 +13,6 @@ export const galleryManager = {
         await this.discoverGalleryImages();
         
         this.createVideoCarousel();
-        this.attachGalleryNavigation();
         this.loadCurrentImage();
         this.startAutoAdvance();
     },
@@ -51,20 +50,6 @@ export const galleryManager = {
             img.onerror = () => resolve(false);
             img.src = imagePath;
         });
-    },
-    
-    attachGalleryNavigation() {
-        if (elements.galleryMainPrev) {
-            elements.galleryMainPrev.addEventListener('click', () => {
-                this.previousImage();
-            });
-        }
-        
-        if (elements.galleryMainNext) {
-            elements.galleryMainNext.addEventListener('click', () => {
-                this.nextImage();
-            });
-        }
     },
     
     createVideoCarousel() {
