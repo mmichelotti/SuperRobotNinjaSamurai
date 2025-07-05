@@ -1,0 +1,42 @@
+{
+  "about": {
+    "title": "ABOUT",
+    "content": {
+      "sound": {
+        "title": "The Sound",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat"
+      },
+      "vision": {
+        "title": "The Vision",
+        "description": "uis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+      }
+    },
+    "members": [
+      {
+        "name": "Random Name",
+        "role": "Synths & Programming",
+        "avatar": "🤖"
+      },
+      {
+        "name": "Random Name",
+        "role": "Vocals & Design",
+        "avatar": "🥷"
+      },
+      {
+        "name": "Random Name",
+        "role": "Beats & Production",
+        "avatar": "⚔️"
+      },
+      {
+        "name": "Random Name",
+        "role": "Vocals & Design",
+        "avatar": "🥷"
+      },
+      {
+        "name": "Random Name",
+        "role": "Vocals & Design",
+        "avatar": "🥷"
+      }
+    ]
+  }
+}

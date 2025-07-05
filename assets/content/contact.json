@@ -1,0 +1,50 @@
+{
+  "contact": {
+    "title": "",
+    "info": [
+      {
+        "title": "Booking",
+        "email": "wip@superrobotninja.com"
+      },
+      {
+        "title": "Management",
+        "email": "wip@superrobotninja.com"
+      }
+    ],
+    "social": {
+      "title": "Follow the Signal",
+      "links": [
+        {
+          "name": "Instagram",
+          "icon": "📱",
+          "url": "#"
+        },
+        {
+          "name": "Spotify",
+          "icon": "🎵",
+          "url": "#"
+        },
+        {
+          "name": "YouTube",
+          "icon": "📺",
+          "url": "#"
+        },
+        {
+          "name": "Twitter",
+          "icon": "🐦",
+          "url": "#"
+        },
+        {
+          "name": "SoundCloud",
+          "icon": "🎶",
+          "url": "#"
+        },
+        {
+          "name": "Bandcamp",
+          "icon": "🎧",
+          "url": "#"
+        }
+      ]
+    }
+  }
+}

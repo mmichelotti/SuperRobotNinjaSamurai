@@ -3,12 +3,44 @@ import { galleryManager } from './gallery-manager.js';
 
 // Website Info Manager
 export const infoManager = {
-    data: null,
+    data: {
+        band: null,
+        navigation: null,
+        footer: null,
+        meta: null,
+        about: null,
+        dates: null,
+        gallery: null,
+        contact: null
+    },
     
     async loadInfo() {
         try {
-            this.data = await utils.fetchJson('./assets/content.json');
-            return !!this.data;
+            // Load all JSON files in parallel
+            const [
+                bandInfo,
+                aboutInfo,
+                datesInfo,
+                galleryInfo,
+                contactInfo
+            ] = await Promise.all([
+                utils.fetchJson('./assets/content/band-info.json'),
+                utils.fetchJson('./assets/content/about.json'),
+                utils.fetchJson('./assets/content/dates.json'),
+                utils.fetchJson('./assets/content/gallery.json'),
+                utils.fetchJson('./assets/content/contact.json')
+            ]);
+
+            // Merge all data into the main data object
+            this.data = {
+                ...bandInfo,
+                ...aboutInfo,
+                ...datesInfo,
+                ...galleryInfo,
+                ...contactInfo
+            };
+
+            return true;
         } catch (error) {
             console.error('Error loading website info:', error);
             return false;

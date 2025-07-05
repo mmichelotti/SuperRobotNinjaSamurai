@@ -1,0 +1,25 @@
+{
+  "band": {
+    "name": "SUPER ROBOT NINJA SAMURAI",
+    "shortName": "SRNS",
+    "tagline": "SUPER ROBOT<br>NINJA SAMURAI"
+  },
+  "navigation": {
+    "links": [
+      { "text": "GALLERY", "target": "gallery" },
+      { "text": "DATES", "target": "dates" },
+      { "text": "CONTACT", "target": "contact" }
+    ]
+  },
+  "footer": {
+    "leftText": [
+      "© 2025 All songs and content are original works",
+      "Created with passion for music"
+    ],
+    "rightText": "Made with ❤️"
+  },
+  "meta": {
+    "title": "Super Robot Ninja Samurai",
+    "favicon": "assets/images/Acronym.png"
+  }
+}

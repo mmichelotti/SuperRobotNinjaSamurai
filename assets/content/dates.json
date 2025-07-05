@@ -1,0 +1,43 @@
+{
+  "dates": {
+    "title": "",
+    "shows": [
+      {
+        "date": "JUL 15",
+        "year": "2025",
+        "venue": "Venue",
+        "location": "City",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      },
+      {
+        "date": "JUL 22",
+        "year": "2025",
+        "venue": "Venue",
+        "location": "City",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      },
+      {
+        "date": "AUG 05",
+        "year": "2025",
+        "venue": "Venue",
+        "location": "City",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      },
+      {
+        "date": "AUG 18",
+        "year": "2025",
+        "venue": "Venue",
+        "location": "City",
+        "ticketText": "TICKETS",
+        "ticketUrl": "#",
+        "status": "available"
+      }
+    ]
+  }
+}
