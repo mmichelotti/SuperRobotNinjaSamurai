@@ -6,9 +6,8 @@
   },
   "navigation": {
     "links": [
-      { "text": "About", "target": "about" },
-      { "text": "Dates", "target": "dates" },
       { "text": "Gallery", "target": "gallery" },
+      { "text": "Dates", "target": "dates" },
       { "text": "Contact", "target": "contact" }
     ]
   },

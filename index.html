@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,14 +8,16 @@
     <link rel="icon" href="" type="image/png">
     <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body>
-    <nav class="nav-overlay" id="navOverlay">
+    <header class="nav-overlay" id="navOverlay">
         <div class="nav-container">
             <div class="nav-logo" onclick="scrollToSection('homepage')">Loading...</div>
             <div class="nav-links"></div>
         </div>
-    </nav>
+    </header>
 
+    <!------------------HOMEPAGE----------------->
     <section class="homepage" id="homepage">
         <div class="container">
             <div class="song-background" id="songBackground"></div>
@@ -52,7 +55,40 @@
         </div>
     </section>
 
-    <div class="content-sections">
+
+
+        <!------------------IMAGE GALLERY----------------->
+        <section class="section gallery-section" id="gallery">
+            <div class="section-container">
+                <h2 class="section-title">Loading...</h2>
+                <div class="section-content">
+                    <!-- Main Gallery - Clean full viewport display -->
+                    <div class="main-gallery">
+                        <div class="gallery-main-display" id="galleryMainDisplay">
+                            <div class="gallery-main-image" id="galleryMainImage"></div>
+                            <!--
+                            <div class="gallery-nav-arrows">
+                                <button class="gallery-main-nav prev" id="galleryMainPrev">‹</button>
+                                <button class="gallery-main-nav next" id="galleryMainNext">›</button>
+                            </div>-->
+                        </div>
+                    </div>
+                    
+                    <!------------------VIDEO CAROUSEL----------------->
+                    <div class="video-carousel-section" id="videoCarouselSection">
+                        <div class="video-carousel" id="videoCarousel">
+                            <div class="video-carousel-track" id="videoCarouselTrack"></div>
+                            <button class="video-carousel-nav prev" id="videoCarouselPrev">‹</button>
+                            <button class="video-carousel-nav next" id="videoCarouselNext">›</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="content-sections">
+        <!------------------ABOUT----------------->
+        <!--
         <section class="section" id="about">
             <div class="section-container">
                 <h2 class="section-title">Loading...</h2>
@@ -64,7 +100,10 @@
                 </div>
             </div>
         </section>
+        -->
 
+        
+        <!------------------DATES----------------->
         <section class="section" id="dates">
             <div class="section-container">
                 <h2 class="section-title">Loading...</h2>
@@ -74,32 +113,8 @@
             </div>
         </section>
 
-        <section class="section gallery-section" id="gallery">
-            <div class="section-container">
-                <h2 class="section-title">Loading...</h2>
-                <div class="section-content">
-                    <div class="main-gallery">
-                        <div class="gallery-main-display" id="galleryMainDisplay">
-                            <div class="gallery-main-image" id="galleryMainImage"></div>
-                            <div class="gallery-nav-arrows">
-                                <button class="gallery-main-nav prev" id="galleryMainPrev">‹</button>
-                                <button class="gallery-main-nav next" id="galleryMainNext">›</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Video carousel now floats above the gallery -->
-                        <div class="video-carousel-overlay" id="videoCarouselOverlay">
-                            <div class="video-carousel" id="videoCarousel">
-                                <div class="video-carousel-track" id="videoCarouselTrack"></div>
-                                <button class="video-carousel-nav prev" id="videoCarouselPrev">‹</button>
-                                <button class="video-carousel-nav next" id="videoCarouselNext">›</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
+        <!------------------CONTACT----------------->
         <section class="section" id="contact">
             <div class="section-container">
                 <h2 class="section-title">Loading...</h2>

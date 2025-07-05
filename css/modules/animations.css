@@ -40,22 +40,22 @@
 @keyframes galleryImageSlide {
     0% { 
         opacity: 0; 
-        transform: translateX(100%) scale(0.9); 
+        transform: translateX(100%); 
     }
     100% { 
         opacity: 1; 
-        transform: translateX(0) scale(1); 
+        transform: translateX(0); 
     }
 }
 
 @keyframes galleryImageSlideOut {
     0% { 
         opacity: 1; 
-        transform: translateX(0) scale(1); 
+        transform: translateX(0); 
     }
     100% { 
         opacity: 0; 
-        transform: translateX(-100%) scale(0.9); 
+        transform: translateX(-100%); 
     }
 }
 
@@ -79,5 +79,47 @@
     80% {
         text-shadow: 1px 0 0 rgba(255, 0, 0, 0.3), -1px 0 0 rgba(0, 255, 255, 0.3);
         transform: translateX(-1px);
+    }
+}
+
+/* Smooth Gallery Slide Animations */
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutToLeft {
+    from {
+        transform: translateX(0);
+        filter: blur(0px);
+    }
+    to {
+        transform: translateX(-100%);
+        filter: blur(200px);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutToRight {
+    from {
+        transform: translateX(0);
+        filter: blur(0px);
+    }
+    to {
+        transform: translateX(100%);
+        filter: blur(200px);
     }
 }
