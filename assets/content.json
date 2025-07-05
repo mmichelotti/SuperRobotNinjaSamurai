@@ -6,9 +6,9 @@
   },
   "navigation": {
     "links": [
-      { "text": "Gallery", "target": "gallery" },
-      { "text": "Dates", "target": "dates" },
-      { "text": "Contact", "target": "contact" }
+      { "text": "GALLERY", "target": "gallery" },
+      { "text": "DATES", "target": "dates" },
+      { "text": "CONTACT", "target": "contact" }
     ]
   },
   "footer": {
@@ -59,7 +59,7 @@
     ]
   },
   "dates": {
-    "title": "DATES",
+    "title": "",
     "shows": [
       {
         "date": "JUL 15",
@@ -130,7 +130,7 @@
     ]
   },
   "contact": {
-    "title": "CONTACT",
+    "title": "",
     "info": [
       {
         "title": "Booking",
