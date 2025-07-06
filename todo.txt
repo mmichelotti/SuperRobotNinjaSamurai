@@ -1,6 +1,4 @@
 - songs loading is optimized but songs still weigh 7mb+
-- icon and so on is 1mb+ each, even if they are so small
-- might be rational to use worse gallery pictures(500kb) for mobile and better pictures (2mb) for desktop
 - implement more json for future use, like merch and so on
 - possibly need for a newsletter 
 - audio visualizer will never work smoothly on mobile, doenst matter how many things I remove or I optimize
