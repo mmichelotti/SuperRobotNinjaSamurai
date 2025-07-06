@@ -1,6 +1,6 @@
 import { state, elements, setGalleryAutoAdvanceTimeout, galleryAutoAdvanceTimeout } from './state.js';
 
-// Gallery management with smart loading
+// Gallery management with smart loading and fixed mobile transitions
 export const galleryManager = {
     images: [],
     videos: [],
@@ -356,16 +356,11 @@ export const galleryManager = {
         if (!nextImageElement) {
             nextImageElement = elements.galleryMainImage.cloneNode(true);
             nextImageElement.classList.add('next');
-            nextImageElement.classList.remove('current');
+            nextImageElement.classList.remove('current', 'loaded');
             elements.galleryMainImage.parentNode.appendChild(nextImageElement);
         }
         
-        // Set classes
-        elements.galleryMainImage.classList.add('current');
-        nextImageElement.classList.remove('current');
-        nextImageElement.classList.add('next');
-        
-        // Remove any existing animation classes
+        // Clean up previous animation classes
         elements.galleryMainImage.classList.remove('slideInFromRight', 'slideOutToLeft', 'slideInFromLeft', 'slideOutToRight');
         nextImageElement.classList.remove('slideInFromRight', 'slideOutToLeft', 'slideInFromLeft', 'slideOutToRight');
         
@@ -392,48 +387,48 @@ export const galleryManager = {
         // Set the new image
         nextImageElement.style.backgroundImage = imageSrc.startsWith('url') ? imageSrc : `url('${imageSrc}')`;
         
-        // Position the next image off-screen
-        if (direction === 'next') {
-            nextImageElement.style.transform = 'translateX(100%)';
-        } else {
-            nextImageElement.style.transform = 'translateX(-100%)';
-        }
+        // Reset transforms to initial state
+        nextImageElement.style.transform = '';
+        elements.galleryMainImage.style.transform = '';
         
-        // Ensure current image is in position
-        elements.galleryMainImage.style.transform = 'translateX(0)';
+        // Set z-indexes for proper layering
+        elements.galleryMainImage.style.zIndex = '2'; // Current image on top
+        nextImageElement.style.zIndex = '3'; // Next image above current
         
         // Force layout recalculation
         void nextImageElement.offsetHeight;
         
-        // Start the transition
-        requestAnimationFrame(() => {
-            const slideClass = direction === 'next' ? 'slideInFromRight' : 'slideInFromLeft';
-            nextImageElement.classList.add(slideClass);
+        // Apply the slide animation using CSS classes
+        const slideClass = direction === 'next' ? 'slideInFromRight' : 'slideInFromLeft';
+        nextImageElement.classList.add(slideClass);
+        
+        console.log(`🎞️ Starting ${slideClass} animation for mobile/desktop`);
+        
+        // After animation completes
+        setTimeout(() => {
+            // Clean up animation classes
+            nextImageElement.classList.remove(slideClass);
             
-            // After animation completes
-            setTimeout(() => {
-                // Clean up classes
-                elements.galleryMainImage.classList.remove('current');
-                nextImageElement.classList.remove(slideClass, 'next');
-                
-                // Swap the elements
-                const tempImage = elements.galleryMainImage.style.backgroundImage;
-                elements.galleryMainImage.style.backgroundImage = nextImageElement.style.backgroundImage;
-                nextImageElement.style.backgroundImage = tempImage;
-                
-                // Reset positions
-                elements.galleryMainImage.style.transform = 'translateX(0)';
-                nextImageElement.style.transform = 'translateX(100%)';
-                
-                // Reset z-index
-                elements.galleryMainImage.style.zIndex = '2';
-                nextImageElement.style.zIndex = '1';
-                
-                elements.galleryMainImage.classList.add('loaded');
-                
-                this.isTransitioning = false;
-            }, 800);
-        });
+            // Swap the background images
+            const tempImage = elements.galleryMainImage.style.backgroundImage;
+            elements.galleryMainImage.style.backgroundImage = nextImageElement.style.backgroundImage;
+            nextImageElement.style.backgroundImage = tempImage;
+            
+            // Reset z-indexes
+            elements.galleryMainImage.style.zIndex = '2';
+            nextImageElement.style.zIndex = '1';
+            
+            // Reset transforms
+            elements.galleryMainImage.style.transform = '';
+            nextImageElement.style.transform = '';
+            
+            // Mark main image as loaded
+            elements.galleryMainImage.classList.add('loaded');
+            
+            this.isTransitioning = false;
+            
+            console.log(`✅ Gallery transition completed on ${window.innerWidth <= 768 ? 'mobile' : 'desktop'}`);
+        }, 800); // Match the CSS animation duration
     },
     
     nextImage() {
