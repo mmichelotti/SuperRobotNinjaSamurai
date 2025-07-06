@@ -109,7 +109,7 @@ export const galleryManager = {
         
         // Quick discovery - just check if files exist, don't load them
         while (consecutiveFailures < 3) {
-            const imagePath = `./assets/gallery/Gallery${imageNumber.toString().padStart(2, '0')}.webp`;
+            const imagePath = `./assets/gallery/medium/Gallery${imageNumber.toString().padStart(2, '0')}.webp`;
             
             try {
                 const imageExists = await this.checkImageExists(imagePath);
