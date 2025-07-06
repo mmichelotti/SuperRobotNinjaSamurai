@@ -30,7 +30,7 @@ export const galleryManager = {
         let imageNumber = 1;
         
         while (true) {
-            const imagePath = `./assets/gallery/Gallery${imageNumber.toString().padStart(2, '0')}.png`;
+            const imagePath = `./assets/gallery/Gallery${imageNumber.toString().padStart(2, '0')}.webp`;
             
             try {
                 const imageExists = await this.checkImageExists(imagePath);
