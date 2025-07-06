@@ -1,7 +1,7 @@
 import { state, beatDetection, elements } from './state.js';
 import { utils } from './utils.js';
 
-// Song management
+// Song management - TESTING VERSION WITH NO AUDIO LOADING
 export const songManager = {
     async loadSongsList() {
         return await utils.fetchJson('./assets/songs/SongData.json') || [];
@@ -111,8 +111,12 @@ export const songManager = {
         const folderName = state.songs[state.currentSongIndex].folder;
         
         await this.loadMetadata(folderName);
-        elements.audio.src = `./assets/songs/${folderName}/Song.mp3`;
-        elements.audio.volume = state.volume;
+        
+        // 🚫 DISABLED FOR TESTING - NO AUDIO LOADING!
+        console.log('🚫 TESTING: Audio loading disabled to test gallery speed');
+        // elements.audio.src = `./assets/songs/${folderName}/Song.mp3`;
+        // elements.audio.volume = state.volume;
+        
         elements.songTitle.textContent = state.currentSongData.title;
         elements.progressBar.style.width = '0%';
         
