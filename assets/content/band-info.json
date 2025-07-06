@@ -1,8 +1,8 @@
 {
   "band": {
-    "name": "SUPER ROBOT NINJA SAMURAI",
-    "shortName": "SRNS",
-    "tagline": "SUPER ROBOT<br>NINJA SAMURAI"
+    "name": "SUPER ROBONINJA SAMURAI",
+    "shortName": "SRS",
+    "tagline": "SUPER ROBONINJA<br>SAMURAI"
   },
   "navigation": {
     "links": [
@@ -19,7 +19,7 @@
     "rightText": "Made with ❤️"
   },
   "meta": {
-    "title": "Super Robot Ninja Samurai",
+    "title": "Super Roboninja Samurai",
     "favicon": "assets/images/icon.webp"
   }
 }
