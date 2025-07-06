@@ -107,9 +107,15 @@ export const galleryManager = {
         let imageNumber = 1;
         let consecutiveFailures = 0;
         
+        // Choose folder based on device type
+        const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const folderName = isMobile ? 'low' : 'medium';
+        
+        console.log(`📱 Device detected: ${isMobile ? 'Mobile' : 'Desktop'} - Using gallery folder: ${folderName}/`);
+        
         // Quick discovery - just check if files exist, don't load them
         while (consecutiveFailures < 3) {
-            const imagePath = `./assets/gallery/medium/Gallery${imageNumber.toString().padStart(2, '0')}.webp`;
+            const imagePath = `./assets/gallery/${folderName}/Gallery${imageNumber.toString().padStart(2, '0')}.webp`;
             
             try {
                 const imageExists = await this.checkImageExists(imagePath);
@@ -131,7 +137,7 @@ export const galleryManager = {
         }
         
         this.loadingProgress.total = this.images.length;
-        console.log(`Discovered ${this.images.length} gallery images`);
+        console.log(`Discovered ${this.images.length} gallery images from ${folderName}/ folder`);
     },
     
     async loadFirstImageOnly() {
