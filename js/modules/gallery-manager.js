@@ -113,6 +113,35 @@ export const galleryManager = {
         
         console.log(`📱 Device detected: ${isMobile ? 'Mobile' : 'Desktop'} - Using gallery folder: ${folderName}/`);
         
+        // TEMPORARY: Add visible debug info on screen
+        let debugInfo = document.getElementById('galleryDebugInfo');
+        if (!debugInfo) {
+            debugInfo = document.createElement('div');
+            debugInfo.id = 'galleryDebugInfo';
+            debugInfo.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                background: rgba(255, 0, 0, 0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 5px;
+                font-family: monospace;
+                font-size: 12px;
+                z-index: 9999;
+                pointer-events: none;
+            `;
+            document.body.appendChild(debugInfo);
+        }
+        debugInfo.textContent = `Gallery: ${folderName}/ folder | ${isMobile ? 'MOBILE' : 'DESKTOP'}`;
+        
+        // Remove debug info after 10 seconds
+        setTimeout(() => {
+            if (debugInfo.parentNode) {
+                debugInfo.parentNode.removeChild(debugInfo);
+            }
+        }, 10000);
+        
         // Quick discovery - just check if files exist, don't load them
         while (consecutiveFailures < 3) {
             const imagePath = `./assets/gallery/${folderName}/Gallery${imageNumber.toString().padStart(2, '0')}.webp`;
