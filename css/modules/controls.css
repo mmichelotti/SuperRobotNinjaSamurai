@@ -151,3 +151,91 @@
     box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
     border-color: rgba(255, 255, 255, 0.6);
 }
+
+/* Mobile Audio Controls Fixes */
+@media (max-width: 768px) {
+    .song-info {
+        top: 2.5rem;
+        padding: 0 1rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .song-title {
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        margin-bottom: 1rem;
+    }
+    
+    .song-title.playing {
+        letter-spacing: 0.25em;
+    }
+    
+    .progress-container {
+        width: calc(100vw - 3rem);
+        max-width: 280px;
+        margin: 0 auto 1rem auto;
+    }
+    
+    .volume-control {
+        bottom: 4.5rem;
+    }
+    
+    .volume-slider-container {
+        width: 100px;
+        height: 3px;
+    }
+    
+    .song-indicators {
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .song-dot {
+        width: 6px;
+        height: 6px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .song-info {
+        top: 2rem;
+        padding: 0 0.8rem;
+    }
+    
+    .song-title {
+        font-size: 0.7rem;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.8rem;
+    }
+    
+    .song-title.playing {
+        letter-spacing: 0.2em;
+    }
+    
+    .progress-container {
+        width: calc(100vw - 2rem);
+        max-width: 240px;
+        height: 2px;
+    }
+    
+    .volume-control {
+        bottom: 4rem;
+    }
+    
+    .volume-slider-container {
+        width: 80px;
+        height: 2px;
+    }
+    
+    .song-indicators {
+        gap: 0.5rem;
+    }
+    
+    .song-dot {
+        width: 5px;
+        height: 5px;
+    }
+}

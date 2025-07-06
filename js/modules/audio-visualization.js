@@ -95,6 +95,19 @@ export const beatEffects = {
     }
 };
 
+// Responsive scaling helper
+const getVisualizationScale = () => {
+    const screenWidth = window.innerWidth;
+    if (screenWidth <= 480) {
+        return 0.4; // Extra small mobile
+    } else if (screenWidth <= 768) {
+        return 0.6; // Mobile
+    } else if (screenWidth <= 1024) {
+        return 0.8; // Tablet
+    }
+    return 1.0; // Desktop
+};
+
 // Visualization
 export const visualization = {
     init() {
@@ -169,8 +182,9 @@ export const visualization = {
         const pulseIntensity = average / 255;
         const palette = state.currentSongData.palette;
         const bgColor = palette.mid.map((c, i) => (c + palette.high[i]) / 2);
+        const scale = getVisualizationScale();
         
-        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(canvas.width, canvas.height));
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(canvas.width, canvas.height) * scale);
         gradient.addColorStop(0, `rgba(${bgColor.join(', ')}, ${pulseIntensity * 0.02})`);
         gradient.addColorStop(0.5, `rgba(${bgColor.join(', ')}, ${pulseIntensity * 0.01})`);
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
@@ -180,10 +194,11 @@ export const visualization = {
     },
 
     drawSpectrum(centerX, centerY) {
-        const radius = 245;
+        const scale = getVisualizationScale();
+        const radius = 245 * scale; // Responsive radius
         
         for (let i = 0; i < bufferLength; i++) {
-            const barHeight = (dataArray[i] / 255) * 200;
+            const barHeight = (dataArray[i] / 255) * 200 * scale; // Responsive bar height
             const angle = (i / bufferLength) * 2 * Math.PI - Math.PI / 2;
             const intensity = dataArray[i] / 255;
             
@@ -197,7 +212,7 @@ export const visualization = {
                 const tintStrength = 0.1;
                 const color = palette.mid.map(c => 255 - (255 - c) * tintStrength);
                 ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.8})`;
-                ctx.lineWidth = 0.5;
+                ctx.lineWidth = 0.5 * scale; // Responsive line width
             } else if (i < bufferLength / 2) {
                 const color = state.currentSongData.palette.mid;
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
@@ -205,9 +220,9 @@ export const visualization = {
                 gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
                 
                 ctx.shadowColor = `rgba(${color.join(', ')}, 0.4)`;
-                ctx.shadowBlur = intensity * 6;
+                ctx.shadowBlur = intensity * 6 * scale; // Responsive shadow blur
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 2 + intensity * 4;
+                ctx.lineWidth = (2 + intensity * 4) * scale; // Responsive line width
             } else {
                 const color = state.currentSongData.palette.high;
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
@@ -215,9 +230,9 @@ export const visualization = {
                 gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
                 
                 ctx.shadowColor = `rgba(${color.join(', ')}, 0.5)`;
-                ctx.shadowBlur = intensity * 8;
+                ctx.shadowBlur = intensity * 8 * scale; // Responsive shadow blur
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 1 + intensity * 5;
+                ctx.lineWidth = (1 + intensity * 5) * scale; // Responsive line width
             }
             
             ctx.beginPath();
@@ -232,13 +247,14 @@ export const visualization = {
         if (bassAverage <= 80) return;
         
         const now = Date.now();
+        const scale = getVisualizationScale();
         const intensity = Math.min(bassAverage / 255, 1);
         const palette = state.currentSongData.palette;
         let bassColor = palette.mid.map((c, i) => Math.floor((c + palette.high[i]) / 2));
         
         let strokeOpacity = intensity * 0.4;
-        let shadowBlur = intensity * 20;
-        let lineWidth = 3;
+        let shadowBlur = intensity * 20 * scale; // Responsive shadow blur
+        let lineWidth = 3 * scale; // Responsive line width
         
         if (window.kickGlow && (now - window.kickGlow.timestamp) < 400) {
             const kickFade = 1 - ((now - window.kickGlow.timestamp) / 400);
@@ -246,15 +262,15 @@ export const visualization = {
             
             bassColor = bassColor.map(c => Math.min(255, c + (255 - c) * kickIntensity * 0.8));
             strokeOpacity = Math.min(1, strokeOpacity + kickIntensity * 0.6);
-            shadowBlur = shadowBlur + kickIntensity * 40;
-            lineWidth = lineWidth + kickIntensity * 6;
+            shadowBlur = shadowBlur + kickIntensity * 40 * scale; // Responsive kick shadow
+            lineWidth = lineWidth + kickIntensity * 6 * scale; // Responsive kick line width
         }
         
         if (window.snareFlash && (now - window.snareFlash.timestamp) < 150) {
             const snareFade = 1 - ((now - window.snareFlash.timestamp) / 150);
             const snareIntensity = window.snareFlash.intensity * snareFade;
             
-            const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 450);
+            const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 450 * scale); // Responsive flash radius
             const color = window.snareFlash.color;
             flashGradient.addColorStop(0, `rgba(${color.join(', ')}, ${snareIntensity * 0.1})`);
             flashGradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${snareIntensity * 0.05})`);
@@ -262,7 +278,7 @@ export const visualization = {
             
             ctx.fillStyle = flashGradient;
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 450, 0, 2 * Math.PI);
+            ctx.arc(centerX, centerY, 450 * scale, 0, 2 * Math.PI); // Responsive flash circle
             ctx.fill();
         }
         
@@ -272,7 +288,7 @@ export const visualization = {
         ctx.shadowBlur = shadowBlur;
         
         ctx.beginPath();
-        ctx.arc(centerX, centerY, bassAverage * 1.2, 0, 2 * Math.PI);
+        ctx.arc(centerX, centerY, bassAverage * 1.2 * scale, 0, 2 * Math.PI); // Responsive bass circle
         ctx.stroke();
         ctx.shadowBlur = 0;
         

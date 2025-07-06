@@ -267,3 +267,118 @@
     text-align: center;
     opacity: 0.6;
 }
+
+/* Responsive Speaker Hole and Beat Pulse */
+@media (max-width: 480px) {
+    /* Extra small mobile - 0.4x scale */
+    .song-background::after {
+        width: 360px; /* 900px * 0.4 */
+        height: 360px;
+    }
+    
+    .beat-pulse {
+        width: 128px; /* 320px * 0.4 */
+        height: 128px;
+    }
+    
+    .speaker-static::before {
+        width: 196px; /* 490px * 0.4 */
+        height: 196px;
+    }
+    
+    .nav-area::before {
+        transform: scale(0.6); /* Smaller navigation arrows */
+    }
+    
+    .center-play-area::before {
+        border-left-width: 16px; /* 24px * 0.67 */
+        border-top-width: 9px; /* 14px * 0.67 */
+        border-bottom-width: 9px;
+        margin-left: -8px;
+        margin-top: -9px;
+    }
+    
+    .center-play-area.playing::before {
+        width: 4px; /* 6px * 0.67 */
+        height: 19px; /* 28px * 0.67 */
+        box-shadow: 8px 0 0 rgba(255, 255, 255, 0.95); /* 12px * 0.67 */
+        margin-left: -6px;
+        margin-top: -9px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    /* Mobile - 0.6x scale */
+    .song-background::after {
+        width: 540px; /* 900px * 0.6 */
+        height: 540px;
+    }
+    
+    .beat-pulse {
+        width: 192px; /* 320px * 0.6 */
+        height: 192px;
+    }
+    
+    .speaker-static::before {
+        width: 294px; /* 490px * 0.6 */
+        height: 294px;
+    }
+    
+    .nav-area::before {
+        transform: scale(0.7);
+    }
+    
+    .center-play-area::before {
+        border-left-width: 18px; /* 24px * 0.75 */
+        border-top-width: 11px; /* 14px * 0.75 */
+        border-bottom-width: 11px;
+        margin-left: -9px;
+        margin-top: -11px;
+    }
+    
+    .center-play-area.playing::before {
+        width: 5px; /* 6px * 0.75 */
+        height: 21px; /* 28px * 0.75 */
+        box-shadow: 9px 0 0 rgba(255, 255, 255, 0.95); /* 12px * 0.75 */
+        margin-left: -7px;
+        margin-top: -11px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* Tablet - 0.8x scale */
+    .song-background::after {
+        width: 720px; /* 900px * 0.8 */
+        height: 720px;
+    }
+    
+    .beat-pulse {
+        width: 256px; /* 320px * 0.8 */
+        height: 256px;
+    }
+    
+    .speaker-static::before {
+        width: 392px; /* 490px * 0.8 */
+        height: 392px;
+    }
+    
+    .nav-area::before {
+        transform: scale(0.85);
+    }
+    
+    .center-play-area::before {
+        border-left-width: 20px; /* 24px * 0.83 */
+        border-top-width: 12px; /* 14px * 0.83 */
+        border-bottom-width: 12px;
+        margin-left: -10px;
+        margin-top: -12px;
+    }
+    
+    .center-play-area.playing::before {
+        width: 5px; /* 6px * 0.83 */
+        height: 23px; /* 28px * 0.83 */
+        box-shadow: 10px 0 0 rgba(255, 255, 255, 0.95); /* 12px * 0.83 */
+        margin-left: -7px;
+        margin-top: -12px;
+    }
+}
