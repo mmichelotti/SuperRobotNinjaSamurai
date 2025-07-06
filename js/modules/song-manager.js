@@ -122,7 +122,7 @@ export const songManager = {
     },
 
     loadSongBackground(folderName) {
-        const backgroundPath = `./assets/songs/${folderName}/background.png`;
+        const backgroundPath = `./assets/songs/${folderName}/background.webp`;
         const testImage = new Image();
         
         elements.songBackground.classList.add('changing');
