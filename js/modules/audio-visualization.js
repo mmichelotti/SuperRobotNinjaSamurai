@@ -95,7 +95,7 @@ export const beatEffects = {
     }
 };
 
-// Mobile detection for real devices (not just screen size)
+// Smart mobile detection for real devices
 const isMobileDevice = () => {
     return state.isMobile && (
         /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
@@ -103,7 +103,7 @@ const isMobileDevice = () => {
     );
 };
 
-// Responsive scaling helper with mobile performance considerations
+// Responsive scaling helper
 const getVisualizationScale = () => {
     const screenWidth = window.innerWidth;
     if (screenWidth <= 480) {
@@ -116,41 +116,46 @@ const getVisualizationScale = () => {
     return 1.0; // Desktop
 };
 
-// Mobile performance settings
-const getMobilePerformanceSettings = () => {
+// Smart mobile performance settings - keeps beauty but optimizes performance
+const getSmartMobileSettings = () => {
     if (!isMobileDevice()) {
         return {
-            skipFrames: 0, // No frame skipping on desktop
-            maxBars: bufferLength, // Full spectrum
-            enableShadows: true,
-            enableGradients: true,
-            complexEffects: true
+            targetFPS: 60,
+            spectrumReduction: 1, // No reduction
+            shadowBlurMultiplier: 1.0,
+            gradientSteps: 2, // Full gradients
+            useAdvancedEffects: true,
+            clearAlpha: 0.08
         };
     }
     
-    // Mobile optimizations
+    // Smart mobile optimizations - beautiful but efficient
     return {
-        skipFrames: 1, // Skip every other frame (30fps instead of 60fps)
-        maxBars: Math.min(bufferLength / 3, 128), // Reduce bars by 66%
-        enableShadows: false, // Disable shadows on mobile
-        enableGradients: false, // Simplify gradients
-        complexEffects: false // Disable complex effects
+        targetFPS: 45, // Still smooth, but less demanding
+        spectrumReduction: 2, // Every 2nd bar (50% reduction instead of 66%)
+        shadowBlurMultiplier: 0.6, // Reduce shadow blur but keep them
+        gradientSteps: 1, // Simpler gradients but still gradients
+        useAdvancedEffects: true, // Keep all effects
+        clearAlpha: 0.12 // Slightly faster clearing
     };
 };
 
-// Visualization
+// Visualization with smart optimizations
 export const visualization = {
     frameSkipCounter: 0,
+    lastFrameTime: 0,
     
     init() {
         setCanvas(document.getElementById('visualizerCanvas'));
         setCtx(canvas.getContext('2d'));
         
-        // Mobile performance optimization for canvas
+        // Smart mobile optimizations
         if (isMobileDevice()) {
-            console.log('🔧 Applying mobile performance optimizations to audio visualization');
-            canvas.style.willChange = 'transform'; // GPU acceleration hint
-            ctx.imageSmoothingEnabled = false; // Disable anti-aliasing on mobile
+            console.log('🎨 Applying smart mobile optimizations (beautiful + performant)');
+            canvas.style.willChange = 'transform';
+            // Keep image smoothing for beauty
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'low'; // Faster but still smooth
         }
         
         const resizeCanvas = debounce(() => {
@@ -168,10 +173,10 @@ export const visualization = {
         source.connect(analyser);
         analyser.connect(audioContext.destination);
         
-        // Mobile-specific audio analysis settings
+        // Smart audio analysis settings
         if (isMobileDevice()) {
-            analyser.fftSize = 1024; // Smaller FFT size for mobile (instead of 2048)
-            analyser.smoothingTimeConstant = 0.9; // More smoothing on mobile
+            analyser.fftSize = 1024; // Reduced for mobile
+            analyser.smoothingTimeConstant = 0.85; // Slightly more smoothing
         } else {
             analyser.fftSize = 2048; // Full quality for desktop
             analyser.smoothingTimeConstant = 0.8;
@@ -196,18 +201,18 @@ export const visualization = {
             return;
         }
         
-        setAnimationId(requestAnimationFrame(() => this.visualize()));
+        const now = performance.now();
+        const settings = getSmartMobileSettings();
+        const targetFrameTime = 1000 / settings.targetFPS;
         
-        const perfSettings = getMobilePerformanceSettings();
-        
-        // Frame skipping for mobile performance
-        if (perfSettings.skipFrames > 0) {
-            this.frameSkipCounter++;
-            if (this.frameSkipCounter <= perfSettings.skipFrames) {
-                return; // Skip this frame
-            }
-            this.frameSkipCounter = 0; // Reset counter
+        // Smart frame rate control
+        if (isMobileDevice() && (now - this.lastFrameTime) < targetFrameTime) {
+            setAnimationId(requestAnimationFrame(() => this.visualize()));
+            return;
         }
+        this.lastFrameTime = now;
+        
+        setAnimationId(requestAnimationFrame(() => this.visualize()));
         
         analyser.getByteFrequencyData(dataArray);
         
@@ -215,12 +220,8 @@ export const visualization = {
             window.lyricsManagerUpdate();
         }
         
-        // Simplified clearing for mobile
-        if (isMobileDevice()) {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Faster clearing on mobile
-        } else {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; // Original desktop clearing
-        }
+        // Smart clearing
+        ctx.fillStyle = `rgba(0, 0, 0, ${settings.clearAlpha})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         const centerX = canvas.width / 2;
@@ -234,16 +235,14 @@ export const visualization = {
         
         if (state.isPlaying) {
             beatEffects.updateBeatDetection(bassAverage, midAverage, trebleAverage, average);
-            if (perfSettings.complexEffects) {
-                this.drawBackground(centerX, centerY, average);
-            }
+            this.drawBackground(centerX, centerY, average, settings);
         }
         
-        this.drawSpectrum(centerX, centerY, perfSettings);
-        this.drawBassCircle(centerX, centerY, bassAverage, perfSettings);
+        this.drawSpectrum(centerX, centerY, settings);
+        this.drawBassCircle(centerX, centerY, bassAverage, settings);
     },
 
-    drawBackground(centerX, centerY, average) {
+    drawBackground(centerX, centerY, average, settings) {
         const pulseIntensity = average / 255;
         const palette = state.currentSongData.palette;
         const bgColor = palette.mid.map((c, i) => (c + palette.high[i]) / 2);
@@ -258,14 +257,13 @@ export const visualization = {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     },
 
-    drawSpectrum(centerX, centerY, perfSettings) {
+    drawSpectrum(centerX, centerY, settings) {
         const scale = getVisualizationScale();
-        const radius = 245 * scale; // Responsive radius
-        const maxBars = perfSettings.maxBars;
-        const step = Math.floor(bufferLength / maxBars); // Skip bars on mobile
+        const radius = 245 * scale;
+        const step = settings.spectrumReduction; // Smart reduction
         
         for (let i = 0; i < bufferLength; i += step) {
-            const barHeight = (dataArray[i] / 255) * 200 * scale; // Responsive bar height
+            const barHeight = (dataArray[i] / 255) * 200 * scale;
             const angle = (i / bufferLength) * 2 * Math.PI - Math.PI / 2;
             const intensity = dataArray[i] / 255;
             
@@ -279,59 +277,50 @@ export const visualization = {
                 const tintStrength = 0.1;
                 const color = palette.mid.map(c => 255 - (255 - c) * tintStrength);
                 ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.8})`;
-                ctx.lineWidth = 0.5 * scale; // Responsive line width
+                ctx.lineWidth = 0.5 * scale;
             } else if (i < bufferLength / 2) {
                 const color = state.currentSongData.palette.mid;
                 
-                if (perfSettings.enableGradients) {
-                    // Full gradient for desktop
-                    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-                    gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
-                    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
-                    ctx.strokeStyle = gradient;
-                } else {
-                    // Simplified color for mobile
-                    ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.5})`;
+                // Smart gradients - simpler on mobile but still beautiful
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
+                if (settings.gradientSteps > 1) {
+                    gradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${intensity * 0.3})`);
                 }
+                gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                ctx.strokeStyle = gradient;
                 
-                if (perfSettings.enableShadows) {
-                    ctx.shadowColor = `rgba(${color.join(', ')}, 0.4)`;
-                    ctx.shadowBlur = intensity * 6 * scale; // Responsive shadow blur
-                }
-                ctx.lineWidth = (2 + intensity * 4) * scale; // Responsive line width
+                // Smart shadows - reduced but present
+                ctx.shadowColor = `rgba(${color.join(', ')}, 0.4)`;
+                ctx.shadowBlur = intensity * 6 * scale * settings.shadowBlurMultiplier;
+                ctx.lineWidth = (2 + intensity * 4) * scale;
             } else {
                 const color = state.currentSongData.palette.high;
                 
-                if (perfSettings.enableGradients) {
-                    // Full gradient for desktop
-                    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-                    gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
-                    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
-                    ctx.strokeStyle = gradient;
-                } else {
-                    // Simplified color for mobile
-                    ctx.strokeStyle = `rgba(${color.join(', ')}, ${intensity * 0.5})`;
+                // Smart gradients
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, `rgba(${color.join(', ')}, ${intensity * 0.5})`);
+                if (settings.gradientSteps > 1) {
+                    gradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${intensity * 0.3})`);
                 }
+                gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                ctx.strokeStyle = gradient;
                 
-                if (perfSettings.enableShadows) {
-                    ctx.shadowColor = `rgba(${color.join(', ')}, 0.5)`;
-                    ctx.shadowBlur = intensity * 8 * scale; // Responsive shadow blur
-                }
-                ctx.lineWidth = (1 + intensity * 5) * scale; // Responsive line width
+                // Smart shadows
+                ctx.shadowColor = `rgba(${color.join(', ')}, 0.5)`;
+                ctx.shadowBlur = intensity * 8 * scale * settings.shadowBlurMultiplier;
+                ctx.lineWidth = (1 + intensity * 5) * scale;
             }
             
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
             ctx.stroke();
-            
-            if (perfSettings.enableShadows) {
-                ctx.shadowBlur = 0; // Reset shadow
-            }
+            ctx.shadowBlur = 0;
         }
     },
 
-    drawBassCircle(centerX, centerY, bassAverage, perfSettings) {
+    drawBassCircle(centerX, centerY, bassAverage, settings) {
         if (bassAverage <= 80) return;
         
         const now = Date.now();
@@ -341,52 +330,44 @@ export const visualization = {
         let bassColor = palette.mid.map((c, i) => Math.floor((c + palette.high[i]) / 2));
         
         let strokeOpacity = intensity * 0.4;
-        let shadowBlur = perfSettings.enableShadows ? intensity * 20 * scale : 0;
-        let lineWidth = 3 * scale; // Responsive line width
+        let shadowBlur = intensity * 20 * scale * settings.shadowBlurMultiplier;
+        let lineWidth = 3 * scale;
         
-        if (window.kickGlow && (now - window.kickGlow.timestamp) < 400 && perfSettings.complexEffects) {
+        if (window.kickGlow && (now - window.kickGlow.timestamp) < 400) {
             const kickFade = 1 - ((now - window.kickGlow.timestamp) / 400);
             const kickIntensity = window.kickGlow.intensity * kickFade;
             
             bassColor = bassColor.map(c => Math.min(255, c + (255 - c) * kickIntensity * 0.8));
             strokeOpacity = Math.min(1, strokeOpacity + kickIntensity * 0.6);
-            shadowBlur = shadowBlur + (perfSettings.enableShadows ? kickIntensity * 40 * scale : 0);
+            shadowBlur = shadowBlur + kickIntensity * 40 * scale * settings.shadowBlurMultiplier;
             lineWidth = lineWidth + kickIntensity * 6 * scale;
         }
         
-        if (window.snareFlash && (now - window.snareFlash.timestamp) < 150 && perfSettings.complexEffects) {
+        if (window.snareFlash && (now - window.snareFlash.timestamp) < 150) {
             const snareFade = 1 - ((now - window.snareFlash.timestamp) / 150);
             const snareIntensity = window.snareFlash.intensity * snareFade;
             
-            if (perfSettings.enableGradients) {
-                const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 450 * scale);
-                const color = window.snareFlash.color;
-                flashGradient.addColorStop(0, `rgba(${color.join(', ')}, ${snareIntensity * 0.1})`);
-                flashGradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${snareIntensity * 0.05})`);
-                flashGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                
-                ctx.fillStyle = flashGradient;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, 450 * scale, 0, 2 * Math.PI);
-                ctx.fill();
-            }
+            const flashGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 450 * scale);
+            const color = window.snareFlash.color;
+            flashGradient.addColorStop(0, `rgba(${color.join(', ')}, ${snareIntensity * 0.1})`);
+            flashGradient.addColorStop(0.5, `rgba(${color.join(', ')}, ${snareIntensity * 0.05})`);
+            flashGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.fillStyle = flashGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 450 * scale, 0, 2 * Math.PI);
+            ctx.fill();
         }
         
         ctx.strokeStyle = `rgba(${bassColor.join(', ')}, ${strokeOpacity})`;
         ctx.lineWidth = lineWidth;
-        
-        if (perfSettings.enableShadows) {
-            ctx.shadowColor = `rgba(${bassColor.join(', ')}, 0.8)`;
-            ctx.shadowBlur = shadowBlur;
-        }
+        ctx.shadowColor = `rgba(${bassColor.join(', ')}, 0.8)`;
+        ctx.shadowBlur = shadowBlur;
         
         ctx.beginPath();
-        ctx.arc(centerX, centerY, bassAverage * 1.2 * scale, 0, 2 * Math.PI); // Responsive bass circle
+        ctx.arc(centerX, centerY, bassAverage * 1.2 * scale, 0, 2 * Math.PI);
         ctx.stroke();
-        
-        if (perfSettings.enableShadows) {
-            ctx.shadowBlur = 0;
-        }
+        ctx.shadowBlur = 0;
         
         if (bassAverage > 100 && now - (window.lastBassKick || 0) > 300) {
             window.lastBassKick = now;
