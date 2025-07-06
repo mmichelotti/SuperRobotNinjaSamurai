@@ -4,7 +4,7 @@ import { utils } from './utils.js';
 // Song management
 export const songManager = {
     async loadSongsList() {
-        return await utils.fetchJson('./assets/songs/SongData.json') || [];
+        return await utils.fetchJson('./assets/songs/song-data.json') || [];
     },
 
     applyBackgroundEffects() {
@@ -32,7 +32,7 @@ export const songManager = {
         const discoveredSongs = [];
         
         for (const folderName of folderNames) {
-            const data = await utils.fetchJson(`./assets/songs/${folderName}/Data.json`);
+            const data = await utils.fetchJson(`./assets/songs/${folderName}/data.json`);
             if (data) {
                 discoveredSongs.push({ folder: folderName, title: folderName, ...data });
             }
@@ -41,7 +41,7 @@ export const songManager = {
     },
 
     async loadMetadata(folderName) {
-        const metadata = await utils.fetchJson(`./assets/songs/${folderName}/Data.json`);
+        const metadata = await utils.fetchJson(`./assets/songs/${folderName}/data.json`);
         state.currentSongData = {
             title: folderName,
             palette: { mid: [255, 255, 255], high: [255, 255, 255] },
@@ -54,7 +54,7 @@ export const songManager = {
         if (!state.isHomepageVisible) return;
         
         const folderName = state.songs[state.currentSongIndex].folder;
-        const lrcContent = await utils.fetchText(`./assets/songs/${folderName}/Lyrics.lrc`);
+        const lrcContent = await utils.fetchText(`./assets/songs/${folderName}/lyrics.lrc`);
         
         if (lrcContent) {
             state.lyrics.current = this.parseLyrics(lrcContent);
@@ -111,7 +111,7 @@ export const songManager = {
         const folderName = state.songs[state.currentSongIndex].folder;
         
         await this.loadMetadata(folderName);
-        elements.audio.src = `./assets/songs/${folderName}/Song.mp3`;
+        elements.audio.src = `./assets/songs/${folderName}/song.mp3`;
         elements.audio.volume = state.volume;
         elements.songTitle.textContent = state.currentSongData.title;
         elements.progressBar.style.width = '0%';
