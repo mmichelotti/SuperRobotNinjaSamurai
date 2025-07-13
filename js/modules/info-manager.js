@@ -323,23 +323,8 @@ export const infoManager = {
     },
     
     createPayPalUrl(amount) {
-        const paypalEmail = this.data.contact.donation.paypalEmail;
-        const baseUrl = 'https://www.paypal.com/donate';
-        
-        // Create PayPal donation URL with prefilled amount
-        const params = new URLSearchParams({
-            business: paypalEmail,
-            currency_code: 'EUR',
-            amount: amount.toFixed(2),
-            item_name: 'Music Support Donation',
-            return: window.location.href,
-            cancel_return: window.location.href,
-            no_shipping: '1',
-            no_note: '0',
-            bn: 'PP-DonationsBF:btn_donate_LG.gif:NonHostedGuest'
-        });
-        
-        return `${baseUrl}?${params.toString()}`;
+        // Use PayPal.me link (friends & family) - NO FEES!
+        return `https://www.paypal.com/paypalme/superninjarobot/${amount.toFixed(2)}EUR`;
     },
     
     populateFooter() {
