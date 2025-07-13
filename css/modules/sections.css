@@ -206,7 +206,7 @@
 /* Contact Section */
 .contact-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 4rem;
     margin-bottom: 4rem;
     align-items: start;
@@ -218,7 +218,7 @@
     gap: 2rem;
 }
 
-.contact-item h3, .social-links h3 {
+.contact-item h3, .social-links h3, .donation-section h3 {
     font-size: 1.2rem;
     font-weight: 400;
     margin-bottom: 1rem;
@@ -230,7 +230,7 @@
     margin-bottom: 0.5rem;
 }
 
-.social-links h3 {
+.social-links h3, .donation-section h3 {
     margin-bottom: 1.5rem;
 }
 
@@ -275,7 +275,146 @@
     letter-spacing: 0.05em;
 }
 
-/* Mobile Responsive Fixes for Dates Section */
+/* PayPal Donation Section */
+.donation-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.donation-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.donation-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+.donation-amounts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.amount-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.amount-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.amount-btn.selected {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.custom-amount-container {
+    margin-bottom: 1.5rem;
+}
+
+.custom-amount-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+}
+
+/* Hide ugly number input arrows */
+.custom-amount-input::-webkit-outer-spin-button,
+.custom-amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.custom-amount-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.custom-amount-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.custom-amount-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.1em;
+}
+
+.donate-btn {
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.15));
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-primary);
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.donate-btn:hover {
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.25));
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+}
+
+.donate-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.donate-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.donate-btn:hover::before {
+    left: 100%;
+}
+
+/* Mobile Responsive Fixes for Contact Section */
 @media (max-width: 768px) {
     .about-content,
     .contact-content {
@@ -290,6 +429,11 @@
     
     .social-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .donation-amounts {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
     }
     
     /* Fixed Date Item Layout for Mobile */
@@ -341,5 +485,20 @@
     .ticket-btn {
         padding: 0.6rem 1rem;
         font-size: 0.75rem;
+    }
+    
+    .donation-amounts {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .amount-btn {
+        padding: 0.7rem;
+        font-size: 0.8rem;
+    }
+    
+    .donate-btn {
+        padding: 0.9rem 1.5rem;
+        font-size: 0.9rem;
     }
 }

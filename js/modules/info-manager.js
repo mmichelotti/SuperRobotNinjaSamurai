@@ -177,6 +177,12 @@ export const infoManager = {
                 });
             }
             
+            // Create donation section if data exists
+            const donationContainer = contactSection.querySelector('.donation-container');
+            if (donationContainer && this.data.contact.donation) {
+                this.createDonationSection(donationContainer);
+            }
+            
             const socialTitle = contactSection.querySelector('.social-links h3');
             const socialGrid = contactSection.querySelector('.social-grid');
             
@@ -196,6 +202,144 @@ export const infoManager = {
                 });
             }
         }
+    },
+    
+    createDonationSection(container) {
+        const donation = this.data.contact.donation;
+        
+        container.innerHTML = `
+            <div class="donation-section">
+                <h3>${donation.title}</h3>
+                <div class="donation-subtitle">${donation.subtitle}</div>
+                <div class="donation-description">${donation.description}</div>
+                
+                <div class="donation-amounts" id="donationAmounts">
+                    ${donation.amounts.map(amount => `
+                        <button class="amount-btn" data-amount="${amount}">€${amount}</button>
+                    `).join('')}
+                </div>
+                
+                <div class="custom-amount-container">
+                    <input 
+                        type="number" 
+                        class="custom-amount-input" 
+                        id="customAmount" 
+                        placeholder="Custom amount (€)" 
+                        min="1" 
+                        step="0.01"
+                    >
+                </div>
+                
+                <button class="donate-btn" id="donateBtn">
+                    ${donation.buttonText}
+                </button>
+            </div>
+        `;
+        
+        // Setup donation functionality
+        this.setupDonationInteractions();
+    },
+    
+    setupDonationInteractions() {
+        const amountButtons = document.querySelectorAll('.amount-btn');
+        const customAmountInput = document.getElementById('customAmount');
+        const donateBtn = document.getElementById('donateBtn');
+        let selectedAmount = null;
+        
+        // Handle preset amount selection
+        amountButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove selected class from all buttons
+                amountButtons.forEach(b => b.classList.remove('selected'));
+                
+                // Add selected class to clicked button
+                btn.classList.add('selected');
+                
+                // Set selected amount
+                selectedAmount = parseFloat(btn.dataset.amount);
+                
+                // Clear custom input
+                customAmountInput.value = '';
+                
+                // Update donate button
+                donateBtn.textContent = `DONATE €${selectedAmount}`;
+            });
+        });
+        
+        // Handle custom amount input
+        customAmountInput.addEventListener('input', (e) => {
+            const customValue = parseFloat(e.target.value);
+            
+            if (customValue && customValue > 0) {
+                // Remove selected class from preset buttons
+                amountButtons.forEach(b => b.classList.remove('selected'));
+                
+                // Set selected amount
+                selectedAmount = customValue;
+                
+                // Update donate button
+                donateBtn.textContent = `DONATE €${selectedAmount.toFixed(2)}`;
+            } else {
+                selectedAmount = null;
+                donateBtn.textContent = this.data.contact.donation.buttonText;
+            }
+        });
+        
+        // Handle donation button click
+        donateBtn.addEventListener('click', () => {
+            if (!selectedAmount || selectedAmount <= 0) {
+                // Show error feedback
+                donateBtn.style.background = 'linear-gradient(45deg, rgba(255, 100, 100, 0.2), rgba(255, 100, 100, 0.3))';
+                donateBtn.style.borderColor = 'rgba(255, 100, 100, 0.6)';
+                donateBtn.textContent = 'SELECT AMOUNT FIRST';
+                
+                setTimeout(() => {
+                    donateBtn.style.background = '';
+                    donateBtn.style.borderColor = '';
+                    donateBtn.textContent = this.data.contact.donation.buttonText;
+                }, 2000);
+                
+                return;
+            }
+            
+            // Create PayPal donation URL
+            const paypalUrl = this.createPayPalUrl(selectedAmount);
+            
+            // Show processing state
+            donateBtn.textContent = 'REDIRECTING...';
+            donateBtn.style.opacity = '0.7';
+            
+            // Open PayPal in new tab
+            setTimeout(() => {
+                window.open(paypalUrl, '_blank');
+                
+                // Reset button state
+                setTimeout(() => {
+                    donateBtn.textContent = `DONATE €${selectedAmount.toFixed(2)}`;
+                    donateBtn.style.opacity = '1';
+                }, 1000);
+            }, 500);
+        });
+    },
+    
+    createPayPalUrl(amount) {
+        const paypalEmail = this.data.contact.donation.paypalEmail;
+        const baseUrl = 'https://www.paypal.com/donate';
+        
+        // Create PayPal donation URL with prefilled amount
+        const params = new URLSearchParams({
+            business: paypalEmail,
+            currency_code: 'EUR',
+            amount: amount.toFixed(2),
+            item_name: 'Music Support Donation',
+            return: window.location.href,
+            cancel_return: window.location.href,
+            no_shipping: '1',
+            no_note: '0',
+            bn: 'PP-DonationsBF:btn_donate_LG.gif:NonHostedGuest'
+        });
+        
+        return `${baseUrl}?${params.toString()}`;
     },
     
     populateFooter() {

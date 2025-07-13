@@ -1,5 +1,4 @@
 - songs loading is optimized but songs still weigh 7mb+
-- all lower case, snake_case probably as naming convention
 - implement more json for future use, like merch and so on
 - possibly need for a newsletter 
 - audio visualizer will never work smoothly on mobile, doenst matter how many things I remove or I optimize

@@ -4,13 +4,21 @@
     "info": [
       {
         "title": "Booking",
-        "email": "wip@superrobotninja.com"
+        "email": "todo@todo.com"
       },
       {
-        "title": "Management",
-        "email": "wip@superrobotninja.com"
+        "title": "Contacts",
+        "email": "superninjarobotsamurai@gmail.com"
       }
     ],
+    "donation": {
+      "title": "Support the Music",
+      "subtitle": "Free Donation",
+      "description": "Help us keep creating music",
+      "paypalEmail": "superninjarobotsamurai@gmail.com",
+      "buttonText": "DONATE",
+      "amounts": [5, 10, 25, 50]
+    },
     "social": {
       "title": "Follow the Signal",
       "links": [
