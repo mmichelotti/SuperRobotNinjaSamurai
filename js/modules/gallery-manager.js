@@ -123,7 +123,8 @@ export const galleryManager = {
                     this.images.push({
                         src: imagePath,
                         alt: `Gallery Image ${imageNumber}`,
-                        loaded: false // Track loading state
+                        loaded: false, // Track loading state
+                        aspectRatio: null // Will be determined when image loads
                     });
                     consecutiveFailures = 0;
                 } else {
@@ -150,6 +151,13 @@ export const galleryManager = {
             const img = new Image();
             
             img.onload = () => {
+                // Determine aspect ratio and set appropriate class
+                const aspectRatio = img.width / img.height;
+                this.images[0].aspectRatio = aspectRatio;
+                
+                // Apply aspect ratio class
+                this.applyAspectRatioClass(elements.galleryMainImage, aspectRatio);
+                
                 // Set the first image immediately
                 elements.galleryMainImage.style.backgroundImage = `url('${firstImage.src}')`;
                 elements.galleryMainImage.classList.add('loaded');
@@ -159,7 +167,7 @@ export const galleryManager = {
                 this.images[0].loaded = true;
                 this.loadingProgress.loaded = 1;
                 
-                console.log('First image loaded! Gallery is now visible.');
+                console.log(`First image loaded! Aspect ratio: ${aspectRatio.toFixed(2)} (${aspectRatio > 1 ? 'landscape' : 'portrait'})`);
                 this.updateLoadingIndicator(1, this.images.length);
                 
                 resolve();
@@ -173,6 +181,20 @@ export const galleryManager = {
             
             img.src = firstImage.src;
         });
+    },
+    
+    applyAspectRatioClass(element, aspectRatio) {
+        // Remove existing aspect ratio classes
+        element.classList.remove('landscape', 'portrait');
+        
+        // Apply new class based on aspect ratio
+        if (aspectRatio > 1) {
+            // Landscape image (wider than tall) - crop from bottom
+            element.classList.add('landscape');
+        } else {
+            // Portrait image (taller than wide) - keep centered
+            element.classList.add('portrait');
+        }
     },
     
     async loadRemainingImagesInBackground() {
@@ -212,11 +234,15 @@ export const galleryManager = {
             const img = new Image();
             
             img.onload = () => {
+                // Determine and store aspect ratio
+                const aspectRatio = img.width / img.height;
+                this.images[index].aspectRatio = aspectRatio;
+                
                 this.preloadedImages.set(index, img);
                 this.images[index].loaded = true;
                 this.loadingProgress.loaded++;
                 
-                console.log(`Loaded image ${index + 1}/${this.images.length}`);
+                console.log(`Loaded image ${index + 1}/${this.images.length} - Aspect ratio: ${aspectRatio.toFixed(2)}`);
                 this.updateLoadingIndicator(this.loadingProgress.loaded, this.loadingProgress.total);
                 
                 resolve();
@@ -374,22 +400,29 @@ export const galleryManager = {
         const preloadedImg = this.preloadedImages.get(state.currentGalleryIndex);
         
         if (preloadedImg && preloadedImg.complete) {
-            this.performImageTransition(nextImageElement, targetImage.src, direction);
+            this.performImageTransition(nextImageElement, targetImage.src, direction, targetImage.aspectRatio);
         } else {
             // Fallback: load on demand
             const img = new Image();
             img.onload = () => {
+                const aspectRatio = img.width / img.height;
+                this.images[state.currentGalleryIndex].aspectRatio = aspectRatio;
                 this.preloadedImages.set(state.currentGalleryIndex, img);
-                this.performImageTransition(nextImageElement, targetImage.src, direction);
+                this.performImageTransition(nextImageElement, targetImage.src, direction, aspectRatio);
             };
             img.onerror = () => {
-                this.performImageTransition(nextImageElement, 'linear-gradient(45deg, #333, #666)', direction);
+                this.performImageTransition(nextImageElement, 'linear-gradient(45deg, #333, #666)', direction, 1);
             };
             img.src = targetImage.src;
         }
     },
     
-    performImageTransition(nextImageElement, imageSrc, direction) {
+    performImageTransition(nextImageElement, imageSrc, direction, aspectRatio) {
+        // Apply the appropriate aspect ratio class to the next image element
+        if (aspectRatio) {
+            this.applyAspectRatioClass(nextImageElement, aspectRatio);
+        }
+        
         // Set the new image
         nextImageElement.style.backgroundImage = imageSrc.startsWith('url') ? imageSrc : `url('${imageSrc}')`;
         
@@ -408,12 +441,17 @@ export const galleryManager = {
         const slideClass = direction === 'next' ? 'slideInFromRight' : 'slideInFromLeft';
         nextImageElement.classList.add(slideClass);
         
-        console.log(`🎞️ Starting ${slideClass} animation for mobile/desktop`);
+        console.log(`🎞️ Starting ${slideClass} animation for ${aspectRatio > 1 ? 'landscape' : 'portrait'} image`);
         
         // After animation completes
         setTimeout(() => {
             // Clean up animation classes
             nextImageElement.classList.remove(slideClass);
+            
+            // Apply aspect ratio class to main image element too
+            if (aspectRatio) {
+                this.applyAspectRatioClass(elements.galleryMainImage, aspectRatio);
+            }
             
             // Swap the background images
             const tempImage = elements.galleryMainImage.style.backgroundImage;
@@ -433,7 +471,7 @@ export const galleryManager = {
             
             this.isTransitioning = false;
             
-            console.log(`✅ Gallery transition completed on ${window.innerWidth <= 768 ? 'mobile' : 'desktop'}`);
+            console.log(`✅ Gallery transition completed for ${aspectRatio > 1 ? 'landscape' : 'portrait'} image`);
         }, 800); // Match the CSS animation duration
     },
     
@@ -474,7 +512,7 @@ export const galleryManager = {
         
         // Only start auto-advance if we have multiple images AND all are loaded
         if (this.images.length > 1 && this.isFullyLoaded) {
-            setGalleryAutoAdvanceTimeout(setTimeout(() => this.autoAdvance(), 4000));
+            setGalleryAutoAdvanceTimeout(setTimeout(() => this.autoAdvance(), 6500));
         }
     },
     

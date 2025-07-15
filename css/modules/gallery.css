@@ -79,7 +79,7 @@
     width: 100vw;
     height: 100vh;
     background-size: cover;
-    background-position: center;
+    background-position: center; /* Default center positioning */
     background-repeat: no-repeat;
     position: absolute;
     top: 0;
@@ -88,8 +88,20 @@
     transform: translateX(0);
     filter: brightness(0.85) contrast(1.1) saturate(1.2);
     object-fit: cover;
-    object-position: center;
+    object-position: center; /* Default center positioning */
     z-index: 1;
+}
+
+/* Landscape images (4:3, 16:10, etc.) - crop from bottom */
+.gallery-main-image.landscape {
+    background-position: center top;
+    object-position: center top;
+}
+
+/* Portrait images (3:4, 9:16, etc.) - keep centered */
+.gallery-main-image.portrait {
+    background-position: center;
+    object-position: center;
 }
 
 .gallery-main-image.current {
