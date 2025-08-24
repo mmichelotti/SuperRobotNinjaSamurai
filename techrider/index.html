@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Ninja Robot Samurai - Scheda Tecnica</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black:wght@400&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: white;
+            color: #0a0a0a;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Header design migliorato */
+        .header {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 35mm 25mm 20mm 25mm;
+            position: relative;
+            margin-bottom: 0;
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(0, 0, 0, 0.8) 100%), url('../assets/gallery/medium/Gallery01.webp');
+            background-blend-mode: multiply;
+        }
+        
+        .header::before {
+            content: '30-40 MIN SET';
+            position: absolute;
+            top: 12mm;
+            right: 12mm;
+            width: 35mm;
+            height: 12mm;
+            background: linear-gradient(45deg, #ff0066, #ff3366);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 20px rgba(255, 51, 102, 0.3);
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
+        }
+        
+        .band-name {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 68px;
+            color: white;
+            line-height: 0.75;
+            letter-spacing: -4px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 2;
+            max-width: 65%;
+            text-shadow: 0 8px 32px rgba(0,0,0,0.8);
+        }
+        
+        .band-name .super { 
+            color: #ff3366;
+            text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+        }
+        .band-name .ninja { 
+            color: white;
+        }
+        .band-name .robot { 
+            color: #ffcc00;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+        }
+        .band-name .samurai { 
+            color: white;
+        }
+        
+        .subtitle {
+            font-size: 13px;
+            color: #cccccc;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-top: 25px;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .subtitle::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: -8px;
+            width: 40mm;
+            height: 2px;
+            background: linear-gradient(90deg, #ff3366, #ffcc00);
+        }
+        
+        /* Main content con spacing migliorato */
+        .content {
+            padding: 25mm 25mm 15mm 25mm;
+        }
+        
+        .section {
+            margin-bottom: 35mm;
+        }
+        
+        .section-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 42px;
+            text-transform: uppercase;
+            margin-bottom: 12mm;
+            color: #0a0a0a;
+            letter-spacing: -2px;
+            position: relative;
+        }
+        
+        .section-title.red { 
+            color: #ff3366;
+        }
+        .section-title.yellow { 
+            color: #ffaa00;
+        }
+        .section-title.black { 
+            color: #0a0a0a;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -4mm;
+            left: 0;
+            width: 25mm;
+            height: 3px;
+            background: currentColor;
+        }
+        
+        /* Bio migliorata */
+        .bio-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+            text-align: justify;
+            margin-bottom: 12mm;
+            font-weight: 400;
+        }
+        
+        .bio-text.lead {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0a0a0a;
+            line-height: 1.4;
+            position: relative;
+            padding-left: 8mm;
+            border-left: 4px solid #ff3366;
+            margin-bottom: 18mm;
+        }
+        
+        /* Formazione con design più forte */
+        .formation {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: white;
+            padding: 25mm 25mm 30mm 25mm;
+            margin: 0 -25mm;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .formation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60mm;
+            height: 60mm;
+            background: radial-gradient(circle, rgba(255, 51, 102, 0.1) 0%, transparent 70%);
+        }
+        
+        .formation::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-right: 40mm solid transparent;
+            border-bottom: 20mm solid #ff3366;
+        }
+        
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8mm;
+            margin-top: 20mm;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .member {
+            text-align: center;
+            padding: 8mm 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .member-name {
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4mm;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .member-role {
+            font-size: 11px;
+            color: #ffcc00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        
+        /* Tech specs più moderne */
+        .tech-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20mm;
+            margin-top: 25mm;
+        }
+        
+        .tech-box {
+            border: none;
+            padding: 18mm 10mm;
+            background: #fafafa;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .tech-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff3366, #ffcc00);
+        }
+        
+        .tech-box.highlight {
+            background: linear-gradient(135deg, #ff3366 0%, #ff0066 100%);
+            color: white;
+            box-shadow: 0 8px 32px rgba(255, 51, 102, 0.2);
+        }
+        
+        .tech-box.highlight::before {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .tech-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 20px;
+            margin-bottom: 12mm;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+        
+        .tech-list {
+            list-style: none;
+        }
+        
+        .tech-list li {
+            font-size: 14px;
+            margin-bottom: 6mm;
+            font-weight: 500;
+            position: relative;
+            padding-left: 12mm;
+            line-height: 1.4;
+        }
+        
+        .services li::before {
+            content: '●';
+            position: absolute;
+            left: 4mm;
+            color: white;
+            font-size: 18px;
+            top: -1px;
+        }
+        
+        .requirements li::before {
+            content: '▶';
+            position: absolute;
+            left: 4mm;
+            color: #ffcc00;
+            font-weight: 900;
+            font-size: 14px;
+        }
+        
+        /* Photo space migliorato */
+        .photo-space {
+            background: #f8f8f8;
+            height: 150mm;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .live-photo {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: url('../assets/gallery/medium/Gallery07.webp');
+        }
+        
+        .live-photo::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.6));
+        }
+        
+        /* Contatti footer moderno */
+        .contacts {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: white;
+            padding: 20mm 25mm 25mm 25mm;
+            margin: 20mm -25mm 0 -25mm;
+            position: relative;
+        }
+        
+        .contacts::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff3366 0%, #ffcc00 50%, #ff3366 100%);
+        }
+        
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15mm;
+            margin-top: 15mm;
+        }
+        
+        .contact-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8mm 12mm;
+            border-left: 3px solid #ff3366;
+        }
+        
+        .contact-item:nth-child(even) {
+            border-left-color: #ffcc00;
+        }
+        
+        .contact-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999;
+            margin-bottom: 4mm;
+            font-weight: 500;
+        }
+        
+        .contact-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            word-break: break-all;
+        }
+        
+        /* Accenti geometrici migliorati */
+        .accent-red {
+            width: 100%;
+            height: 4mm;
+            background: linear-gradient(90deg, #ff3366, #ff0066);
+            margin: 20mm 0;
+            box-shadow: 0 2px 10px rgba(255, 51, 102, 0.3);
+        }
+        
+        /* Print optimization */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .page {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                min-height: auto;
+            }
+            
+            .header::before {
+                box-shadow: none;
+            }
+            
+            .tech-box {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            
+            .photo-space {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header migliorato -->
+        <header class="header">
+            <h1 class="band-name">
+                <span class="super">SUPER</span><br>
+                <span class="ninja">NINJA</span><br>
+                <span class="robot">ROBOT</span><br>
+                <span class="samurai">SAMURAI</span>
+            </h1>
+            <p class="subtitle">Alternative • Indie Rock</p>
+        </header>
+        
+        <div class="content">
+            <!-- Bio -->
+            <section class="section">
+                <h2 class="section-title red">Chi Siamo</h2>
+                <p class="bio-text lead">
+                    Il progetto comunica inadeguatezze relazionali e voragini emotive che per anni hanno rosicchiato dentro ormai adulti che non sono mai voluti essere adulti per davvero.
+                </p>
+                <p class="bio-text">
+                    I Super Ninja Robot Samurai nascono dall'incontro tra Marco Michelotti e il produttore/chitarrista Alessio Giacon nel gennaio 2025. Fin dai primi passi il gruppo si concentra sulla scrittura e registra un primo demo di 4 brani, a cui si unisce Jacopo "Sapo" Cossutta, portando con sé nuove idee, testi e voci.
+                </p>
+                <p class="bio-text">
+                    La line-up prende forma definitiva con l'ingresso di Tommaso Ochs alla batteria e Nicola Guarino al basso e alle voci, tutti con alle spalle esperienze in progetti diversi della scena indipendente. Il risultato è un progetto che mescola background differenti e attitudini complementari, capace di unire potenza, melodia e ricerca in un linguaggio originale.
+                </p>
+            </section>
+            
+            <div class="accent-red"></div>
+        </div>
+        
+        <!-- Formazione -->
+        <section class="formation">
+            <h2 class="section-title" style="color: white; margin-bottom: 0;">Formazione</h2>
+            <div class="members-grid">
+                <div class="member">
+                    <div class="member-name">Jacopo SAPO <br>Cossutta</div>
+                    <div class="member-role">Voce</div>
+                </div>
+                <div class="member">
+                    <div class="member-name">Marco<br>Michelotti</div>
+                    <div class="member-role">Chitarra I</div>
+                </div>
+                <div class="member">
+                    <div class="member-name">Alessio <br>Giacon</div>
+                    <div class="member-role">Chitarra II</div>
+                </div>
+                <div class="member">
+                    <div class="member-name">Nicola <br>Guarino</div>
+                    <div class="member-role">Basso</div>
+                </div>
+                <div class="member">
+                    <div class="member-name">Tommaso <br>Ochs</div>
+                    <div class="member-role">Batteria</div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="content">
+            <!-- Tech -->
+            <section class="section">
+                <h2 class="section-title black">Specifiche Tecniche</h2>
+                <div class="tech-layout">
+                    <div class="tech-box highlight">
+                        <h3 class="tech-title">Cosa Portiamo</h3>
+                        <ul class="tech-list services">
+                            <li>Microfono personale</li>
+                            <li>Chitarre / Basso</li>
+                            <li>Amp digitale chitarre con due uscite mono</li>
+                            <li>Pedaliera Basso</li>
+                            <li>Set piatti personale</li>
+                            <li>Pedali batteria</li>
+                            <li>Rullante personale se necessario</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tech-box">
+                        <h3 class="tech-title">Richieste dal Locale</h3>
+                        <ul class="tech-list requirements">
+                            <li>Mixer con almeno 8 canali</li>
+                            <li>Monitor di palco</li>
+                            <li>Batteria completa (piatti/pedali esclusi)</li>
+                            <li>Alimentazione 220V sul palco (2 prese minimo)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="photo-space live-photo">
+                <!-- Foto live -->
+            </div>
+        </div>
+        
+        <!-- Contatti -->
+        <footer class="contacts">
+            <h2 class="section-title" style="color: white; margin-bottom: 0;">Contatti</h2>
+            <div class="contacts-grid">
+                <div class="contact-item">
+                    <div class="contact-label">Telefono</div>
+                    <div class="contact-value">3497026787</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Email</div>
+                    <div class="contact-value">superninjarobotsamurai@gmail.com</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Website</div>
+                    <div class="contact-value">www.superninjarobotsamurai.it</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Instagram</div>
+                    <div class="contact-value">@superninjarobotsamurai</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
